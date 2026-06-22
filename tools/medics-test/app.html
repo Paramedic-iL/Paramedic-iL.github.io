@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<title>מבחן חובשים</title>
+
+<style>
+/* ========= משתני שליטה מרכזיים ========= */
+:root {
+  --app-width: 95vw;
+  --btn-height: 5rem;
+  --fs-base: 3rem;
+  --fs-input: 3rem;
+  --status-box-size: 3rem;
+  --choice-control-size: 3rem;
+
+  --blue: #3b82f6;
+  --blue-dark: #1d4ed8;
+  --bg: #ffffff;
+  --text: #0f172a;
+  --radius: 18px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ===== MASTER SIZE KNOB =====
+   Every component size is in rem, so this one value scales the whole app.
+   The size slider (when ?tune=1) changes this live; set the number you like
+   here as the permanent default. */
+html {
+  font-size: 10px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+  touch-action: manipulation;
+}
+
+body {
+  font-size: var(--fs-base);
+}
+
+.wrapper {
+  width: var(--app-width);
+  max-width: var(--app-width);
+  margin: 0 auto;
+  padding: 12px 0 28px;
+  box-sizing: border-box;
+}
+
+h1, h2 {
+  margin: 0.5rem 0 1rem 0;
+  text-align: center;
+}
+
+.logo-container {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.logo-container img {
+  display: block;
+  margin: 8px auto 16px;
+  width: calc(var(--btn-height) * 5);
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 6px 16px rgba(59,130,246,0.15);
+  margin-bottom: 1rem;
+}
+
+.text-input {
+  width: 100%;
+  font-size: var(--fs-input);
+  padding: 1.2rem;
+  border-radius: 1rem;
+  border: 2px solid #bbb;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--blue);
+  color: white;
+  min-height: var(--btn-height);
+  padding: 0.6rem 0.9rem;
+  font-size: var(--fs-base);
+  line-height: 1.2;
+  font-weight: 300;
+  text-align: right;
+  margin-top: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(59,130,246,0.25);
+  box-sizing: border-box;
+  transition: transform 0.04s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn:active {
+  background: var(--blue-dark);
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(29,78,216,0.35);
+}
+
+.btn-primary { background: var(--blue); }
+.btn-primary:disabled { background: #9cc7f2; color: #eee; }
+.btn-green { background: #2e7d32; }
+.btn-red { background: #c62828; }
+.btn-blue { background: var(--blue); }
+.btn-grey { background: #999; }
+
+.q-row {
+  width: 100%;
+  background: white;
+  border: 3px solid #0a74da;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  font-size: var(--fs-base);
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.status-box {
+  width: var(--status-box-size);
+  height: var(--status-box-size);
+  border-radius: 8px;
+  background: #0a74da;
+}
+.status-read { background: #ffeb3b !important; }
+.status-noanswer { background: #c62828 !important; }
+.status-answered { background: #2e7d32 !important; }
+
+#question-overlay {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: white;
+  z-index: 999;
+  padding: 2rem;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.question-title {
+  font-size: var(--fs-base);
+  margin-bottom: 2rem;
+  white-space: pre-wrap;
+}
+
+.answer-option {
+  border: 3px solid #aaa;
+  padding: 1.2rem;
+  background: #fafafa;
+  border-radius: 1rem;
+  margin-bottom: 1.2rem;
+  font-size: var(--fs-base);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  padding-right: calc(var(--choice-control-size) + 1.6rem);
+}
+
+.answer-option input[type=radio] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.answer-option::before {
+  content: "";
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  width: var(--choice-control-size);
+  height: var(--choice-control-size);
+  transform: translateY(-50%);
+  border-radius: 50%;
+  border: 3px solid var(--blue);
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.answer-option:has(input[type=radio]:checked)::before {
+  background: var(--blue);
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.35);
+}
+
+.btn-question-submit {
+  width: 100%;
+  margin-top: 2rem;
+  background: #0a74da;
+  color: white;
+  font-size: var(--fs-base);
+  padding: 1.4rem;
+  border-radius: 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.overlay {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.overlay-box {
+  width: var(--app-width);
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.overlay-text {
+  font-size: var(--fs-base);
+  margin-bottom: 2rem;
+}
+
+.hidden { display: none !important; }
+
+/* discrete back-to-site link (fixed px so the slider never scales it) */
+.site-back {
+  position: fixed;
+  top: 8px;
+  left: 12px;
+  z-index: 3000;
+  font-size: 15px;
+  color: #64748b;
+  text-decoration: none;
+  background: rgba(255,255,255,0.85);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+/* size-tuning slider (only shown with ?tune=1) — fixed px, independent of scale */
+#size-control {
+  position: fixed;
+  top: 6px;
+  right: 10px;
+  z-index: 4000;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15,23,42,0.92);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: system-ui, sans-serif;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  direction: ltr;
+}
+#size-control.show { display: flex; }
+#size-control input[type=range] { width: 130px; }
+#size-control b { min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+
+<body>
+<a class="site-back" href="../../index.html" target="_top">&larr; Open Book</a>
+
+<!-- Size tuning slider (visible only with ?tune=1) -->
+<div id="size-control">
+  <span>גודל</span>
+  <input type="range" id="size-slider" min="6" max="20" step="0.5" value="10">
+  <b id="size-val">10.0px</b>
+</div>
+
+<div class="wrapper">
+
+<!-- LOADING -->
+<div id="screen-loading">
+  <h1 style="font-size:3.4rem;">מבחן חובשים</h1>
+  <div class="card">
+    <p id="loading-text" style="text-align:center;font-size:3rem;">טוען את המבחן...</p>
+  </div>
+</div>
+
+<!-- LOCKED -->
+<div id="screen-locked" class="hidden">
+  <div class="overlay">
+    <div class="overlay-box">
+      <div class="overlay-text">המבחן נעול כעת. נא לפנות למדריך.</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAME SCREEN -->
+<div id="screen-name" class="hidden">
+  <div class="logo-container">
+    <img id="logo-img" alt="לוגו">
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:3.2rem;">הכנס שם מלא</h2>
+    <input id="student-name" class="text-input" type="text" placeholder="שם מלא">
+    <button id="btn-start" class="btn btn-primary" disabled>התחל מבחן</button>
+  </div>
+</div>
+
+<!-- SCRAMBLE -->
+<div id="screen-scramble" class="hidden">
+  <div class="overlay">
+    <div class="overlay-box">
+      <div class="overlay-text">מערבב שאלות...<br>אנא המתן</div>
+    </div>
+  </div>
+</div>
+
+<!-- QUESTION LIST -->
+<div id="screen-questions" class="hidden">
+  <h2 style="font-size:3.2rem;">בחר שאלה</h2>
+  <div id="question-nav-list" class="card"></div>
+  <button id="btn-submit-test" class="btn btn-green">סיום המבחן</button>
+</div>
+
+<!-- FEEDBACK -->
+<div id="screen-feedback" class="hidden">
+  <div class="card">
+    <h2 style="font-size:3.4rem;">תוצאה</h2>
+    <div id="feedback-summary" style="font-size:3rem;text-align:center;"></div>
+    <p style="text-align:center;font-size:2.8rem;">ניתן לסגור את הדף</p>
+  </div>
+</div>
+
+</div> <!-- wrapper -->
+
+<!-- FULL QUESTION PANEL -->
+<div id="question-overlay" class="hidden">
+  <h2 style="font-size:3.4rem;text-align:center;">שאלה</h2>
+  <div id="question-title" class="question-title"></div>
+  <div id="answers-list"></div>
+  <button class="btn-question-submit" id="btn-submit-answer">אישור</button>
+</div>
+
+<!-- MODAL: NO ANSWER -->
+<div id="modal-no-answer" class="overlay hidden">
+  <div class="overlay-box">
+    <div class="overlay-text">לא בחרת תשובה</div>
+    <div style="display:flex; gap:1.5rem;">
+      <button class="btn btn-blue" id="modal-no-answer-back">חזרה</button>
+      <button class="btn btn-red" id="modal-no-answer-continue">המשך ללא תשובה</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: UNANSWERED QUESTIONS -->
+<div id="modal-unanswered" class="overlay hidden">
+  <div class="overlay-box">
+    <div class="overlay-text">יש שאלות שלא נענו</div>
+    <div style="display:flex; gap:1.5rem;">
+      <button class="btn btn-blue" id="modal-unanswered-back">חזרה</button>
+      <button class="btn btn-red" id="modal-submit-anyway">הגש בכל זאת</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SUBMIT ERROR -->
+<div id="modal-submit-error" class="overlay hidden">
+  <div class="overlay-box">
+    <div class="overlay-text">שגיאה בשליחת התוצאות. בדוק חיבור לאינטרנט ונסה שוב.</div>
+    <button class="btn btn-blue" id="modal-submit-error-retry">נסה שוב</button>
+  </div>
+</div>
+
+<script>
+/*****************************************************
+ * API CONFIG  ← set these two
+ *****************************************************/
+// Paste your deployed Apps Script Web App URL (ends with /exec):
+const API_URL   = "https://script.google.com/macros/s/AKfycbzr5h7NSfatiVjr70eSn_8kysaBjMeGXf7Pm8UBql2LtQwcAy6q-6TEwbonSNG6Xf5-/exec";
+// Only if you set SHARED_TOKEN in Code.gs; otherwise leave "".
+const API_TOKEN = "";
+
+/*****************************************************
+ * SIZE TUNING (master scale = root font-size in px)
+ * Shown only when the URL has ?tune=1. The value you
+ * pick is what to set in CSS  html { font-size: __px }.
+ *****************************************************/
+(function () {
+  const root = document.documentElement;
+  const slider = document.getElementById('size-slider');
+  const valEl = document.getElementById('size-val');
+  const control = document.getElementById('size-control');
+
+  function apply(px) {
+    root.style.fontSize = px + 'px';
+    valEl.textContent = px.toFixed(1) + 'px';
+  }
+
+  // Restore a previously chosen value (handy while tuning).
+  const saved = parseFloat(localStorage.getItem('medicsTestRootPx'));
+  if (!isNaN(saved)) { slider.value = saved; apply(saved); }
+
+  // Reveal the slider only in tuning mode.
+  if (/[?&]tune=1\b/.test(location.search)) {
+    control.classList.add('show');
+  }
+
+  slider.addEventListener('input', function () {
+    const v = parseFloat(slider.value);
+    apply(v);
+    localStorage.setItem('medicsTestRootPx', v);
+  });
+})();
+
+/*****************************************************
+ * VARIABLES
+ *****************************************************/
+let gQuestions = [];
+let gScrambled = [];
+let gStudentAnswers = [];
+let gCurrentQuestionIndex = null;
+let gStartTimeMs = null;
+let gStudentName = "";
+let gHideTime = false;
+let gIsSubmitting = false;
+let gLastSubmitPayload = null;
+
+let screenLoading, screenLocked, screenName, screenScramble, screenQuestions,
+    screenFeedback, studentNameInput, btnStart, questionNavList,
+    btnSubmitTest, feedbackSummary, questionOverlay, questionTitle,
+    answersList, btnSubmitAnswer,
+    modalNoAnswer, modalNoAnswerBack, modalNoAnswerContinue,
+    modalUnanswered, modalUnansweredBack, modalSubmitAnyway,
+    modalSubmitError, modalSubmitErrorRetry, loadingText;
+
+document.addEventListener("DOMContentLoaded", () => {
+  screenLoading       = document.getElementById('screen-loading');
+  screenLocked        = document.getElementById('screen-locked');
+  screenName          = document.getElementById('screen-name');
+  screenScramble      = document.getElementById('screen-scramble');
+  screenQuestions     = document.getElementById('screen-questions');
+  screenFeedback      = document.getElementById('screen-feedback');
+
+  studentNameInput    = document.getElementById('student-name');
+  btnStart            = document.getElementById('btn-start');
+  questionNavList     = document.getElementById('question-nav-list');
+  btnSubmitTest       = document.getElementById('btn-submit-test');
+  feedbackSummary     = document.getElementById('feedback-summary');
+
+  questionOverlay     = document.getElementById('question-overlay');
+  questionTitle       = document.getElementById('question-title');
+  answersList         = document.getElementById('answers-list');
+  btnSubmitAnswer     = document.getElementById('btn-submit-answer');
+
+  modalNoAnswer       = document.getElementById('modal-no-answer');
+  modalNoAnswerBack   = document.getElementById('modal-no-answer-back');
+  modalNoAnswerContinue = document.getElementById('modal-no-answer-continue');
+
+  modalUnanswered     = document.getElementById('modal-unanswered');
+  modalUnansweredBack = document.getElementById('modal-unanswered-back');
+  modalSubmitAnyway   = document.getElementById('modal-submit-anyway');
+
+  modalSubmitError      = document.getElementById('modal-submit-error');
+  modalSubmitErrorRetry = document.getElementById('modal-submit-error-retry');
+  loadingText           = document.getElementById('loading-text');
+
+  studentNameInput.addEventListener('input', () => {
+    btnStart.disabled = studentNameInput.value.trim().length === 0;
+  });
+
+  btnStart.onclick = () => {
+    gStudentName = studentNameInput.value.trim();
+    gHideTime = false;
+    gIsSubmitting = false;
+
+    screenName.classList.add('hidden');
+    screenScramble.classList.remove('hidden');
+
+    setTimeout(() => {
+      scrambleAll();
+      showQuestionList();
+    }, 500);
+  };
+
+  btnSubmitAnswer.onclick = submitAnswer;
+  modalNoAnswerBack.onclick = () => { modalNoAnswer.classList.add('hidden'); };
+  modalNoAnswerContinue.onclick = forceNoAnswer;
+
+  btnSubmitTest.onclick = () => {
+    if (gIsSubmitting) return;
+    gIsSubmitting = true;
+    btnSubmitTest.disabled = true;
+    trySubmitTest();
+  };
+
+  modalUnansweredBack.onclick = () => {
+    modalUnanswered.classList.add('hidden');
+    gIsSubmitting = false;
+    btnSubmitTest.disabled = false;
+  };
+
+  modalSubmitAnyway.onclick = () => {
+    gHideTime = true;
+    modalUnanswered.classList.add('hidden');
+    finalizeTest();
+  };
+
+  modalSubmitErrorRetry.onclick = () => {
+    modalSubmitError.classList.add('hidden');
+    if (gLastSubmitPayload) sendResults(gLastSubmitPayload);
+  };
+
+  /*****************************************************
+   * BEGIN SERVER LOAD (fetch instead of google.script.run)
+   *****************************************************/
+  fetch(API_URL + '?action=init')
+    .then(r => r.json())
+    .then(onInitialData)
+    .catch(() => {
+      loadingText.textContent = "שגיאה בטעינת המבחן. נסה לרענן את הדף.";
+    });
+
+  fetch(API_URL + '?action=logo')
+    .then(r => r.json())
+    .then(d => { if (d && d.logo) document.getElementById("logo-img").src = d.logo; })
+    .catch(() => {});
+});
+
+/*****************************************************
+ * INITIAL DATA FROM SERVER
+ *****************************************************/
+function onInitialData(data) {
+  if (data.locked) {
+    screenLoading.classList.add('hidden');
+    screenLocked.classList.remove('hidden');
+    return;
+  }
+
+  gQuestions = data.questions || [];
+
+  screenLoading.classList.add('hidden');
+  screenName.classList.remove('hidden');
+}
+
+/*****************************************************
+ * SCRAMBLE QUESTIONS
+ *****************************************************/
+function scrambleAll() {
+  gScrambled = shuffle(gQuestions).map(q => ({
+    originalIndex: q.originalIndex,
+    questionText: q.questionText,
+    correctAnswer: q.correctAnswer,
+    answers: shuffle(q.allAnswers)
+  }));
+
+  gStudentAnswers = gScrambled.map(() => ({
+    status: "notAttempted",
+    selectedIndex: null,
+    chosenAnswer: "",
+    isCorrect: false
+  }));
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/*****************************************************
+ * SHOW QUESTION LIST
+ *****************************************************/
+function showQuestionList() {
+  screenScramble.classList.add('hidden');
+  screenQuestions.classList.remove('hidden');
+
+  renderQuestionRows();
+  gStartTimeMs = Date.now();
+}
+
+function renderQuestionRows() {
+  questionNavList.innerHTML = "";
+
+  gScrambled.forEach((q, idx) => {
+    const row = document.createElement('div');
+    row.className = "q-row";
+
+    let statusClass = "status-box";
+    const s = gStudentAnswers[idx];
+
+    if (s.status === "read")          statusClass += " status-read";
+    else if (s.status === "noAnswer") statusClass += " status-noanswer";
+    else if (s.status === "answered") statusClass += " status-answered";
+
+    row.innerHTML = `
+      <div>שאלה ${idx + 1}</div>
+      <div class="${statusClass}"></div>
+    `;
+
+    row.onclick = () => openQuestion(idx);
+    questionNavList.appendChild(row);
+  });
+}
+
+/*****************************************************
+ * OPEN QUESTION
+ *****************************************************/
+function openQuestion(i) {
+  gCurrentQuestionIndex = i;
+  const q = gScrambled[i];
+
+  gStudentAnswers[i].status = "read";
+  btnSubmitTest.disabled = true;
+
+  questionTitle.textContent = q.questionText;
+  answersList.innerHTML = "";
+
+  q.answers.forEach((ans, idx) => {
+    const div = document.createElement('label');
+    div.className = "answer-option";
+
+    const checked = gStudentAnswers[i].selectedIndex === idx ? "checked" : "";
+
+    div.innerHTML = `
+      <input type="radio" name="qopt" value="${idx}" ${checked}>
+      ${ans}
+    `;
+
+    answersList.appendChild(div);
+  });
+
+  questionOverlay.classList.remove('hidden');
+}
+
+/*****************************************************
+ * SUBMIT ANSWER
+ *****************************************************/
+function submitAnswer() {
+  const i = gCurrentQuestionIndex;
+  if (i === null) return;
+
+  const radios = answersList.querySelectorAll("input[type=radio]");
+  let sel = null;
+  radios.forEach(r => { if (r.checked) sel = parseInt(r.value); });
+
+  if (sel === null) {
+    modalNoAnswer.classList.remove('hidden');
+    return;
+  }
+
+  const q = gScrambled[i];
+  gStudentAnswers[i].selectedIndex = sel;
+  gStudentAnswers[i].chosenAnswer = q.answers[sel];
+  gStudentAnswers[i].isCorrect = (q.answers[sel] === q.correctAnswer);
+  gStudentAnswers[i].status = "answered";
+
+  questionOverlay.classList.add('hidden');
+  gCurrentQuestionIndex = null;
+
+  if (!gIsSubmitting) btnSubmitTest.disabled = false;
+
+  renderQuestionRows();
+}
+
+/*****************************************************
+ * CONTINUE WITHOUT ANSWER
+ *****************************************************/
+function forceNoAnswer() {
+  modalNoAnswer.classList.add('hidden');
+
+  if (gCurrentQuestionIndex !== null) {
+    const s = gStudentAnswers[gCurrentQuestionIndex];
+    s.status = "noAnswer";
+    s.selectedIndex = null;
+    s.chosenAnswer = "";
+    s.isCorrect = false;
+  }
+
+  questionOverlay.classList.add('hidden');
+  gCurrentQuestionIndex = null;
+
+  if (!gIsSubmitting) btnSubmitTest.disabled = false;
+
+  renderQuestionRows();
+}
+
+/*****************************************************
+ * SUBMIT TEST
+ *****************************************************/
+function trySubmitTest() {
+  const total = gScrambled.length;
+  const answered = gStudentAnswers.filter(a =>
+    a.status === "answered" || a.status === "noAnswer"
+  ).length;
+
+  if (answered < total) {
+    modalUnanswered.classList.remove('hidden');
+  } else {
+    finalizeTest();
+  }
+}
+
+/*****************************************************
+ * FINALIZE TEST — SEND TO SERVER (fetch POST)
+ *****************************************************/
+function finalizeTest() {
+  modalUnanswered.classList.add('hidden');
+
+  const total = gScrambled.length;
+  const correct = gStudentAnswers.filter(a => a.status === "answered" && a.isCorrect).length;
+  const percent = Math.round((correct / total) * 100);
+
+  let timeString = "";
+  if (gStartTimeMs) {
+    const durationSec = Math.floor((Date.now() - gStartTimeMs) / 1000);
+    timeString = formatTime(durationSec);
+  }
+
+  const perQuestion = gScrambled.map((q, idx) => {
+    const s = gStudentAnswers[idx];
+    return {
+      originalIndex: q.originalIndex,
+      questionText: q.questionText,
+      status: s.status,
+      isCorrect: s.isCorrect,
+      chosenAnswer: s.chosenAnswer,
+      correctAnswer: q.correctAnswer
+    };
+  });
+
+  const payload = {
+    token: API_TOKEN,
+    name: gStudentName,
+    timeString: timeString,
+    totalQuestions: total,
+    correctCount: correct,
+    perQuestion: perQuestion,
+    // carried locally for the feedback screen, harmless to send
+    _percent: percent
+  };
+
+  gLastSubmitPayload = payload;
+  sendResults(payload);
+}
+
+function sendResults(payload) {
+  // text/plain avoids a CORS preflight against Apps Script.
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res && res.success) {
+        showFeedback(payload._percent, payload.correctCount, payload.totalQuestions, payload.timeString);
+        gIsSubmitting = false;
+      } else {
+        throw new Error((res && res.error) || 'submit failed');
+      }
+    })
+    .catch(() => {
+      modalSubmitError.classList.remove('hidden');
+    });
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+/*****************************************************
+ * SHOW FEEDBACK
+ *****************************************************/
+function showFeedback(percent, correct, total, time) {
+  screenQuestions.classList.add('hidden');
+  screenFeedback.classList.remove('hidden');
+
+  let msg = "";
+  if (percent === 100) msg = "שמע, אתה מכונה ביונית!";
+  else if (percent >= 90) msg = "תותח, ביצוע מרשים!";
+  else if (percent >= 80) msg = "עברת יפה מאוד.";
+  else if (percent >= 70) msg = "היית קרוב, תנסה שוב.";
+  else if (percent >= 60) msg = "נכשלת. צריך להשתפר.";
+  else msg = "נכשלת. פעם הבאה יהיה טוב יותר.";
+
+  const timeHtml = (!gHideTime && time)
+    ? `<p>זמן: ${time}</p>`
+    : "";
+
+  feedbackSummary.innerHTML = `
+    <p>ציון: ${correct}/${total} (${percent}%)</p>
+    ${timeHtml}
+    <p>${msg}</p>
+  `;
+}
+</script>
+
+</body>
+</html>
