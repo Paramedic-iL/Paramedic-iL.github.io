@@ -3,54 +3,241 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Open Book - Interactive Lessons</title>
+  <title>Open Book — Tactical Medicine</title>
+  <meta name="description" content="Tactical medicine training: interactive lessons, articles, and field protocols by Dan Drory, EMT-P." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    :root { --bg:#0e1726; --panel:#16233a; --accent:#2f7d4f; --text:#eef3f8; --muted:#9fb2c8; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
-      background: radial-gradient(1200px 600px at 50% -10%, #1b2c47, var(--bg));
-      color: var(--text); min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 40px 20px; text-align: center;
+    :root{
+      --bg:#0b1018; --bg2:#0f1622; --panel:#141d2b; --panel2:#18222f;
+      --line:#24303f; --text:#eaf0f6; --muted:#9aa9bc;
+      --olive:#7d8a4f; --olive-dim:#5d6840; --red:#b3242b; --red-bright:#d8333b;
+      --radius:14px;
     }
-    h1 { font-size: clamp(28px, 5vw, 44px); margin: 18px 0 6px; }
-    .tag { color: var(--muted); font-size: clamp(15px, 2.5vw, 18px); margin-bottom: 28px; }
-    .card {
-      background: var(--panel); border: 1px solid #24364f; border-radius: 16px;
-      padding: 28px 26px; max-width: 640px; width: 100%;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:"Inter",system-ui,sans-serif; color:var(--text);
+      background:var(--bg); line-height:1.6;
     }
-    .card h2 { margin: 0 0 10px; font-size: 20px; }
-    .card p { color: var(--muted); line-height: 1.6; margin: 0 0 8px; }
-    .lessons { list-style: none; padding: 0; margin: 16px 0 0; text-align: left; }
-    .lessons li { margin: 8px 0; }
-    .lessons a { color: #7fd1a0; text-decoration: none; font-weight: 600; }
-    .lessons a:hover { text-decoration: underline; }
-    .empty { color: var(--muted); font-style: italic; }
-    footer { margin-top: 26px; color: var(--muted); font-size: 13px; }
-    .badge {
-      display:inline-block; background: var(--accent); color:#fff; font-weight:700;
-      padding:4px 12px; border-radius:999px; font-size:13px; letter-spacing:.3px;
+    h1,h2,h3,.brand{font-family:"Oswald",sans-serif;letter-spacing:.5px}
+    a{color:inherit;text-decoration:none}
+    img{display:block;max-width:100%}
+    .wrap{max-width:1140px;margin:0 auto;padding:0 22px}
+
+    /* ---------- NAV ---------- */
+    header.nav{
+      position:sticky;top:0;z-index:50;
+      background:rgba(11,16,24,.86);backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;text-transform:uppercase}
+    .brand .mark{
+      width:30px;height:30px;border-radius:7px;flex:0 0 auto;position:relative;
+      background:var(--red);
+    }
+    .brand .mark::before,.brand .mark::after{content:"";position:absolute;background:#fff;border-radius:1px}
+    .brand .mark::before{left:50%;top:22%;width:4px;height:56%;transform:translateX(-50%)}
+    .brand .mark::after{top:50%;left:22%;height:4px;width:56%;transform:translateY(-50%)}
+    .brand small{display:block;font-family:"Inter";font-size:10px;letter-spacing:2px;color:var(--olive);font-weight:600}
+    nav.links{display:flex;gap:6px}
+    nav.links a{
+      padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.6px;transition:.15s;
+    }
+    nav.links a:hover{color:var(--text);background:var(--panel)}
+
+    /* ---------- HERO ---------- */
+    .hero{position:relative;min-height:74vh;display:flex;align-items:center;overflow:hidden}
+    .hero::after{content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg,var(--bg) 8%,rgba(11,16,24,.55) 45%,rgba(11,16,24,.15) 100%);}
+    .hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center}
+    .hero .content{position:relative;z-index:2;max-width:620px;padding:60px 0}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--olive);font-weight:700;
+      text-transform:uppercase;letter-spacing:3px;font-size:13px;margin-bottom:16px}
+    .eyebrow::before{content:"";width:30px;height:2px;background:var(--red)}
+    .hero h1{font-size:clamp(36px,6vw,62px);line-height:1.04;text-transform:uppercase}
+    .hero h1 .accent{color:var(--red-bright)}
+    .hero p{color:var(--muted);font-size:clamp(16px,2.4vw,19px);margin:18px 0 30px;max-width:520px}
+    .cta{display:flex;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:9px;padding:13px 24px;border-radius:10px;
+      font-weight:700;text-transform:uppercase;letter-spacing:.8px;font-size:14px;transition:.15s;border:1px solid transparent}
+    .btn-primary{background:var(--red);color:#fff}
+    .btn-primary:hover{background:var(--red-bright);transform:translateY(-2px)}
+    .btn-ghost{border-color:var(--line);color:var(--text)}
+    .btn-ghost:hover{border-color:var(--olive);background:var(--panel)}
+
+    /* ---------- SECTIONS ---------- */
+    section{padding:74px 0;border-top:1px solid var(--line)}
+    .sec-head{margin-bottom:34px}
+    .sec-head .kicker{color:var(--olive);font-weight:700;text-transform:uppercase;letter-spacing:3px;font-size:13px}
+    .sec-head h2{font-size:clamp(26px,4vw,38px);text-transform:uppercase;margin-top:6px}
+    .sec-head p{color:var(--muted);max-width:640px;margin-top:8px}
+
+    /* function cards */
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .fcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+      transition:.18s;display:flex;flex-direction:column}
+    .fcard:hover{transform:translateY(-4px);border-color:var(--olive);box-shadow:0 18px 40px rgba(0,0,0,.4)}
+    .fcard .thumb{aspect-ratio:3/2;background:var(--bg2);overflow:hidden}
+    .fcard .thumb img{width:100%;height:100%;object-fit:cover;transition:.3s}
+    .fcard:hover .thumb img{transform:scale(1.05)}
+    .fcard .body{padding:20px 20px 22px}
+    .fcard h3{font-size:20px;text-transform:uppercase}
+    .fcard p{color:var(--muted);font-size:14.5px;margin:8px 0 16px}
+    .fcard .go{color:var(--red-bright);font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-size:13px}
+
+    /* list items (lessons/articles/protocols) */
+    .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+    .item{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);
+      border-radius:12px;padding:16px 18px;transition:.15s}
+    .item:hover{border-color:var(--olive);background:var(--panel2);transform:translateY(-2px)}
+    .item .ic{width:42px;height:42px;border-radius:9px;flex:0 0 auto;display:grid;place-items:center;
+      background:rgba(179,36,43,.14);color:var(--red-bright);font-weight:700}
+    .item .meta{min-width:0}
+    .item .meta strong{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item .meta span{color:var(--muted);font-size:13px}
+    .empty{color:var(--muted);font-style:italic;border:1px dashed var(--line);border-radius:12px;
+      padding:24px;text-align:center}
+    .empty .tag{display:inline-block;background:var(--olive-dim);color:#fff;font-size:11px;font-weight:700;
+      letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:8px}
+
+    /* ---------- FOOTER ---------- */
+    footer.site{border-top:1px solid var(--line);background:var(--bg2);padding:36px 0;color:var(--muted)}
+    .foot-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-size:14px}
+
+    @media(max-width:820px){
+      .grid3{grid-template-columns:1fr}
+      nav.links{display:none}
+      .hero{min-height:auto}
+      .hero::after{background:linear-gradient(180deg,rgba(11,16,24,.4),var(--bg) 92%)}
     }
   </style>
 </head>
 <body>
-  <span class="badge">Open Book</span>
-  <h1>Open Book - Interactive Lessons</h1>
-  <div class="tag">Interactive lessons by Dan Drory, EMT-P, EMS-BA</div>
 
-  <div class="card">
-    <h2>Lessons</h2>
-    <p>Published lessons will appear here. Each lesson runs right in your browser&nbsp;&mdash; no download or install needed.</p>
-    <ul class="lessons">
-      <li dir="rtl"><a href="lessons/explanation/index.html">לומדה - הסבר</a></li>
-      <!-- To publish a lesson: export it from the app, drop the folder inside /lessons,
-           then add a link here, e.g.:
-           <li><a href="lessons/my-lesson/index.html">My First Lesson</a></li> -->
-    </ul>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">
+        <span class="mark"></span>
+        <span>Open Book<small>Tactical Medicine</small></span>
+      </a>
+      <nav class="links">
+        <a href="#lessons">Lessons</a>
+        <a href="#articles">Articles</a>
+        <a href="#protocols">Protocols</a>
+      </nav>
+    </div>
+  </header>
+
+  <a id="top"></a>
+  <div class="hero">
+    <img class="bg" src="assets/hero.png" alt="Tactical combat medic with medical kit" />
+    <div class="wrap">
+      <div class="content">
+        <span class="eyebrow">Train · Reference · Respond</span>
+        <h1>Tactical Medicine,<br><span class="accent">Made Clear</span></h1>
+        <p>Interactive lessons, field-tested articles, and ready-to-use protocols — built for medics, first responders, and operators who need it right the first time.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#lessons">Start a Lesson</a>
+          <a class="btn btn-ghost" href="#protocols">View Protocols</a>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <footer>&copy; 2026 Open Book - Interactive Lessons</footer>
+  <!-- WHAT'S INSIDE -->
+  <section id="explore">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker">What's Inside</div>
+        <h2>Three Ways to Train</h2>
+        <p>This hub grows over time. Each section is a different tool for sharpening tactical medical skills.</p>
+      </div>
+      <div class="grid3">
+        <a class="fcard" href="#lessons">
+          <div class="thumb"><img src="assets/card-lessons.png" alt="Interactive lessons" /></div>
+          <div class="body">
+            <h3>Lessons</h3>
+            <p>Interactive, browser-based training that runs anywhere — no install, no login.</p>
+            <span class="go">Browse lessons →</span>
+          </div>
+        </a>
+        <a class="fcard" href="#articles">
+          <div class="thumb"><img src="assets/card-articles.png" alt="Articles" /></div>
+          <div class="body">
+            <h3>Articles</h3>
+            <p>Deep-dives, case reviews, and the reasoning behind the protocols you carry.</p>
+            <span class="go">Read articles →</span>
+          </div>
+        </a>
+        <a class="fcard" href="#protocols">
+          <div class="thumb"><img src="assets/card-protocols.png" alt="Protocols" /></div>
+          <div class="body">
+            <h3>Protocols</h3>
+            <p>Clear, scannable algorithms and checklists for the moments that count.</p>
+            <span class="go">Open protocols →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- LESSONS -->
+  <section id="lessons">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker">Interactive</div>
+        <h2>Lessons</h2>
+        <p>Click a lesson to launch it in your browser.</p>
+      </div>
+      <div class="items">
+        <a class="item" href="lessons/explanation/index.html">
+          <span class="ic">▶</span>
+          <span class="meta" dir="rtl"><strong>לומדה - הסבר</strong><span>Interactive lesson</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARTICLES -->
+  <section id="articles">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker">Knowledge</div>
+        <h2>Articles</h2>
+        <p>Field-tested write-ups and case reviews.</p>
+      </div>
+      <div class="empty">
+        <div class="tag">Coming Soon</div>
+        <div>The first articles are being prepared — check back shortly.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROTOCOLS -->
+  <section id="protocols">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker">Reference</div>
+        <h2>Protocols</h2>
+        <p>Quick-reference algorithms and checklists for the field.</p>
+      </div>
+      <div class="empty">
+        <div class="tag">Coming Soon</div>
+        <div>Protocols are on the way — this section will fill up soon.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site">
+    <div class="wrap foot-inner">
+      <div><strong style="color:var(--text)">Open Book — Tactical Medicine</strong> · by Dan Drory, EMT-P</div>
+      <div>&copy; 2026 · All rights reserved</div>
+    </div>
+  </footer>
+
 </body>
 </html>
