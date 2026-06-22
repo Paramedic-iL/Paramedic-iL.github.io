@@ -7,7 +7,7 @@
   <meta name="description" content="Convert between WGS84 UTM 36N (easting/northing) and Google Maps lat/lon." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Heebo:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
       --bg:#0b1018; --bg2:#0f1622; --panel:#141d2b; --panel2:#18222f;
@@ -24,12 +24,19 @@
 
     header.nav{position:sticky;top:0;z-index:50;background:rgba(11,16,24,.86);
       backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1140px;margin:0 auto;padding:0 22px}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1140px;margin:0 auto;padding:0 22px;gap:12px}
     .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;text-transform:uppercase}
     .brand .mark{width:30px;height:30px;flex:0 0 auto}
     .brand small{display:block;font-family:"Inter";font-size:10px;letter-spacing:2px;color:var(--olive);font-weight:600}
-    .back{color:var(--muted);font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.6px}
+    .nav-right{display:flex;align-items:center;gap:14px}
+    .back{color:var(--muted);font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
     .back:hover{color:var(--text)}
+    .lang{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+    .lang button{background:none;border:1px solid var(--line);color:var(--muted);
+      padding:5px 9px;border-radius:7px;cursor:pointer;font-family:"Inter",sans-serif;
+      font-weight:700;font-size:12px;letter-spacing:.5px;transition:.15s}
+    .lang button:hover{color:var(--text)}
+    .lang button.active{background:var(--red);color:#fff;border-color:var(--red)}
 
     .page-head{padding:48px 0 14px}
     .kicker{color:var(--olive);font-weight:700;text-transform:uppercase;letter-spacing:3px;font-size:13px}
@@ -40,12 +47,11 @@
       padding:26px;margin:18px 0}
     .card h2{font-size:20px;text-transform:uppercase}
     .card .sub{color:var(--muted);font-size:14px;margin:4px 0 18px}
-    .card h2 .dir{color:var(--red-bright)}
 
     label{display:block;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;
       letter-spacing:.6px;margin:10px 0 5px}
     input{width:100%;font-size:1.25rem;font-family:"Inter";padding:12px 14px;border-radius:10px;
-      background:var(--bg2);border:1px solid var(--line);color:var(--text)}
+      background:var(--bg2);border:1px solid var(--line);color:var(--text);direction:ltr;text-align:left}
     input:focus{outline:none;border-color:var(--olive);background:#10192680}
     input::placeholder{color:#5b6b7e}
     .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -57,7 +63,7 @@
     .result{margin-top:18px;padding:16px;border-radius:10px;background:var(--bg2);
       border:1px solid var(--line);min-height:54px;display:none}
     .result.show{display:block}
-    .result .val{font-size:1.3rem;font-weight:700;word-break:break-all}
+    .result .val{font-size:1.3rem;font-weight:700;word-break:break-all;direction:ltr;text-align:left}
     .result .links{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
     .result .links a,.result .links button.copy{
       font-size:13px;padding:8px 14px;border-radius:8px;width:auto;margin:0;text-transform:uppercase;
@@ -71,6 +77,15 @@
     footer{border-top:1px solid var(--line);background:var(--bg2);padding:26px 0;margin-top:30px;
       color:var(--muted);font-size:13px;text-align:center}
     @media(max-width:560px){.two{grid-template-columns:1fr}}
+
+    /* Hebrew / RTL */
+    [dir="rtl"] body,[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,
+    [dir="rtl"] .brand,[dir="rtl"] .brand small{font-family:"Heebo",system-ui,sans-serif}
+    [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] .brand,[dir="rtl"] .brand small,
+    [dir="rtl"] .kicker,[dir="rtl"] label,[dir="rtl"] button,[dir="rtl"] .back,
+    [dir="rtl"] .result .links a,[dir="rtl"] .result .links button.copy{
+      letter-spacing:normal;text-transform:none;
+    }
   </style>
 </head>
 <body>
@@ -82,55 +97,155 @@
           <polygon points="12,2 3.34,17 20.66,17" fill="#d8333b"/>
           <polygon points="12,22 3.34,7 20.66,7" fill="#d8333b"/>
         </svg>
-        <span>Open Book<small>Tactical Medicine</small></span>
+        <span>Open Book<small data-i18n="brand.sub">Tactical Medicine</small></span>
       </a>
-      <a class="back" href="../../index.html">&larr; Home</a>
+      <div class="nav-right">
+        <div class="lang">
+          <button type="button" data-lang="en" onclick="__setLang('en')">EN</button>
+          <button type="button" data-lang="he" onclick="__setLang('he')">עב</button>
+        </div>
+        <a class="back" href="../../index.html" data-i18n="back">&larr; Home</a>
+      </div>
     </div>
   </header>
 
   <div class="wrap">
     <div class="page-head">
-      <div class="kicker">Field Tool</div>
-      <h1>Coordinate Converter</h1>
-      <p>Convert between WGS84 <strong>UTM Zone 36N</strong> grid (easting / northing) and Google Maps latitude / longitude — both directions.</p>
+      <div class="kicker" data-i18n="kicker">Field Tool</div>
+      <h1 data-i18n="h1">Coordinate Converter</h1>
+      <p data-i18n="intro">Convert between WGS84 UTM Zone 36N grid (easting / northing) and Google Maps latitude / longitude — both directions.</p>
     </div>
 
     <!-- UTM -> Google Maps -->
     <div class="card">
-      <h2>UTM 36N <span class="dir">&rarr;</span> Google Maps</h2>
-      <div class="sub">Enter a 6-digit easting and 7-digit northing. Tip: paste <code>708838/3517802</code> into Easting and it auto-fills both.</div>
-      <label>Easting</label>
-      <input id="easting" inputmode="numeric" placeholder="708838 (Knesset)">
-      <label>Northing</label>
-      <input id="northing" inputmode="numeric" placeholder="3517802 (Knesset)">
-      <button onclick="convertUTM()">Convert to Lat / Lon</button>
+      <h2 data-i18n="card1.title">UTM 36N → Google Maps</h2>
+      <div class="sub" data-i18n="card1.sub">Enter a 6-digit easting and 7-digit northing. Tip: paste 708838/3517802 into Easting and it auto-fills both.</div>
+      <label data-i18n="lbl.easting">Easting</label>
+      <input id="easting" inputmode="numeric" data-i18n-ph="ph.easting" placeholder="708838 (Knesset)">
+      <label data-i18n="lbl.northing">Northing</label>
+      <input id="northing" inputmode="numeric" data-i18n-ph="ph.northing" placeholder="3517802 (Knesset)">
+      <button onclick="convertUTM()" data-i18n="btn.toLatLon">Convert to Lat / Lon</button>
       <div id="resultUTM" class="result"></div>
     </div>
 
     <!-- Google Maps -> UTM -->
     <div class="card">
-      <h2>Google Maps <span class="dir">&rarr;</span> UTM 36N</h2>
-      <div class="sub">Paste Google Maps coordinates as <code>lat, lon</code> (e.g. straight from Google Maps), or fill the two fields.</div>
-      <label>Paste "lat, lon"</label>
-      <input id="latlon" inputmode="decimal" placeholder="31.776700, 35.205400 (Knesset)">
+      <h2 data-i18n="card2.title">Google Maps → UTM 36N</h2>
+      <div class="sub" data-i18n="card2.sub">Paste Google Maps coordinates as lat, lon (e.g. straight from Google Maps), or fill the two fields.</div>
+      <label data-i18n="lbl.pasteLatLon">Paste "lat, lon"</label>
+      <input id="latlon" inputmode="decimal" data-i18n-ph="ph.latlon" placeholder="31.776700, 35.205400 (Knesset)">
       <div class="two">
         <div>
-          <label>Latitude</label>
-          <input id="lat" inputmode="decimal" placeholder="31.776700">
+          <label data-i18n="lbl.lat">Latitude</label>
+          <input id="lat" inputmode="decimal" data-i18n-ph="ph.lat" placeholder="31.776700">
         </div>
         <div>
-          <label>Longitude</label>
-          <input id="lon" inputmode="decimal" placeholder="35.205400">
+          <label data-i18n="lbl.lon">Longitude</label>
+          <input id="lon" inputmode="decimal" data-i18n-ph="ph.lon" placeholder="35.205400">
         </div>
       </div>
-      <button onclick="convertLatLon()">Convert to UTM (E / N)</button>
+      <button onclick="convertLatLon()" data-i18n="btn.toUTM">Convert to UTM (E / N)</button>
       <div id="resultLL" class="result"></div>
     </div>
   </div>
 
-  <footer>Open Book — Tactical Medicine · WGS84 / UTM Zone 36N</footer>
+  <footer data-i18n="footer">Open Book — Tactical Medicine · WGS84 / UTM Zone 36N</footer>
 
 <script>
+/* ---------------- i18n ---------------- */
+(function () {
+  const DICT = {
+    en: {
+      "doc.title": "Coordinate Converter — Open Book",
+      "brand.sub": "Tactical Medicine",
+      "back": "← Home",
+      "kicker": "Field Tool",
+      "h1": "Coordinate Converter",
+      "intro": "Convert between WGS84 UTM Zone 36N grid (easting / northing) and Google Maps latitude / longitude — both directions.",
+      "card1.title": "UTM 36N → Google Maps",
+      "card1.sub": "Enter a 6-digit easting and 7-digit northing. Tip: paste 708838/3517802 into Easting and it auto-fills both.",
+      "lbl.easting": "Easting",
+      "lbl.northing": "Northing",
+      "btn.toLatLon": "Convert to Lat / Lon",
+      "card2.title": "Google Maps → UTM 36N",
+      "card2.sub": "Paste Google Maps coordinates as lat, lon (e.g. straight from Google Maps), or fill the two fields.",
+      "lbl.pasteLatLon": "Paste \"lat, lon\"",
+      "lbl.lat": "Latitude",
+      "lbl.lon": "Longitude",
+      "btn.toUTM": "Convert to UTM (E / N)",
+      "footer": "Open Book — Tactical Medicine · WGS84 / UTM Zone 36N",
+      "ph.easting": "708838 (Knesset)",
+      "ph.northing": "3517802 (Knesset)",
+      "ph.latlon": "31.776700, 35.205400 (Knesset)",
+      "ph.lat": "31.776700",
+      "ph.lon": "35.205400",
+      "res.openMaps": "Open in Google Maps",
+      "res.copy": "Copy",
+      "res.copyEN": "Copy E/N",
+      "res.copied": "Copied!",
+      "err.both": "Enter both Easting and Northing.",
+      "err.latlon": "Enter latitude and longitude (e.g. 31.7767, 35.2054).",
+      "err.range": "Coordinates out of range."
+    },
+    he: {
+      "doc.title": "ממיר קואורדינטות — ספר פתוח",
+      "brand.sub": "רפואה טקטית",
+      "back": "← דף הבית",
+      "kicker": "כלי שטח",
+      "h1": "ממיר קואורדינטות",
+      "intro": "המרה בין רשת WGS84 UTM אזור 36N (מזרחה / צפונה) לבין קו רוחב / אורך של גוגל מפות — בשני הכיוונים.",
+      "card1.title": "מ‑UTM 36N לגוגל מפות",
+      "card1.sub": "הזינו מזרחה (6 ספרות) וצפונה (7 ספרות). טיפ: הדביקו 708838/3517802 בשדה ׳מזרחה׳ וזה ימלא את שניהם.",
+      "lbl.easting": "מזרחה (Easting)",
+      "lbl.northing": "צפונה (Northing)",
+      "btn.toLatLon": "המרה לקו רוחב / אורך",
+      "card2.title": "מגוגל מפות ל‑UTM 36N",
+      "card2.sub": "הדביקו קואורדינטות מגוגל מפות בפורמט lat, lon (ישירות מגוגל מפות), או מלאו את שני השדות.",
+      "lbl.pasteLatLon": "הדביקו \"lat, lon\"",
+      "lbl.lat": "קו רוחב (Latitude)",
+      "lbl.lon": "קו אורך (Longitude)",
+      "btn.toUTM": "המרה ל‑UTM ‏(E / N)",
+      "footer": "ספר פתוח — רפואה טקטית · WGS84 / UTM אזור 36N",
+      "ph.easting": "708838 (הכנסת)",
+      "ph.northing": "3517802 (הכנסת)",
+      "ph.latlon": "31.776700, 35.205400 (הכנסת)",
+      "ph.lat": "31.776700",
+      "ph.lon": "35.205400",
+      "res.openMaps": "פתח בגוגל מפות",
+      "res.copy": "העתק",
+      "res.copyEN": "העתק E/N",
+      "res.copied": "הועתק!",
+      "err.both": "הזינו גם מזרחה וגם צפונה.",
+      "err.latlon": "הזינו קו רוחב ואורך (לדוגמה 31.7767, 35.2054).",
+      "err.range": "קואורדינטות מחוץ לטווח."
+    }
+  };
+
+  function getLang() { return localStorage.getItem('site_lang') || 'en'; }
+  window.__t = function (k) { const d = DICT[getLang()] || DICT.en; return d[k] != null ? d[k] : k; };
+
+  function apply(lang) {
+    const d = DICT[lang] || DICT.en;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = (lang === 'he') ? 'rtl' : 'ltr';
+    if (d["doc.title"]) document.title = d["doc.title"];
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      const k = el.getAttribute('data-i18n');
+      if (d[k] != null) el.textContent = d[k];
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+      const k = el.getAttribute('data-i18n-ph');
+      if (d[k] != null) el.setAttribute('placeholder', d[k]);
+    });
+    document.querySelectorAll('.lang button').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+  }
+
+  window.__setLang = function (l) { localStorage.setItem('site_lang', l); apply(l); };
+  apply(getLang());
+})();
+
 /* ---------------- shared constants ---------------- */
 const A = 6378137.0;
 const F = 1 / 298.257223563;
@@ -184,7 +299,7 @@ function convertUTM() {
   if (nStr.length === 6) { nStr = "3" + nStr; northingInput.value = nStr; }
   const N = parseFloat(nStr);
 
-  if (isNaN(E) || isNaN(N)) { showErr(box, "Enter both Easting and Northing."); return; }
+  if (isNaN(E) || isNaN(N)) { showErr(box, window.__t("err.both")); return; }
 
   const e = Math.sqrt(E2);
   const e1sq = EP2;
@@ -220,8 +335,8 @@ function convertUTM() {
   box.innerHTML =
     '<div class="val">' + out + '</div>' +
     '<div class="links">' +
-      "<a target='_blank' rel='noopener' href='https://www.google.com/maps?q=" + out + "'>Open in Google Maps</a>" +
-      '<button class="copy" onclick="copyText(\'' + out + '\', this)">Copy</button>' +
+      "<a target='_blank' rel='noopener' href='https://www.google.com/maps?q=" + out + "'>" + window.__t("res.openMaps") + "</a>" +
+      '<button class="copy" onclick="copyText(\'' + out + '\', this)">' + window.__t("res.copy") + '</button>' +
     '</div>';
 }
 
@@ -235,8 +350,8 @@ function convertLatLon() {
     const parts = latlonInput.value.trim().split(/[\/\s,]+/).filter(Boolean);
     if (parts.length >= 2) { lat = parseFloat(parts[0]); lon = parseFloat(parts[1]); }
   }
-  if (isNaN(lat) || isNaN(lon)) { showErr(box, "Enter latitude and longitude (e.g. 31.7767, 35.2054)."); return; }
-  if (lat < -80 || lat > 84 || lon < -180 || lon > 180) { showErr(box, "Coordinates out of range."); return; }
+  if (isNaN(lat) || isNaN(lon)) { showErr(box, window.__t("err.latlon")); return; }
+  if (lat < -80 || lat > 84 || lon < -180 || lon > 180) { showErr(box, window.__t("err.range")); return; }
 
   const rl = lat*Math.PI/180, rlon = lon*Math.PI/180, ro = LON_ORIGIN*Math.PI/180;
   const N = A/Math.sqrt(1 - E2*Math.sin(rl)**2);
@@ -260,7 +375,7 @@ function convertLatLon() {
   box.innerHTML =
     '<div class="val">' + out + '</div>' +
     '<div class="links">' +
-      '<button class="copy" onclick="copyText(\'' + E + "/" + Nn + '\', this)">Copy E/N</button>' +
+      '<button class="copy" onclick="copyText(\'' + E + "/" + Nn + '\', this)">' + window.__t("res.copyEN") + '</button>' +
     '</div>';
 }
 
@@ -268,7 +383,7 @@ function showErr(box, msg){ box.className = "result show err"; box.innerHTML = '
 
 function copyText(t, btn){
   navigator.clipboard.writeText(t).then(function(){
-    const old = btn.textContent; btn.textContent = "Copied!";
+    const old = btn.textContent; btn.textContent = window.__t("res.copied");
     setTimeout(function(){ btn.textContent = old; }, 1400);
   });
 }

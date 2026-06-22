@@ -7,7 +7,7 @@
   <meta name="description" content="Tactical medicine training: interactive lessons, articles, and field protocols by Dan Drory, EMT-P." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Heebo:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
       --bg:#0b1018; --bg2:#0f1622; --panel:#141d2b; --panel2:#18222f;
@@ -32,16 +32,25 @@
       background:rgba(11,16,24,.86);backdrop-filter:blur(10px);
       border-bottom:1px solid var(--line);
     }
-    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
     .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;text-transform:uppercase}
     .brand .mark{width:30px;height:30px;flex:0 0 auto}
     .brand small{display:block;font-family:"Inter";font-size:10px;letter-spacing:2px;color:var(--olive);font-weight:600}
+    .nav-right{display:flex;align-items:center;gap:14px}
     nav.links{display:flex;gap:6px}
     nav.links a{
       padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px;color:var(--muted);
       text-transform:uppercase;letter-spacing:.6px;transition:.15s;
     }
     nav.links a:hover{color:var(--text);background:var(--panel)}
+
+    /* language toggle */
+    .lang{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+    .lang button{background:none;border:1px solid var(--line);color:var(--muted);
+      padding:5px 9px;border-radius:7px;cursor:pointer;font-family:"Inter",sans-serif;
+      font-weight:700;font-size:12px;letter-spacing:.5px;transition:.15s}
+    .lang button:hover{color:var(--text)}
+    .lang button.active{background:var(--red);color:#fff;border-color:var(--red)}
 
     /* ---------- HERO ---------- */
     .hero{position:relative;min-height:74vh;display:flex;align-items:center;overflow:hidden}
@@ -108,6 +117,24 @@
       .hero{min-height:auto}
       .hero::after{background:linear-gradient(180deg,rgba(11,16,24,.4),var(--bg) 92%)}
     }
+
+    /* ---------- HEBREW / RTL ---------- */
+    [dir="rtl"] body,
+    [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,
+    [dir="rtl"] .brand,[dir="rtl"] .brand small{
+      font-family:"Heebo",system-ui,sans-serif;
+    }
+    /* Hebrew shouldn't be letter-spaced or uppercased */
+    [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,[dir="rtl"] .brand,[dir="rtl"] .brand small,
+    [dir="rtl"] .eyebrow,[dir="rtl"] .sec-head .kicker,[dir="rtl"] nav.links a,
+    [dir="rtl"] .btn,[dir="rtl"] .fcard .go,[dir="rtl"] .empty .tag{
+      letter-spacing:normal;text-transform:none;
+    }
+    /* flip the hero so the dark, readable side is where Hebrew text starts (right) */
+    [dir="rtl"] .hero::after{
+      background:linear-gradient(270deg,var(--bg) 8%,rgba(11,16,24,.55) 45%,rgba(11,16,24,.15) 100%);
+    }
+    [dir="rtl"] .hero img.bg{transform:scaleX(-1);object-position:left center}
   </style>
 </head>
 <body>
@@ -119,14 +146,20 @@
           <polygon points="12,2 3.34,17 20.66,17" fill="#d8333b"/>
           <polygon points="12,22 3.34,7 20.66,7" fill="#d8333b"/>
         </svg>
-        <span>Open Book<small>Tactical Medicine</small></span>
+        <span>Open Book<small data-i18n="brand.sub">Tactical Medicine</small></span>
       </a>
-      <nav class="links">
-        <a href="#lessons">Lessons</a>
-        <a href="#articles">Articles</a>
-        <a href="#protocols">Protocols</a>
-        <a href="#tools">Tools</a>
-      </nav>
+      <div class="nav-right">
+        <nav class="links">
+          <a href="#lessons" data-i18n="nav.lessons">Lessons</a>
+          <a href="#articles" data-i18n="nav.articles">Articles</a>
+          <a href="#protocols" data-i18n="nav.protocols">Protocols</a>
+          <a href="#tools" data-i18n="nav.tools">Tools</a>
+        </nav>
+        <div class="lang">
+          <button type="button" data-lang="en" onclick="__setLang('en')">EN</button>
+          <button type="button" data-lang="he" onclick="__setLang('he')">עב</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -135,12 +168,12 @@
     <img class="bg" src="assets/hero.png?v=2" alt="Tactical combat medic with medical kit" />
     <div class="wrap">
       <div class="content">
-        <span class="eyebrow">Train · Reference · Respond</span>
-        <h1>Tactical Medicine,<br><span class="accent">Made Clear</span></h1>
-        <p>Interactive lessons, field-tested articles, and ready-to-use protocols — built for medics, first responders, and operators who need it right the first time.</p>
+        <span class="eyebrow" data-i18n="hero.eyebrow">Train · Reference · Respond</span>
+        <h1><span data-i18n="hero.title1">Tactical Medicine,</span><br><span class="accent" data-i18n="hero.title2">Made Clear</span></h1>
+        <p data-i18n="hero.sub">Interactive lessons, field-tested articles, and ready-to-use protocols — built for medics, first responders, and operators who need it right the first time.</p>
         <div class="cta">
-          <a class="btn btn-primary" href="#lessons">Start a Lesson</a>
-          <a class="btn btn-ghost" href="#protocols">View Protocols</a>
+          <a class="btn btn-primary" href="#lessons" data-i18n="hero.btnStart">Start a Lesson</a>
+          <a class="btn btn-ghost" href="#protocols" data-i18n="hero.btnProtocols">View Protocols</a>
         </div>
       </div>
     </div>
@@ -150,41 +183,41 @@
   <section id="explore">
     <div class="wrap">
       <div class="sec-head">
-        <div class="kicker">What's Inside</div>
-        <h2>Three Ways to Train</h2>
-        <p>This hub grows over time. Each section is a different tool for sharpening tactical medical skills.</p>
+        <div class="kicker" data-i18n="explore.kicker">What's Inside</div>
+        <h2 data-i18n="explore.title">Three Ways to Train</h2>
+        <p data-i18n="explore.sub">This hub grows over time. Each section is a different tool for sharpening tactical medical skills.</p>
       </div>
       <div class="grid3">
         <a class="fcard" href="#lessons">
           <div class="thumb"><img src="assets/card-lessons.png?v=2" alt="Interactive lessons" /></div>
           <div class="body">
-            <h3>Lessons</h3>
-            <p>Interactive, browser-based training that runs anywhere — no install, no login.</p>
-            <span class="go">Browse lessons →</span>
+            <h3 data-i18n="card.lessons.title">Lessons</h3>
+            <p data-i18n="card.lessons.desc">Interactive, browser-based training that runs anywhere — no install, no login.</p>
+            <span class="go" data-i18n="card.lessons.go">Browse lessons →</span>
           </div>
         </a>
         <a class="fcard" href="#articles">
           <div class="thumb"><img src="assets/card-articles.png?v=2" alt="Articles" /></div>
           <div class="body">
-            <h3>Articles</h3>
-            <p>Deep-dives, case reviews, and the reasoning behind the protocols you carry.</p>
-            <span class="go">Read articles →</span>
+            <h3 data-i18n="card.articles.title">Articles</h3>
+            <p data-i18n="card.articles.desc">Deep-dives, case reviews, and the reasoning behind the protocols you carry.</p>
+            <span class="go" data-i18n="card.articles.go">Read articles →</span>
           </div>
         </a>
         <a class="fcard" href="#protocols">
           <div class="thumb"><img src="assets/card-protocols.png?v=2" alt="Protocols" /></div>
           <div class="body">
-            <h3>Protocols</h3>
-            <p>Clear, scannable algorithms and checklists for the moments that count.</p>
-            <span class="go">Open protocols →</span>
+            <h3 data-i18n="card.protocols.title">Protocols</h3>
+            <p data-i18n="card.protocols.desc">Clear, scannable algorithms and checklists for the moments that count.</p>
+            <span class="go" data-i18n="card.protocols.go">Open protocols →</span>
           </div>
         </a>
         <a class="fcard" href="#tools">
           <div class="thumb"><img src="assets/card-tools.png?v=2" alt="Field tools" /></div>
           <div class="body">
-            <h3>Tools</h3>
-            <p>Fast field utilities — like converting between map grid and GPS coordinates.</p>
-            <span class="go">Open tools →</span>
+            <h3 data-i18n="card.tools.title">Tools</h3>
+            <p data-i18n="card.tools.desc">Fast field utilities — like converting between map grid and GPS coordinates.</p>
+            <span class="go" data-i18n="card.tools.go">Open tools →</span>
           </div>
         </a>
       </div>
@@ -195,14 +228,14 @@
   <section id="lessons">
     <div class="wrap">
       <div class="sec-head">
-        <div class="kicker">Interactive</div>
-        <h2>Lessons</h2>
-        <p>Click a lesson to launch it in your browser.</p>
+        <div class="kicker" data-i18n="lessons.kicker">Interactive</div>
+        <h2 data-i18n="lessons.title">Lessons</h2>
+        <p data-i18n="lessons.sub">Click a lesson to launch it in your browser.</p>
       </div>
       <div class="items">
         <a class="item" href="lessons/explanation/index.html">
           <span class="ic">▶</span>
-          <span class="meta" dir="rtl"><strong>לומדה - הסבר</strong><span>Interactive lesson</span></span>
+          <span class="meta" dir="rtl"><strong>לומדה - הסבר</strong><span data-i18n="lessons.item1">Interactive lesson</span></span>
         </a>
       </div>
     </div>
@@ -212,13 +245,13 @@
   <section id="articles">
     <div class="wrap">
       <div class="sec-head">
-        <div class="kicker">Knowledge</div>
-        <h2>Articles</h2>
-        <p>Field-tested write-ups and case reviews.</p>
+        <div class="kicker" data-i18n="articles.kicker">Knowledge</div>
+        <h2 data-i18n="articles.title">Articles</h2>
+        <p data-i18n="articles.sub">Field-tested write-ups and case reviews.</p>
       </div>
       <div class="empty">
-        <div class="tag">Coming Soon</div>
-        <div>The first articles are being prepared — check back shortly.</div>
+        <div class="tag" data-i18n="common.soon">Coming Soon</div>
+        <div data-i18n="articles.soon">The first articles are being prepared — check back shortly.</div>
       </div>
     </div>
   </section>
@@ -227,13 +260,13 @@
   <section id="protocols">
     <div class="wrap">
       <div class="sec-head">
-        <div class="kicker">Reference</div>
-        <h2>Protocols</h2>
-        <p>Quick-reference algorithms and checklists for the field.</p>
+        <div class="kicker" data-i18n="protocols.kicker">Reference</div>
+        <h2 data-i18n="protocols.title">Protocols</h2>
+        <p data-i18n="protocols.sub">Quick-reference algorithms and checklists for the field.</p>
       </div>
       <div class="empty">
-        <div class="tag">Coming Soon</div>
-        <div>Protocols are on the way — this section will fill up soon.</div>
+        <div class="tag" data-i18n="common.soon">Coming Soon</div>
+        <div data-i18n="protocols.soon">Protocols are on the way — this section will fill up soon.</div>
       </div>
     </div>
   </section>
@@ -242,22 +275,22 @@
   <section id="tools">
     <div class="wrap">
       <div class="sec-head">
-        <div class="kicker">Field Utilities</div>
-        <h2>Tools</h2>
-        <p>Quick utilities for the field. More coming over time.</p>
+        <div class="kicker" data-i18n="tools.kicker">Field Utilities</div>
+        <h2 data-i18n="tools.title">Tools</h2>
+        <p data-i18n="tools.sub">Quick utilities for the field. More coming over time.</p>
       </div>
       <div class="items">
         <a class="item" href="tools/coordinates/index.html">
           <span class="ic">⊕</span>
-          <span class="meta"><strong>Coordinate Converter</strong><span>UTM 36N ↔ Google Maps</span></span>
+          <span class="meta"><strong data-i18n="tools.coord.name">Coordinate Converter</strong><span data-i18n="tools.coord.desc">UTM 36N ↔ Google Maps</span></span>
         </a>
         <a class="item" href="tools/medics-test/index.html">
           <span class="ic">✓</span>
-          <span class="meta"><strong>מבחן חובשים</strong><span>Medics knowledge test</span></span>
+          <span class="meta"><strong>מבחן חובשים</strong><span data-i18n="tools.medtest.desc">Medics knowledge test</span></span>
         </a>
         <a class="item" href="tools/test-results/index.html">
           <span class="ic">▦</span>
-          <span class="meta"><strong>סטטיסטיקות מבחן</strong><span>Test results dashboard</span></span>
+          <span class="meta"><strong>סטטיסטיקות מבחן</strong><span data-i18n="tools.results.desc">Test results dashboard</span></span>
         </a>
       </div>
     </div>
@@ -265,10 +298,142 @@
 
   <footer class="site">
     <div class="wrap foot-inner">
-      <div><strong style="color:var(--text)">Open Book — Tactical Medicine</strong> · by Dan Drory, EMT-P</div>
-      <div>&copy; 2026 · All rights reserved</div>
+      <div><strong style="color:var(--text)">Open Book — <span data-i18n="brand.sub">Tactical Medicine</span></strong> <span data-i18n="foot.by">· by Dan Drory, EMT-P</span></div>
+      <div data-i18n="foot.rights">&copy; 2026 · All rights reserved</div>
     </div>
   </footer>
+
+  <script>
+  (function () {
+    const DICT = {
+      en: {
+        "doc.title": "Open Book — Tactical Medicine",
+        "brand.sub": "Tactical Medicine",
+        "nav.lessons": "Lessons",
+        "nav.articles": "Articles",
+        "nav.protocols": "Protocols",
+        "nav.tools": "Tools",
+        "hero.eyebrow": "Train · Reference · Respond",
+        "hero.title1": "Tactical Medicine,",
+        "hero.title2": "Made Clear",
+        "hero.sub": "Interactive lessons, field-tested articles, and ready-to-use protocols — built for medics, first responders, and operators who need it right the first time.",
+        "hero.btnStart": "Start a Lesson",
+        "hero.btnProtocols": "View Protocols",
+        "explore.kicker": "What's Inside",
+        "explore.title": "Three Ways to Train",
+        "explore.sub": "This hub grows over time. Each section is a different tool for sharpening tactical medical skills.",
+        "card.lessons.title": "Lessons",
+        "card.lessons.desc": "Interactive, browser-based training that runs anywhere — no install, no login.",
+        "card.lessons.go": "Browse lessons →",
+        "card.articles.title": "Articles",
+        "card.articles.desc": "Deep-dives, case reviews, and the reasoning behind the protocols you carry.",
+        "card.articles.go": "Read articles →",
+        "card.protocols.title": "Protocols",
+        "card.protocols.desc": "Clear, scannable algorithms and checklists for the moments that count.",
+        "card.protocols.go": "Open protocols →",
+        "card.tools.title": "Tools",
+        "card.tools.desc": "Fast field utilities — like converting between map grid and GPS coordinates.",
+        "card.tools.go": "Open tools →",
+        "lessons.kicker": "Interactive",
+        "lessons.title": "Lessons",
+        "lessons.sub": "Click a lesson to launch it in your browser.",
+        "lessons.item1": "Interactive lesson",
+        "articles.kicker": "Knowledge",
+        "articles.title": "Articles",
+        "articles.sub": "Field-tested write-ups and case reviews.",
+        "articles.soon": "The first articles are being prepared — check back shortly.",
+        "protocols.kicker": "Reference",
+        "protocols.title": "Protocols",
+        "protocols.sub": "Quick-reference algorithms and checklists for the field.",
+        "protocols.soon": "Protocols are on the way — this section will fill up soon.",
+        "tools.kicker": "Field Utilities",
+        "tools.title": "Tools",
+        "tools.sub": "Quick utilities for the field. More coming over time.",
+        "tools.coord.name": "Coordinate Converter",
+        "tools.coord.desc": "UTM 36N ↔ Google Maps",
+        "tools.medtest.desc": "Medics knowledge test",
+        "tools.results.desc": "Test results dashboard",
+        "common.soon": "Coming Soon",
+        "foot.by": "· by Dan Drory, EMT-P",
+        "foot.rights": "© 2026 · All rights reserved"
+      },
+      he: {
+        "doc.title": "ספר פתוח — רפואה טקטית",
+        "brand.sub": "רפואה טקטית",
+        "nav.lessons": "לומדות",
+        "nav.articles": "מאמרים",
+        "nav.protocols": "פרוטוקולים",
+        "nav.tools": "כלים",
+        "hero.eyebrow": "אימון · עיון · תגובה",
+        "hero.title1": "רפואה טקטית,",
+        "hero.title2": "פשוט וברור",
+        "hero.sub": "לומדות אינטראקטיביות, מאמרים מהשטח ופרוטוקולים מוכנים לשימוש — נבנו עבור חובשים, כוחות חירום ולוחמים שצריכים את זה נכון כבר בפעם הראשונה.",
+        "hero.btnStart": "התחלת לומדה",
+        "hero.btnProtocols": "צפייה בפרוטוקולים",
+        "explore.kicker": "מה בפנים",
+        "explore.title": "שלוש דרכים להתאמן",
+        "explore.sub": "המרכז הזה גדל עם הזמן. כל מקטע הוא כלי אחר לחידוד מיומנויות רפואה טקטית.",
+        "card.lessons.title": "לומדות",
+        "card.lessons.desc": "אימון אינטראקטיבי בדפדפן שרץ בכל מקום — בלי התקנה ובלי התחברות.",
+        "card.lessons.go": "← עיון בלומדות",
+        "card.articles.title": "מאמרים",
+        "card.articles.desc": "צלילות עומק, ניתוחי אירועים וההיגיון שמאחורי הפרוטוקולים שאתם מיישמים.",
+        "card.articles.go": "← קריאת מאמרים",
+        "card.protocols.title": "פרוטוקולים",
+        "card.protocols.desc": "אלגוריתמים ורשימות תיוג ברורים וקלים לסריקה, לרגעים שחשובים.",
+        "card.protocols.go": "← פתיחת פרוטוקולים",
+        "card.tools.title": "כלים",
+        "card.tools.desc": "כלי שטח מהירים — כמו המרה בין רשת מפה לקואורדינטות GPS.",
+        "card.tools.go": "← פתיחת כלים",
+        "lessons.kicker": "אינטראקטיבי",
+        "lessons.title": "לומדות",
+        "lessons.sub": "לחצו על לומדה כדי להפעיל אותה בדפדפן.",
+        "lessons.item1": "לומדה אינטראקטיבית",
+        "articles.kicker": "ידע",
+        "articles.title": "מאמרים",
+        "articles.sub": "כתבות מהשטח וניתוחי אירועים.",
+        "articles.soon": "המאמרים הראשונים בהכנה — חזרו בקרוב.",
+        "protocols.kicker": "עיון",
+        "protocols.title": "פרוטוקולים",
+        "protocols.sub": "אלגוריתמים ורשימות תיוג לעיון מהיר בשטח.",
+        "protocols.soon": "הפרוטוקולים בדרך — המקטע הזה יתמלא בקרוב.",
+        "tools.kicker": "כלי שטח",
+        "tools.title": "כלים",
+        "tools.sub": "כלים מהירים לשטח. עוד יתווספו עם הזמן.",
+        "tools.coord.name": "ממיר קואורדינטות",
+        "tools.coord.desc": "UTM 36N ↔ גוגל מפות",
+        "tools.medtest.desc": "מבחן ידע לחובשים",
+        "tools.results.desc": "לוח תוצאות המבחן",
+        "common.soon": "בקרוב",
+        "foot.by": "· מאת דן דרורי, פרמדיק",
+        "foot.rights": "© 2026 · כל הזכויות שמורות"
+      }
+    };
+
+    function getLang() { return localStorage.getItem('site_lang') || 'en'; }
+
+    function apply(lang) {
+      const d = DICT[lang] || DICT.en;
+      document.documentElement.lang = lang;
+      document.documentElement.dir = (lang === 'he') ? 'rtl' : 'ltr';
+      if (d["doc.title"]) document.title = d["doc.title"];
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        const k = el.getAttribute('data-i18n');
+        if (d[k] != null) el.textContent = d[k];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+        const k = el.getAttribute('data-i18n-ph');
+        if (d[k] != null) el.setAttribute('placeholder', d[k]);
+      });
+      document.querySelectorAll('.lang button').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+      });
+    }
+
+    window.__setLang = function (l) { localStorage.setItem('site_lang', l); apply(l); };
+    apply(getLang());
+  })();
+  </script>
 
 </body>
 </html>
