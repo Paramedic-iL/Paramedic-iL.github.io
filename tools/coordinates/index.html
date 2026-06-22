@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinate Converter — Open Book Tactical Medicine</title>
+  <meta name="description" content="Convert between WGS84 UTM 36N (easting/northing) and Google Maps lat/lon." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#0b1018; --bg2:#0f1622; --panel:#141d2b; --panel2:#18222f;
+      --line:#24303f; --text:#eaf0f6; --muted:#9aa9bc;
+      --olive:#7d8a4f; --olive-dim:#5d6840; --red:#b3242b; --red-bright:#d8333b;
+      --radius:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"Inter",system-ui,sans-serif;color:var(--text);background:var(--bg);line-height:1.6;
+      min-height:100vh}
+    h1,h2,h3,.brand{font-family:"Oswald",sans-serif;letter-spacing:.5px}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:760px;margin:0 auto;padding:0 22px}
+
+    header.nav{position:sticky;top:0;z-index:50;background:rgba(11,16,24,.86);
+      backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1140px;margin:0 auto;padding:0 22px}
+    .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;text-transform:uppercase}
+    .brand .mark{width:30px;height:30px;border-radius:7px;position:relative;background:var(--red)}
+    .brand .mark::before,.brand .mark::after{content:"";position:absolute;background:#fff;border-radius:1px}
+    .brand .mark::before{left:50%;top:22%;width:4px;height:56%;transform:translateX(-50%)}
+    .brand .mark::after{top:50%;left:22%;height:4px;width:56%;transform:translateY(-50%)}
+    .brand small{display:block;font-family:"Inter";font-size:10px;letter-spacing:2px;color:var(--olive);font-weight:600}
+    .back{color:var(--muted);font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.6px}
+    .back:hover{color:var(--text)}
+
+    .page-head{padding:48px 0 14px}
+    .kicker{color:var(--olive);font-weight:700;text-transform:uppercase;letter-spacing:3px;font-size:13px}
+    .page-head h1{font-size:clamp(28px,5vw,42px);text-transform:uppercase;margin-top:6px}
+    .page-head p{color:var(--muted);margin-top:8px}
+
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+      padding:26px;margin:18px 0}
+    .card h2{font-size:20px;text-transform:uppercase}
+    .card .sub{color:var(--muted);font-size:14px;margin:4px 0 18px}
+    .card h2 .dir{color:var(--red-bright)}
+
+    label{display:block;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.6px;margin:10px 0 5px}
+    input{width:100%;font-size:1.25rem;font-family:"Inter";padding:12px 14px;border-radius:10px;
+      background:var(--bg2);border:1px solid var(--line);color:var(--text)}
+    input:focus{outline:none;border-color:var(--olive);background:#10192680}
+    input::placeholder{color:#5b6b7e}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    button{width:100%;margin-top:16px;font-size:1rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:.8px;padding:13px;border:none;border-radius:10px;cursor:pointer;
+      background:var(--red);color:#fff;transition:.15s}
+    button:hover{background:var(--red-bright);transform:translateY(-2px)}
+
+    .result{margin-top:18px;padding:16px;border-radius:10px;background:var(--bg2);
+      border:1px solid var(--line);min-height:54px;display:none}
+    .result.show{display:block}
+    .result .val{font-size:1.3rem;font-weight:700;word-break:break-all}
+    .result .links{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+    .result .links a,.result .links button.copy{
+      font-size:13px;padding:8px 14px;border-radius:8px;width:auto;margin:0;text-transform:uppercase;
+      letter-spacing:.5px;font-weight:700}
+    .result .links a{background:var(--olive-dim);color:#fff}
+    .result .links a:hover{background:var(--olive)}
+    .result .links button.copy{background:transparent;border:1px solid var(--line);color:var(--text)}
+    .result .links button.copy:hover{border-color:var(--olive);transform:none}
+    .result.err{border-color:var(--red);color:#ffb3b6}
+
+    footer{border-top:1px solid var(--line);background:var(--bg2);padding:26px 0;margin-top:30px;
+      color:var(--muted);font-size:13px;text-align:center}
+    @media(max-width:560px){.two{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="../../index.html">
+        <span class="mark"></span>
+        <span>Open Book<small>Tactical Medicine</small></span>
+      </a>
+      <a class="back" href="../../index.html">&larr; Home</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="page-head">
+      <div class="kicker">Field Tool</div>
+      <h1>Coordinate Converter</h1>
+      <p>Convert between WGS84 <strong>UTM Zone 36N</strong> grid (easting / northing) and Google Maps latitude / longitude — both directions.</p>
+    </div>
+
+    <!-- UTM -> Google Maps -->
+    <div class="card">
+      <h2>UTM 36N <span class="dir">&rarr;</span> Google Maps</h2>
+      <div class="sub">Enter a 6-digit easting and 7-digit northing. Tip: paste <code>708838/3517802</code> into Easting and it auto-fills both.</div>
+      <label>Easting</label>
+      <input id="easting" inputmode="numeric" placeholder="708838 (Knesset)">
+      <label>Northing</label>
+      <input id="northing" inputmode="numeric" placeholder="3517802 (Knesset)">
+      <button onclick="convertUTM()">Convert to Lat / Lon</button>
+      <div id="resultUTM" class="result"></div>
+    </div>
+
+    <!-- Google Maps -> UTM -->
+    <div class="card">
+      <h2>Google Maps <span class="dir">&rarr;</span> UTM 36N</h2>
+      <div class="sub">Paste Google Maps coordinates as <code>lat, lon</code> (e.g. straight from Google Maps), or fill the two fields.</div>
+      <label>Paste "lat, lon"</label>
+      <input id="latlon" inputmode="decimal" placeholder="31.776700, 35.205400 (Knesset)">
+      <div class="two">
+        <div>
+          <label>Latitude</label>
+          <input id="lat" inputmode="decimal" placeholder="31.776700">
+        </div>
+        <div>
+          <label>Longitude</label>
+          <input id="lon" inputmode="decimal" placeholder="35.205400">
+        </div>
+      </div>
+      <button onclick="convertLatLon()">Convert to UTM (E / N)</button>
+      <div id="resultLL" class="result"></div>
+    </div>
+  </div>
+
+  <footer>Open Book — Tactical Medicine · WGS84 / UTM Zone 36N</footer>
+
+<script>
+/* ---------------- shared constants ---------------- */
+const A = 6378137.0;
+const F = 1 / 298.257223563;
+const K0 = 0.9996;
+const E2 = F * (2 - F);
+const EP2 = E2 / (1 - E2);
+const ZONE = 36;
+const LON_ORIGIN = (ZONE - 1) * 6 - 180 + 3; // 33 for zone 36
+
+/* ---------------- inputs ---------------- */
+const eastingInput = document.getElementById("easting");
+const northingInput = document.getElementById("northing");
+const latlonInput = document.getElementById("latlon");
+const latInput = document.getElementById("lat");
+const lonInput = document.getElementById("lon");
+
+/* smart paste / auto-jump for easting */
+eastingInput.addEventListener("input", function () {
+  const parts = this.value.trim().split(/[\/\s,]+/);
+  if (parts.length >= 2 && parts[1] !== "") {
+    eastingInput.value = parts[0].replace(/[^\d]/g, "");
+    northingInput.value = parts[1].replace(/[^\d]/g, "");
+    northingInput.focus();
+    return;
+  }
+  const clean = this.value.replace(/[^\d]/g, "");
+  this.value = clean;
+  if (clean.length >= 6) northingInput.focus();
+});
+northingInput.addEventListener("input", function () {
+  this.value = this.value.replace(/[^\d]/g, "");
+});
+
+/* smart paste for "lat, lon" -> split into the two fields */
+latlonInput.addEventListener("input", function () {
+  const parts = this.value.trim().split(/[\/\s,]+/).filter(Boolean);
+  if (parts.length >= 2) {
+    latInput.value = parts[0];
+    lonInput.value = parts[1];
+  }
+});
+
+/* ---------------- UTM 36N -> lat/lon ---------------- */
+function convertUTM() {
+  const box = document.getElementById("resultUTM");
+  const E = parseFloat(eastingInput.value);
+  const N = parseFloat(northingInput.value);
+  if (isNaN(E) || isNaN(N)) { showErr(box, "Enter both Easting and Northing."); return; }
+
+  const e = Math.sqrt(E2);
+  const e1sq = EP2;
+  const x = E - 500000.0;
+  const y = N; // northern hemisphere
+
+  const M = y / K0;
+  const mu = M / (A * (1 - Math.pow(e,2)/4 - 3*Math.pow(e,4)/64 - 5*Math.pow(e,6)/256));
+  const e1 = (1 - Math.sqrt(1 - e*e)) / (1 + Math.sqrt(1 - e*e));
+  const J1 = 3*e1/2 - 27*Math.pow(e1,3)/32;
+  const J2 = 21*Math.pow(e1,2)/16 - 55*Math.pow(e1,4)/32;
+  const J3 = 151*Math.pow(e1,3)/96;
+  const J4 = 1097*Math.pow(e1,4)/512;
+  const fp = mu + J1*Math.sin(2*mu) + J2*Math.sin(4*mu) + J3*Math.sin(6*mu) + J4*Math.sin(8*mu);
+
+  const sinfp = Math.sin(fp), cosfp = Math.cos(fp), tanfp = Math.tan(fp);
+  const C1 = e1sq*cosfp*cosfp;
+  const T1 = tanfp*tanfp;
+  const R1 = A*(1 - e*e)/Math.pow(1 - e*e*sinfp*sinfp, 1.5);
+  const N1 = A/Math.sqrt(1 - e*e*sinfp*sinfp);
+  const D = x/(N1*K0);
+
+  let lat = fp - (N1*tanfp/R1)*(D*D/2 - (5+3*T1+10*C1-4*C1*C1-9*e1sq)*Math.pow(D,4)/24
+    + (61+90*T1+298*C1+45*T1*T1-252*e1sq-3*C1*C1)*Math.pow(D,6)/720);
+  let lon = (D - (1+2*T1+C1)*Math.pow(D,3)/6
+    + (5-2*C1+28*T1-3*C1*C1+8*e1sq+24*T1*T1)*Math.pow(D,5)/120)/cosfp;
+
+  lat = lat*180/Math.PI;
+  lon = LON_ORIGIN + lon*180/Math.PI;
+  const out = lat.toFixed(6) + ", " + lon.toFixed(6);
+
+  box.className = "result show";
+  box.innerHTML =
+    '<div class="val">' + out + '</div>' +
+    '<div class="links">' +
+      "<a target='_blank' rel='noopener' href='https://www.google.com/maps?q=" + out + "'>Open in Google Maps</a>" +
+      '<button class="copy" onclick="copyText(\'' + out + '\', this)">Copy</button>' +
+    '</div>';
+}
+
+/* ---------------- lat/lon -> UTM 36N ---------------- */
+function convertLatLon() {
+  const box = document.getElementById("resultLL");
+  let lat = parseFloat(latInput.value);
+  let lon = parseFloat(lonInput.value);
+
+  if (isNaN(lat) || isNaN(lon)) {
+    const parts = latlonInput.value.trim().split(/[\/\s,]+/).filter(Boolean);
+    if (parts.length >= 2) { lat = parseFloat(parts[0]); lon = parseFloat(parts[1]); }
+  }
+  if (isNaN(lat) || isNaN(lon)) { showErr(box, "Enter latitude and longitude (e.g. 31.7767, 35.2054)."); return; }
+  if (lat < -80 || lat > 84 || lon < -180 || lon > 180) { showErr(box, "Coordinates out of range."); return; }
+
+  const rl = lat*Math.PI/180, rlon = lon*Math.PI/180, ro = LON_ORIGIN*Math.PI/180;
+  const N = A/Math.sqrt(1 - E2*Math.sin(rl)**2);
+  const T = Math.tan(rl)**2;
+  const C = EP2*Math.cos(rl)**2;
+  const Aa = Math.cos(rl)*(rlon - ro);
+  const M = A*((1 - E2/4 - 3*E2**2/64 - 5*E2**3/256)*rl
+    - (3*E2/8 + 3*E2**2/32 + 45*E2**3/1024)*Math.sin(2*rl)
+    + (15*E2**2/256 + 45*E2**3/1024)*Math.sin(4*rl)
+    - (35*E2**3/3072)*Math.sin(6*rl));
+
+  const easting = K0*N*(Aa + (1-T+C)*Aa**3/6 + (5-18*T+T*T+72*C-58*EP2)*Aa**5/120) + 500000;
+  const northing = K0*(M + N*Math.tan(rl)*(Aa*Aa/2 + (5-T+9*C+4*C*C)*Aa**4/24
+    + (61-58*T+T*T+600*C-330*EP2)*Aa**6/720));
+
+  const E = Math.round(easting);
+  const Nn = Math.round(northing);
+  const out = E + " / " + Nn;
+
+  box.className = "result show";
+  box.innerHTML =
+    '<div class="val">' + out + '</div>' +
+    '<div class="links">' +
+      '<button class="copy" onclick="copyText(\'' + E + "/" + Nn + '\', this)">Copy E/N</button>' +
+    '</div>';
+}
+
+function showErr(box, msg){ box.className = "result show err"; box.innerHTML = '<div class="val">' + msg + '</div>'; }
+
+function copyText(t, btn){
+  navigator.clipboard.writeText(t).then(function(){
+    const old = btn.textContent; btn.textContent = "Copied!";
+    setTimeout(function(){ btn.textContent = old; }, 1400);
+  });
+}
+</script>
+
+</body>
+</html>
