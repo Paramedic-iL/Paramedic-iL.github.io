@@ -177,7 +177,13 @@ latlonInput.addEventListener("input", function () {
 function convertUTM() {
   const box = document.getElementById("resultUTM");
   const E = parseFloat(eastingInput.value);
-  const N = parseFloat(northingInput.value);
+
+  // Israel (UTM 36N) northings are 7 digits starting with 3.
+  // If only 6 digits were entered, assume a leading "3" (e.g. 517802 -> 3517802).
+  let nStr = northingInput.value.replace(/[^\d]/g, "");
+  if (nStr.length === 6) { nStr = "3" + nStr; northingInput.value = nStr; }
+  const N = parseFloat(nStr);
+
   if (isNaN(E) || isNaN(N)) { showErr(box, "Enter both Easting and Northing."); return; }
 
   const e = Math.sqrt(E2);
