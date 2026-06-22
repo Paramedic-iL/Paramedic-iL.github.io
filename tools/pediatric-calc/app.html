@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>מחשבון פדיאטרי</title>
+  <style>
+    /* ========= משתני שליטה מרכזיים =========
+       שנה רק כאן את W / L / גודל טקסט (זהה לתפריט ומבחן חובשים)
+       --------------------------------------- */
+    :root {
+      /* W: רוחב האפליקציה ביחס למסך */
+      --app-width: 95vw;
+
+      /* L: גובה כפתור (גובה מינימלי) */
+      --btn-height: 5rem;
+
+      /* גודל טקסט בסיסי (כפתורים, כותרות, טקסט) */
+      --fs-base: 3rem;
+
+      /* גודל טקסט בשדות קלט – >= 16px מונע זום אוטומטי ב‑iOS */
+      --fs-input: 3rem;
+
+      /* גודל כפתורי המקלדת (עיגולים) */
+      --key-size: 5rem;
+
+      /* סליידר מין: גובה המסלול וגודל העיגול */
+      --slider-track-height: 3.2rem;
+      --slider-thumb-size: 2.6rem;
+
+      --blue: #3b82f6;
+      --blue-dark: #1d4ed8;
+      --bg: #ffffff;
+      --text: #0f172a;
+      --radius: 18px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ===== MASTER SIZE KNOB =====
+       Every component size is in rem, so this single value scales the whole app.
+       The size slider (when ?tune=1) changes this live; set the number you like
+       here as the permanent default. */
+    html { font-size: 16px; }
+
+    html, body {
+      margin: 0; padding: 0; direction: rtl; text-align: center;
+      background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      font-size: var(--fs-base);
+      overflow-x: hidden;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    #app {
+      width: var(--app-width); max-width: var(--app-width);
+      margin: 0 auto; padding: 12px 0 28px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    h1, h2 { margin: 0.5rem 0 1rem 0; font-size: var(--fs-base); text-align: center; }
+    .btn {
+      display: block; width: 100%; border: none; border-radius: var(--radius);
+      background: var(--blue); color: white;
+      min-height: var(--btn-height); padding: 0.6rem 0.9rem; margin: 1rem 0;
+      font-size: var(--fs-base); line-height: 1.2; font-weight: 300; text-align: center;
+      box-shadow: 0 6px 16px rgba(59,130,246,0.25); cursor: pointer;
+      transition: transform 0.04s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+      -webkit-tap-highlight-color: transparent; user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    @media (any-pointer: coarse) {
+      .btn { min-height: 48px; margin: 1.2rem 0; }
+      .floating-back { min-width: 48px; min-height: 48px; }
+    }
+    .btn:active { background: var(--blue-dark); transform: translateY(1px); box-shadow: 0 3px 10px rgba(29,78,216,0.35); }
+    .btn-primary { background: var(--blue); }
+    .btn-var-male.btn-primary { background: var(--blue); box-shadow: 0 6px 16px rgba(59,130,246,0.25); }
+    .btn-var-male:active { background: var(--blue-dark); box-shadow: 0 3px 10px rgba(29,78,216,0.35); }
+    .btn-var-female.btn-primary { background: #ec4899; box-shadow: 0 6px 16px rgba(236,72,153,0.25); }
+    .btn-var-female:active { background: #be185d; box-shadow: 0 3px 10px rgba(190,24,93,0.35); }
+    .btn-secondary { background: #e2e8f0; color: var(--text); box-shadow: 0 4px 12px rgba(2,6,23,0.06); }
+    .btn-secondary:active { background: #cbd5e1; transform: translateY(1px); }
+    .btn-outline-black { background: #fff; color: #0f172a; border: 2px solid #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .btn-outline-black:active { background: #f1f5f9; transform: translateY(1px); }
+    .btn-about { background: #fff; color: #0f172a; border: 2px solid #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .btn-about:active { background: #f1f5f9; transform: translateY(1px); }
+    .display { font-size: var(--fs-base); margin-bottom: 1.5rem; user-select: none; text-align: center; }
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; justify-items: center; margin-bottom: 1.5rem; }
+    .keypad .key {
+      width: calc(var(--key-size) * 1.1 * 2); height: calc(var(--key-size) * 1.1 * 2);
+      min-width: calc(var(--key-size) * 1.1 * 2); min-height: calc(var(--key-size) * 1.1 * 2);
+    }
+    .key {
+      width: calc(var(--key-size) * 1.1); height: calc(var(--key-size) * 1.1);
+      min-width: calc(var(--key-size) * 1.1); min-height: calc(var(--key-size) * 1.1);
+      background: #e2e8f0; border: none; border-radius: 50%; font-size: var(--fs-base); color: var(--text);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.04s ease, background-color 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .key:active { background: #cbd5e1; transform: translateY(1px); }
+    .dosage-line { text-align: right; padding: 0.4rem 0; font-size: var(--fs-base); }
+    .floating-back {
+      position: fixed; bottom: 24px; right: 24px;
+      width: calc(var(--key-size) * 1.1); height: calc(var(--key-size) * 1.1);
+      min-width: calc(var(--key-size) * 1.1); min-height: calc(var(--key-size) * 1.1);
+      border-radius: 50%; background: #c62828; color: #fff; border: none;
+      font-size: 90%; font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; cursor: pointer;
+      box-shadow: 0 6px 16px rgba(198,40,40,0.4); transition: transform 0.04s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .floating-back:active { transform: translateY(1px) scale(0.98); }
+
+    /* Sex slider: rounded bar, thumb slides left/right, icons at sides */
+    .sex-slider-area { margin-top: 0.4rem; }
+    .sex-slider-label {
+      font-size: 0.8em;
+      color: #0f172a;
+      font-weight: bold;
+      margin: 0 0 0.5rem 0;
+      text-align: center;
+    }
+    .sex-slider-wrap { margin: 1rem 0 1.5rem; }
+    .sex-slider {
+      display: flex; align-items: center; gap: 0.75rem;
+      width: 100%; direction: rtl;
+    }
+    .sex-slider-icon {
+      flex-shrink: 0; width: 2.5rem; height: 2.5rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sex-slider-icon svg { width: 100%; height: 100%; }
+    .sex-slider-icon svg path { transition: fill 0.2s ease; }
+    .sex-slider--male .sex-slider-icon-left svg path { fill: #0f172a; }
+    .sex-slider--male .sex-slider-icon-right svg path { fill: #94a3b8; }
+    .sex-slider--female .sex-slider-icon-left svg path { fill: #94a3b8; }
+    .sex-slider--female .sex-slider-icon-right svg path { fill: #0f172a; }
+    .sex-slider-track {
+      flex: 1; position: relative; direction: ltr;
+      height: var(--slider-track-height, 3.2rem);
+      min-height: 3rem;
+      background: #e2e8f0;
+      border-radius: 999px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      transition: background 0.2s ease;
+    }
+    .sex-slider--male .sex-slider-track { background: var(--blue); }
+    .sex-slider--female .sex-slider-track { background: #ec4899; }
+    .sex-slider-thumb {
+      position: absolute; top: 50%; left: 0;
+      width: var(--slider-thumb-size, 2.6rem);
+      height: var(--slider-thumb-size, 2.6rem);
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border: 1px solid rgba(0,0,0,0.08);
+      pointer-events: none;
+      transition: left 0.2s ease, transform 0.2s ease;
+      transform: translateY(-50%);
+    }
+    .sex-slider-thumb[data-side="female"] {
+      left: 100%;
+      transform: translateY(-50%) translateX(-100%);
+    }
+    .sex-slider-thumb[data-side="male"] {
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    /* 3-position assess slider: same thickness and mechanics as sex slider */
+    .assess-label { font-size: 0.8em; font-weight: bold; margin: 0.5rem 0 0.25rem; color: var(--text); }
+    .assess-captions { font-size: 0.65em; color: #64748b; margin-bottom: 0.2rem; display: flex; justify-content: space-between; padding: 0 0.5rem; max-width: 100%; }
+    .assess-slider-wrap { margin: 0 0 0.75rem; }
+    .assess-slider {
+      display: flex; align-items: center; width: 100%;
+      height: var(--slider-track-height, 3.2rem);
+      min-height: 3rem;
+      background: #e2e8f0;
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+    }
+    .assess-slider-thumb {
+      position: absolute; top: 50%;
+      width: var(--slider-thumb-size, 2.6rem);
+      height: var(--slider-thumb-size, 2.6rem);
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 2px 8px rgba(59,130,246,0.4);
+      transform: translateY(-50%);
+      transition: left 0.2s ease;
+      pointer-events: none;
+    }
+    .assess-slider-thumb.at-0 { left: 0; }
+    .assess-slider-thumb.at-1 { left: 50%; transform: translateY(-50%) translateX(-50%); }
+    .assess-slider-thumb.at-2 { left: 100%; transform: translateY(-50%) translateX(-100%); }
+
+    /* Result screen: section cards and disclaimer – text 20% smaller */
+    .result-screen { font-size: 80%; }
+    .result-screen .result-section,
+    .result-screen .dosage-line,
+    .result-screen .result-disclaimer { font-size: 1em; }
+    .result-section {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+    }
+    .result-section h1, .result-section h2 {
+      margin: 0 0 0.75rem 0;
+      font-size: 1em;
+      text-align: center;
+    }
+    .result-section--ltr { direction: ltr; text-align: left; }
+    .result-section--ltr .dosage-line { text-align: left; }
+    .result-disclaimer { font-size: 50%; }
+    .patient-summary-box {
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1rem;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .patient-summary-box.patient-male { background: var(--blue); border: 1px solid var(--blue-dark); }
+    .patient-summary-box.patient-female { background: #ec4899; border: 1px solid #be185d; }
+    .patient-summary-box h1, .patient-summary-box h2 { margin: 0 0 0.5rem 0; color: #fff; font-size: 1em; }
+    .patient-summary-box p { margin: 0.25rem 0; color: #fff; font-size: 1em; text-align: right; }
+    .patient-summary-box--in-list, .patient-summary-box--in-list h1, .patient-summary-box--in-list h2, .patient-summary-box--in-list p { font-size: 80%; }
+
+    /* Age arc (below sex slider): colors by sex, knob = button blue */
+    .age-arc-area { margin: 1rem 0; }
+    .age-arc-header { font-size: 0.8em; font-weight: bold; margin-bottom: 0.25rem; color: var(--text); }
+    .age-arc-value { font-size: 80%; min-height: 2em; color: var(--text); margin-bottom: 0.00375rem; }
+    .arcs-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 280 / 240;
+      margin: 0 auto;
+      overflow: visible;
+    }
+    .arc-svg { width: 100%; height: 100%; display: block; overflow: visible; touch-action: none; pointer-events: none; }
+    .arc-svg path.arc-path,
+    .arc-svg g[id="knobYears"],
+    .arc-svg g[id="knobMonths"],
+    .arc-svg g[id="knobOuter"],
+    .arc-svg g[id="knobInner"],
+    .arc-svg g[id="dialYears"],
+    .arc-svg g[id="dialMonths"],
+    .arc-svg g[id="dialOuter"],
+    .arc-svg g[id="dialInner"] { pointer-events: auto; }
+    .arc-path { fill: none; stroke-linecap: round; }
+    .arc-sex-male #arcYears, .arc-sex-male #arcOuter { stroke: var(--blue); stroke-width: 26; }
+    .arc-sex-male #arcMonths, .arc-sex-male #arcInner { stroke: var(--blue-dark); stroke-width: 22; }
+    .arc-sex-female #arcYears, .arc-sex-female #arcOuter { stroke: #ec4899; stroke-width: 26; }
+    .arc-sex-female #arcMonths, .arc-sex-female #arcInner { stroke: #be185d; stroke-width: 22; }
+    .arc-knob { fill: #fff; stroke: rgba(0,0,0,0.12); stroke-width: 2; cursor: pointer; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+    .arc-knob.locked { opacity: 0.5; cursor: not-allowed; }
+    .arc-dial { font-size: 11px; font-weight: normal; fill: #fff; text-anchor: middle; dominant-baseline: middle; }
+    .arc-center-btn {
+      position: absolute;
+      left: 50%;
+      top: 58.333%;
+      transform: translate(-50%, -50%);
+      width: calc(var(--key-size) * 1.1 * 1.5);
+      height: calc(var(--key-size) * 1.1 * 1.5);
+      min-width: calc(var(--key-size) * 1.1 * 1.5);
+      min-height: calc(var(--key-size) * 1.1 * 1.5);
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 90%;
+      font-weight: bold;
+      -webkit-tap-highlight-color: transparent;
+      animation: arc-glow 0.6s ease-in-out infinite alternate;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .arc-center-btn svg { width: 80%; height: 80%; max-width: 120px; max-height: 120px; pointer-events: none; }
+    .arc-sex-male .arc-center-btn { background: var(--blue); color: #fff; box-shadow: 0 0 0 2px var(--blue-dark); }
+    .arc-sex-male .arc-center-btn svg path { fill: #fff; }
+    .arc-sex-female .arc-center-btn { background: #ec4899; color: #fff; box-shadow: 0 0 0 2px #be185d; }
+    .arc-sex-female .arc-center-btn svg path { fill: #fff; }
+    @keyframes arc-glow {
+      from { opacity: 1; filter: brightness(1.2); }
+      to { opacity: 0.85; filter: brightness(0.85); }
+    }
+    #loadingCurtain {
+      display: none;
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--fs-base);
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+    }
+    #loadingCurtain.show { display: flex; }
+
+    /* Night mode: dark background, pale grey text; keep blue/pink/red */
+    html[data-theme="night"] { --bg: #1a1a2e; --text: #cbd5e1; }
+    html[data-theme="night"] body { background: #1a1a2e; color: #cbd5e1; }
+    html[data-theme="night"] #app { color: #cbd5e1; }
+    html[data-theme="night"] .btn-secondary { background: #334155; color: #cbd5e1; }
+    html[data-theme="night"] .btn-outline-black, html[data-theme="night"] .btn-about { background: #334155; color: #cbd5e1; border-color: #64748b; }
+    html[data-theme="night"] .key { background: #334155; color: #cbd5e1; }
+    html[data-theme="night"] .assess-slider { background: #334155; }
+    html[data-theme="night"] .sex-slider--male .sex-slider-icon-left svg path { fill: #fff; }
+    html[data-theme="night"] .sex-slider--female .sex-slider-icon-right svg path { fill: #fff; }
+    html[data-theme="night"] .result-section { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+    html[data-theme="night"] .result-section h1, html[data-theme="night"] .result-section h2 { color: #cbd5e1; }
+    html[data-theme="night"] .dosage-line { color: #cbd5e1; }
+    html[data-theme="night"] .floating-back { background: #c62828; color: #fff; }
+    html[data-theme="night"] .theme-toggle { background: #334155; border: 1px solid #64748b; color: #cbd5e1; }
+    html[data-theme="night"] .theme-toggle svg path { fill: #cbd5e1; }
+    html[data-theme="night"] [style*="color:red"], html[data-theme="night"] .result-disclaimer { color: #ef4444 !important; }
+    html[data-theme="night"] .sex-slider-label, html[data-theme="night"] .assess-label, html[data-theme="night"] .assess-captions { color: #cbd5e1; }
+    html[data-theme="night"] .age-arc-header, html[data-theme="night"] .age-arc-value { color: #cbd5e1; }
+    html[data-theme="night"] h1, html[data-theme="night"] h2 { color: #cbd5e1; }
+    .step1-header {
+      display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+      margin: 0.5rem 0 1rem 0; flex-wrap: wrap;
+    }
+    .step1-header h1 { margin: 0; flex: 1; min-width: 0; }
+    .theme-toggle,
+    .header-icon {
+      flex-shrink: 0;
+      width: 2.5rem; height: 2.5rem; border-radius: 50%;
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      background: #e2e8f0; padding: 0; -webkit-tap-highlight-color: transparent;
+    }
+    .theme-toggle svg, .header-icon svg { width: 100%; height: 100%; }
+    .theme-toggle svg path { fill: #475569; }
+    .header-icon svg path { fill: #475569; }
+    html[data-theme="night"] .header-icon { background: #334155; border: 1px solid #64748b; }
+    html[data-theme="night"] .header-icon svg path { fill: #cbd5e1; }
+
+    /* discrete back-to-site link (fixed px so the slider never scales it) */
+    .site-back {
+      position: fixed; top: 8px; left: 12px; z-index: 1100;
+      font: 600 15px/1 system-ui, sans-serif; color: #475569;
+      background: rgba(226,232,240,.92); text-decoration: none;
+      padding: 7px 12px; border-radius: 8px;
+    }
+    html[data-theme="night"] .site-back { color: #cbd5e1; background: rgba(51,65,85,.92); }
+
+    /* size-tuning slider (only shown with ?tune=1) — fixed px, independent of scale */
+    #size-control {
+      position: fixed; top: 6px; right: 10px; z-index: 1100; display: none;
+      align-items: center; gap: 8px; font: 600 13px/1 system-ui, sans-serif;
+      color: #fff; background: rgba(15,23,42,.92); padding: 8px 12px;
+      border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); direction: ltr;
+    }
+    #size-control.show { display: flex; }
+    #size-control input[type=range] { width: 130px; }
+    #size-control b { min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <a class="site-back" href="../../index.html" target="_top">&larr; Paramedic-iL</a>
+
+  <!-- Size tuning slider (visible only with ?tune=1) -->
+  <div id="size-control">
+    <span>גודל</span>
+    <input type="range" id="size-slider" min="10" max="24" step="0.5" value="16">
+    <b id="size-val">16.0px</b>
+  </div>
+
+  <div id="app"></div>
+  <div id="loadingCurtain" class="show">טוען את אפליקציית המחשבון הפדיאטרי</div>
+  <script>
+    /*****************************************************
+     * API CONFIG  ← set this after deploying the
+     * "site API version" Code.gs as a Web App.
+     * Paste the deployed URL (ends with /exec):
+     *****************************************************/
+    const API_URL = "PASTE_PEDIATRIC_CALC_WEB_APP_URL_HERE";
+
+    function apiGet(action, params) {
+      var url = API_URL + '?action=' + encodeURIComponent(action);
+      if (params) { for (var k in params) { url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); } }
+      return fetch(url).then(function (r) { return r.json(); });
+    }
+    function apiPost(payload) {
+      // text/plain avoids a CORS preflight against Apps Script; fire-and-forget.
+      try {
+        fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+      } catch (e) {}
+    }
+    window.__logLink = function () { apiPost({ action: 'logLink' }); };
+
+    /*****************************************************
+     * SIZE TUNING (master scale = root font-size in px)
+     * Shown only when the URL has ?tune=1. The value you
+     * pick is what to set in CSS  html { font-size: __px }.
+     *****************************************************/
+    (function () {
+      var root = document.documentElement;
+      var slider = document.getElementById('size-slider');
+      var valEl = document.getElementById('size-val');
+      var control = document.getElementById('size-control');
+      function apply(px) { root.style.fontSize = px + 'px'; valEl.textContent = px.toFixed(1) + 'px'; }
+      var saved = parseFloat(localStorage.getItem('pediatricCalcRootPx'));
+      if (!isNaN(saved)) { slider.value = saved; apply(saved); }
+      if (/[?&]tune=1\b/.test(location.search)) { control.classList.add('show'); }
+      slider.addEventListener('input', function () {
+        var v = parseFloat(slider.value); apply(v);
+        localStorage.setItem('pediatricCalcRootPx', v);
+      });
+    })();
+
+    var state = { sex:null, varType:null, ageY:0, ageM:0, height:0, weight:0, protocol:null, assessMode:1, protocolListMode:null, canonicalRow:0, protocols:[], drugs:[] };
+
+    (function applySavedTheme() {
+      try {
+        var saved = localStorage.getItem('pediatric-calc-theme');
+        if (saved === 'night') document.documentElement.setAttribute('data-theme', 'night');
+      } catch (e) {}
+    })();
+
+    function toggleTheme() {
+      var html = document.documentElement;
+      var isNight = html.getAttribute('data-theme') === 'night';
+      if (isNight) {
+        html.removeAttribute('data-theme');
+        try { localStorage.setItem('pediatric-calc-theme', 'day'); } catch (e) {}
+      } else {
+        html.setAttribute('data-theme', 'night');
+        try { localStorage.setItem('pediatric-calc-theme', 'night'); } catch (e) {}
+      }
+      var btn = document.getElementById('themeToggleBtn');
+      if (btn) {
+        var nowNight = html.getAttribute('data-theme') === 'night';
+        btn.innerHTML = nowNight ? SUN_ICON : MOON_ICON;
+        btn.title = nowNight ? 'מצב יום' : 'מצב לילה';
+      }
+    }
+
+    function reset() {
+      var keepLabels = state.ageLabels;
+      var keepBoysW = state.boysWeight;
+      var keepBoysH = state.boysHeight;
+      var keepGirlsW = state.girlsWeight;
+      var keepGirlsH = state.girlsHeight;
+      state = { sex:null, varType:null, ageY:0, ageM:0, height:0, weight:0, protocol:null, assessMode:1, protocolListMode:null, canonicalRow:0 };
+      if (keepLabels) state.ageLabels = keepLabels;
+      if (keepBoysW) state.boysWeight = keepBoysW;
+      if (keepBoysH) state.boysHeight = keepBoysH;
+      if (keepGirlsW) state.girlsWeight = keepGirlsW;
+      if (keepGirlsH) state.girlsHeight = keepGirlsH;
+      showStep1();
+    }
+
+    function show(html) {
+      var container = document.getElementById('app');
+      container.innerHTML = html;
+      window.scrollTo(0, 0);
+    }
+
+    function attrEsc(s) {
+      if (s == null || s === '') return '';
+      return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+
+    var SCROLL_GUARD_THRESHOLD = 12;
+    function appButtonHandler(e) {
+      if (e.type === 'touchend') e.preventDefault();
+      var el = e.target;
+      var app = document.getElementById('app');
+      while (el && el !== app) {
+        if (el.nodeName === 'BUTTON' && el.getAttribute('data-action')) break;
+        el = el.parentNode;
+      }
+      if (!el || el === app) return;
+      if (window._scrollGuard) {
+        var cy = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        var dy = Math.abs(cy - window._scrollGuard.y);
+        window._scrollGuard = null;
+        if (dy > SCROLL_GUARD_THRESHOLD) return;
+      }
+      var action = el.getAttribute('data-action');
+      var param = el.getAttribute('data-param');
+      if (action === 'chooseVar') { chooseVar(param); return; }
+      if (action === 'showProtocols') { showProtocols(param === 'true'); return; }
+      if (action === 'showDrugs') { showDrugs(); return; }
+      if (action === 'showAbout') { showAbout(); return; }
+      if (action === 'toggleTheme') { toggleTheme(); return; }
+      if (action === 'showStep1') { showStep1(); return; }
+      if (action === 'chooseProtocol') { chooseProtocol(param || ''); return; }
+      if (action === 'openPage') { openPage(param); return; }
+      if (action === 'reset') {
+        var curtainMsg = el.getAttribute('data-curtain');
+        if (curtainMsg) showLoadingCurtain(curtainMsg);
+        reset();
+        return;
+      }
+      if (action === 'dialPress') { dialPress(el.getAttribute('data-key') || '', window.currentField || ''); return; }
+      if (action === 'showStep4') { showStep4(); return; }
+      if (action === 'openProtocol') { openProtocol(); return; }
+    }
+
+    function scrollGuardCapture(e) {
+      var el = e.target;
+      var app = document.getElementById('app');
+      while (el && el !== app) {
+        if (el.nodeName === 'BUTTON' && el.getAttribute('data-action')) break;
+        el = el.parentNode;
+      }
+      if (!el || el === app) return;
+      var y = e.touches ? e.touches[0].clientY : e.clientY;
+      var x = e.touches ? e.touches[0].clientX : e.clientX;
+      window._scrollGuard = { y: y, x: x };
+    }
+    (function setupAppButtonDelegation() {
+      var app = document.getElementById('app');
+      if (!app) return;
+      app.addEventListener('mousedown', scrollGuardCapture);
+      app.addEventListener('touchstart', scrollGuardCapture, { passive: true });
+      app.addEventListener('click', appButtonHandler);
+      app.addEventListener('touchend', appButtonHandler, { passive: false });
+    })();
+
+    var MALE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M800-800v240h-80v-103L561-505q19 28 29 59.5t10 65.5q0 92-64 156t-156 64q-92 0-156-64t-64-156q0-92 64-156t156-64q33 0 65 9.5t59 29.5l159-159H560v-80h240ZM281-479q-41 41-41 99t41 99q41 41 99 41t99-41q41-41 41-99t-41-99q-41-41-99-41t-99 41Z"/></svg>';
+    var FEMALE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-120v-80h-80v-80h80v-84q-79-14-129.5-75.5T260-582q0-91 64.5-154.5T480-800q91 0 155.5 63.5T700-582q0 81-50.5 142.5T520-364v84h80v80h-80v80h-80Zm139-361q41-41 41-99t-41-99q-41-41-99-41t-99 41q-41 41-41 99t41 99q41 41 99 41t99-41Z"/></svg>';
+    var SUN_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-760v-160h80v160h-80Zm266 110-55-55 112-115 56 57-113 113Zm54 210v-80h160v80H760ZM440-40v-160h80v160h-80ZM254-652 140-763l57-56 113 113-56 54Zm508 512L651-255l54-54 114 110-57 59ZM40-440v-80h160v80H40Zm157 300-56-57 112-112 29 27 29 28-114 114Zm113-170q-70-70-70-170t70-170q70-70 170-70t170 70q70 70 70 170t-70 170q-70 70-170 70t-170-70Zm283-57q47-47 47-113t-47-113q-47-47-113-47t-113 47q-47 47-47 113t47 113q47 47 113 47t113-47ZM480-480Z"/></svg>';
+    var MOON_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M380-160q133 0 226.5-93.5T700-480q0-133-93.5-226.5T380-800h-21q-10 0-19 2 57 66 88.5 147.5T460-480q0 89-31.5 170.5T340-162q9 2 19 2h21Zm0 80q-53 0-103.5-13.5T180-134q93-54 146.5-146T380-480q0-108-53.5-200T180-826q46-27 96.5-40.5T380-880q83 0 156 31.5T663-763q54 54 85.5 127T780-480q0 83-31.5 156T663-197q-54 54-127 85.5T380-80Zm80-400Z"/></svg>';
+    var MEDS_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m678-134 46-46-64-64-46 46q-14 14-14 32t14 32q14 14 32 14t32-14Zm102-102 46-46q14-14 14-32t-14-32q-14-14-32-14t-32 14l-46 46 64 64ZM735-77q-37 37-89 37t-89-37q-37-37-37-89t37-89l148-148q37-37 89-37t89 37q37 37 37 89t-37 89L735-77ZM200-200v-560 560Zm0 80q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h168q13-36 43.5-58t68.5-22q38 0 68.5 22t43.5 58h168q33 0 56.5 23.5T840-760v245q-20-5-40-5t-40 3v-243H200v560h243q-3 20-3 40t5 40H200Zm301.5-678.5Q510-807 510-820t-8.5-21.5Q493-850 480-850t-21.5 8.5Q450-833 450-820t8.5 21.5Q467-790 480-790t21.5-8.5ZM280-600v-80h400v80H280Zm0 160v-80h400v34q-8 5-15.5 11.5T649-460l-20 20H280Zm0 160v-80h269l-49 49q-8 8-14.5 15.5T474-280H280Z"/></svg>';
+    var PROTOCOLS_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-160q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q58 0 113.5 15T480-740v484q51-32 107-48t113-16q36 0 70.5 6t69.5 18v-480q15 5 29.5 10.5T898-752q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm80-200v-380l200-200v400L560-360Zm-160 65v-396q-33-14-68.5-21.5T260-720q-37 0-72 7t-68 21v397q35-13 69.5-19t70.5-6q36 0 70.5 6t69.5 19Zm0 0v-396 396Z"/></svg>';
+    var ABOUT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-280h80v-240h-80v240Zm68.5-331.5Q520-623 520-640t-11.5-28.5Q497-680 480-680t-28.5 11.5Q440-657 440-640t11.5 28.5Q463-600 480-600t28.5-11.5ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>';
+
+    function showStep1() {
+      if (state.sex === null) state.sex = 'Male';
+      var sexClass = state.sex === 'Female' ? 'female' : 'male';
+      state.canonicalRow = 0;
+      if (state.sex === 'Male' && state.boysWeight && state.boysWeight[0] != null) {
+        state.weight = Number(state.boysWeight[0]);
+        state.height = Number(state.boysHeight[0]);
+      } else if (state.sex === 'Female' && state.girlsWeight && state.girlsWeight[0] != null) {
+        state.weight = Number(state.girlsWeight[0]);
+        state.height = Number(state.girlsHeight[0]);
+      }
+      state.weightKg = Math.max(3, Math.min(45, Math.floor(state.weight || 0)));
+      state.weightGr = Math.min(1000, Math.max(0, Math.round(((state.weight || 0) % 1) * 1000)));
+      if (state.weightGr >= 1000) { state.weightKg++; state.weightGr = 0; }
+      var m = state.assessMode == null ? 1 : state.assessMode;
+      var arcHeader = m === 0 ? 'המשקל שנבחר הוא:' : (m === 1 ? 'הגיל שנבחר הוא:' : 'הגובה שנבחר הוא:');
+      var arcVal = m === 0 ? formatWeightDisplay() : (m === 1 ? (getAgeLabelForDisplay() || 'יילוד') : Number(state.height || 49).toFixed(2) + ' ס"מ');
+      var arcHtml = '<div class="age-arc-area arc-sex-' + sexClass + '" id="ageArcWrap">';
+      arcHtml += '<p class="age-arc-header" id="arcHeader">' + arcHeader + '</p>';
+      arcHtml += '<p class="age-arc-value" id="ageArcText">' + arcVal + '</p>';
+      arcHtml += '<div class="arcs-wrap">';
+      arcHtml += '<svg class="arc-svg" id="arcSvg" viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg">';
+      arcHtml += '<path id="arcOuter" class="arc-path" d=""/><path id="arcInner" class="arc-path inner" d=""/>';
+      arcHtml += '<g id="dialOuter"></g><g id="dialInner"></g>';
+      arcHtml += '<g id="knobOuter"><circle id="knobOuterCircle" class="arc-knob" r="12" cx="0" cy="0"/></g>';
+      arcHtml += '<g id="knobInner"><circle id="knobInnerCircle" class="arc-knob" r="10" cx="0" cy="0"/></g>';
+      arcHtml += '</svg>';
+      arcHtml += '<button type="button" class="arc-center-btn" id="arcCenterBtn" title="המשך">המשך</button>';
+      arcHtml += '</div></div>';
+      var isNight = document.documentElement.getAttribute('data-theme') === 'night';
+      var html = '<div class="step1-header">';
+      html += '<h1>מחשבון פדיאטרי</h1>';
+      html += '<button type="button" class="theme-toggle" id="themeToggleBtn" data-action="toggleTheme" title="' + (isNight ? 'מצב יום' : 'מצב לילה') + '">' + (isNight ? SUN_ICON : MOON_ICON) + '</button>';
+      html += '<button type="button" class="header-icon" data-action="showDrugs" title="רשימת תרופות">' + MEDS_ICON + '</button>';
+      html += '<button type="button" class="header-icon" data-action="showProtocols" title="רשימת פרוטוקולים">' + PROTOCOLS_ICON + '</button>';
+      html += '<button type="button" class="header-icon" data-action="showAbout" title="אודות">' + ABOUT_ICON + '</button>';
+      html += '</div>';
+      html += '<div class="sex-slider-area"><p class="sex-slider-label">בחר מין המטופל</p>';
+      html += '<div class="sex-slider-wrap"><div class="sex-slider sex-slider--' + sexClass + '" id="sexSlider">';
+      html += '<span class="sex-slider-icon sex-slider-icon-right">' + FEMALE_ICON + '</span>';
+      html += '<div class="sex-slider-track" id="sexTrack"><span class="sex-slider-thumb" id="sexThumb" data-side="' + sexClass + '"></span></div>';
+      html += '<span class="sex-slider-icon sex-slider-icon-left">' + MALE_ICON + '</span></div></div></div>';
+      html += '<p class="assess-label">בחר אופן הערכה:</p>';
+      html += '<p class="assess-captions"><span>לפי משקל</span><span>לפי גיל</span><span>לפי גובה</span></p>';
+      html += '<div class="assess-slider-wrap"><div class="assess-slider" id="assessSlider">';
+      html += '<span class="assess-slider-thumb at-' + m + '" id="assessThumb"></span></div></div>';
+      html += arcHtml;
+      html += '<button type="button" class="btn btn-outline-black" data-action="showProtocols">רשימת פרוטוקולים</button>';
+      html += '<button type="button" class="btn btn-outline-black" data-action="showDrugs">רשימת תרופות</button>';
+      html += '<button type="button" class="btn btn-about" data-action="showAbout">אודות</button>';
+      show(html);
+      initSexSlider();
+      initAssessSlider();
+      initUnifiedArc();
+      hideLoadingCurtain();
+    }
+    function formatWeightDisplay() {
+      var kg = typeof state.weightKg === 'number' ? state.weightKg : Math.floor(state.weight || 0);
+      var gr = typeof state.weightGr === 'number' ? state.weightGr : Math.round(((state.weight || 0) % 1) * 1000);
+      gr = Math.min(1000, Math.max(0, gr));
+      var g = String(gr);
+      while (g.length < 3) g = '0' + g;
+      return kg + '.' + g + ' ק"ג';
+    }
+
+    function getAgeLabelForDisplay() {
+      var labels = state.ageLabels;
+      if (!labels || !labels.length) return 'יילוד';
+      var totalMonths = (state.ageY || 0) * 12 + (state.ageM || 0);
+      var halfMonths = (state.ageY || 0) * 24 + Math.round((state.ageM || 0) * 2);
+      var idx = Math.min(labels.length - 1, Math.max(0, halfMonths));
+      return labels[idx] || 'יילוד';
+    }
+    function totalMonths() { return (state.ageY || 0) * 12 + (state.ageM || 0); }
+    function getWeightHeightForAge() {
+      var month = Math.min(156, Math.max(0, totalMonths()));
+      var w = state.sex === 'Female' ? state.girlsWeight : state.boysWeight;
+      var h = state.sex === 'Female' ? state.girlsHeight : state.boysHeight;
+      return { weight: (w && w[month] != null) ? Number(w[month]) : 10, height: (h && h[month] != null) ? Number(h[month]) : 100 };
+    }
+    function findClosestRowByWeight(w) {
+      var arr = state.sex === 'Female' ? state.girlsWeight : state.boysWeight;
+      if (!arr) return 0;
+      var best = 0, bestD = 1e9;
+      for (var i = 0; i <= 156; i++) {
+        if (arr[i] == null || arr[i] === undefined) continue;
+        var d = Math.abs(Number(arr[i]) - w);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      return best;
+    }
+    function findClosestRowByHeight(h) {
+      var arr = state.sex === 'Female' ? state.girlsHeight : state.boysHeight;
+      if (!arr) return 0;
+      var best = 0, bestD = 1e9;
+      for (var i = 0; i <= 156; i++) {
+        if (arr[i] == null || arr[i] === undefined) continue;
+        var d = Math.abs(Number(arr[i]) - h);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      return best;
+    }
+    function syncStateFromModeSwitch(newMode) {
+      var prev = state.assessMode;
+      if (prev === newMode) return;
+      var row;
+      if (prev === 0) row = findClosestRowByWeight(state.weight || 10);
+      else if (prev === 1) row = Math.min(156, Math.max(0, totalMonths()));
+      else row = findClosestRowByHeight(state.height || 100);
+      state.canonicalRow = row;
+      row = Math.min(156, Math.max(0, row));
+      var wArr = state.sex === 'Female' ? state.girlsWeight : state.boysWeight;
+      var hArr = state.sex === 'Female' ? state.girlsHeight : state.boysHeight;
+      if (newMode === 1) {
+        state.ageY = Math.floor(row / 12);
+        state.ageM = row % 12;
+      } else if (newMode === 0) {
+        state.weight = (wArr && wArr[row] != null) ? Number(wArr[row]) : (state.weight || 10);
+        state.weightKg = Math.max(3, Math.min(45, Math.floor(state.weight || 0)));
+        state.weightGr = Math.round(((state.weight || 0) % 1) * 1000);
+        if (state.weightGr >= 1000) { state.weightKg++; state.weightGr = 0; }
+        state.weightGr = Math.min(1000, Math.max(0, state.weightGr));
+      } else if (newMode === 2) {
+        state.height = (hArr && hArr[row] != null) ? Number(hArr[row]) : (state.height || 49);
+        state.height = Math.max(49, Math.min(157, state.height));
+      }
+    }
+    function syncAllFromCanonicalRow() {
+      var row = Math.min(156, Math.max(0, state.canonicalRow != null ? state.canonicalRow : 0));
+      var wArr = state.sex === 'Female' ? state.girlsWeight : state.boysWeight;
+      var hArr = state.sex === 'Female' ? state.girlsHeight : state.boysHeight;
+      state.ageY = Math.floor(row / 12);
+      state.ageM = row % 12;
+      state.weight = (wArr && wArr[row] != null) ? Number(wArr[row]) : (state.weight || 10);
+      state.weightKg = Math.max(3, Math.min(45, Math.floor(state.weight || 0)));
+      state.weightGr = Math.round(((state.weight || 0) % 1) * 1000);
+      if (state.weightGr >= 1000) { state.weightKg++; state.weightGr = 0; }
+      state.weightGr = Math.min(1000, Math.max(0, state.weightGr));
+      state.height = (hArr && hArr[row] != null) ? Number(hArr[row]) : (state.height || 49);
+      state.height = Math.max(49, Math.min(157, state.height));
+    }
+
+    function initSexSlider() {
+      var track = document.getElementById('sexTrack');
+      var thumb = document.getElementById('sexThumb');
+      if (!track || !thumb) return;
+
+      function setSex(female) {
+        state.sex = female ? 'Female' : 'Male';
+        thumb.setAttribute('data-side', female ? 'female' : 'male');
+        var slider = document.getElementById('sexSlider');
+        if (slider) slider.className = 'sex-slider sex-slider--' + (female ? 'female' : 'male');
+        var arcWrap = document.getElementById('ageArcWrap');
+        if (arcWrap) arcWrap.className = 'age-arc-area arc-sex-' + (female ? 'female' : 'male');
+        var m = state.assessMode != null ? state.assessMode : 1;
+        if (m === 0) state.canonicalRow = findClosestRowByWeight(state.weight || 10);
+        else if (m === 1) state.canonicalRow = Math.min(156, Math.max(0, totalMonths()));
+        else state.canonicalRow = findClosestRowByHeight(state.height || 100);
+        syncAllFromCanonicalRow();
+        if (window.refreshArcUI) window.refreshArcUI();
+      }
+
+      function sideFromX(clientX) {
+        var r = track.getBoundingClientRect();
+        var x = clientX - r.left;
+        return x > r.width / 2;
+      }
+
+      track.addEventListener('click', function(e) {
+        setSex(sideFromX(e.clientX));
+      });
+
+      var dragging = false;
+      function onPointerDown(e) {
+        e.preventDefault();
+        dragging = true;
+      }
+      function onPointerMove(e) {
+        if (!dragging) return;
+        var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        setSex(sideFromX(clientX));
+      }
+      function onPointerUp() {
+        dragging = false;
+      }
+
+      track.addEventListener('mousedown', onPointerDown);
+      track.addEventListener('touchstart', onPointerDown, { passive: false });
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+      window.addEventListener('touchmove', onPointerMove, { passive: false });
+      window.addEventListener('touchend', onPointerUp);
+    }
+
+    function initAssessSlider() {
+      var slider = document.getElementById('assessSlider');
+      var thumb = document.getElementById('assessThumb');
+      if (!slider || !thumb) return;
+
+      function positionFromClientX(clientX) {
+        var r = slider.getBoundingClientRect();
+        var x = (clientX - r.left) / r.width;
+        if (x < 0) x = 0;
+        if (x > 1) x = 1;
+        return x < 0.33 ? 0 : (x < 0.66 ? 1 : 2);
+      }
+      function setAssessModeFromPosition(idx) {
+        if (idx === state.assessMode) return;
+        syncStateFromModeSwitch(idx);
+        state.assessMode = idx;
+        thumb.className = 'assess-slider-thumb at-' + idx;
+        if (window.refreshArcUI) window.refreshArcUI();
+      }
+
+      slider.addEventListener('click', function(e) {
+        setAssessModeFromPosition(positionFromClientX(e.clientX));
+      });
+
+      var dragging = false;
+      function onPointerDown(e) {
+        e.preventDefault();
+        dragging = true;
+        var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        setAssessModeFromPosition(positionFromClientX(clientX));
+      }
+      function onPointerMove(e) {
+        if (!dragging) return;
+        var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        setAssessModeFromPosition(positionFromClientX(clientX));
+      }
+      function onPointerUp() {
+        dragging = false;
+      }
+
+      slider.addEventListener('mousedown', onPointerDown);
+      slider.addEventListener('touchstart', onPointerDown, { passive: false });
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+      window.addEventListener('touchmove', onPointerMove, { passive: false });
+      window.addEventListener('touchend', onPointerUp);
+    }
+
+    function initUnifiedArc() {
+      if (window._arcPointerMove) {
+        document.removeEventListener('mousemove', window._arcPointerMove);
+        document.removeEventListener('mouseup', window._arcPointerUp);
+        document.removeEventListener('touchmove', window._arcPointerMove, { passive: false });
+        document.removeEventListener('touchend', window._arcPointerUp);
+        window._arcPointerMove = null;
+        window._arcPointerUp = null;
+      }
+      var ARC_SPAN = (270 * Math.PI) / 180;
+      var CX = 140, CY = 140;
+      var R_OUTER = 88, R_INNER = 52;
+      var ARC_START_PATH = (315 * Math.PI) / 180;
+      var ARC_START_KNOB = (315 * Math.PI) / 180;
+      var KNOB_DEAD_ZONE = 28;
+      var dragging = null;
+      if (typeof state.weightKg !== 'number') state.weightKg = Math.max(3, Math.min(45, Math.floor(state.weight || 10)));
+      if (typeof state.weightGr !== 'number') state.weightGr = Math.min(1000, Math.max(0, Math.round(((state.weight || 0) % 1) * 1000)));
+      if (state.assessMode === 2 && (state.height == null || state.height < 49)) state.height = 49;
+
+      function arcPoint(r, t, forPath) {
+        var start = forPath ? ARC_START_PATH : ARC_START_KNOB;
+        var angle = start + t * ARC_SPAN;
+        return { x: CX + r * Math.cos(angle), y: CY - r * Math.sin(angle) };
+      }
+      function angleToT(angle) {
+        var gapMid = -Math.PI / 2;
+        var a = angle;
+        var t;
+        if (a >= -0.785) t = (a + 0.785) / ARC_SPAN;
+        else if (a <= -2.356) t = (a + 2 * Math.PI + 0.785) / ARC_SPAN;
+        else return a < gapMid ? 1 : 0;
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        return t;
+      }
+      function angleAt(x, y) { return Math.atan2(-(y - CY), x - CX); }
+      function buildArcPath(r) {
+        var start = arcPoint(r, 0, true);
+        var end = arcPoint(r, 1, true);
+        return 'M ' + start.x + ' ' + start.y + ' A ' + r + ' ' + r + ' 0 1 0 ' + end.x + ' ' + end.y;
+      }
+      function clientToSvg(clientX, clientY) {
+        var rect = document.getElementById('arcSvg');
+        if (!rect) return { x: 0, y: 0 };
+        rect = rect.getBoundingClientRect();
+        return { x: (clientX - rect.left) * (280 / rect.width), y: (clientY - rect.top) * (240 / rect.height) };
+      }
+      function getClientXY(e) {
+        if (e.clientX != null) return { x: e.clientX, y: e.clientY };
+        var t = e.touches && e.touches[0];
+        return t ? { x: t.clientX, y: t.clientY } : { x: 0, y: 0 };
+      }
+
+      function updateHeaderAndValue() {
+        var h = document.getElementById('arcHeader');
+        var v = document.getElementById('ageArcText');
+        if (!h || !v) return;
+        var m = state.assessMode;
+        if (m === 0) { h.textContent = 'המשקל שנבחר הוא:'; v.textContent = formatWeightDisplay(); }
+        else if (m === 1) { h.textContent = 'הגיל שנבחר הוא:'; v.textContent = getAgeLabelForDisplay() || 'יילוד'; }
+        else { h.textContent = 'הגובה שנבחר הוא:'; v.textContent = Number(state.height || 49).toFixed(2) + ' ס"מ'; }
+      }
+      function renderPathsAndDials() {
+        var outer = document.getElementById('arcOuter');
+        var inner = document.getElementById('arcInner');
+        var dialO = document.getElementById('dialOuter');
+        var dialI = document.getElementById('dialInner');
+        var knobI = document.getElementById('knobInner');
+        if (!outer || !inner) return;
+        var m = state.assessMode;
+        if (m === 2) {
+          outer.setAttribute('d', buildArcPath(R_OUTER));
+          inner.setAttribute('d', '');
+          outer.setAttribute('class', 'arc-path single');
+          if (knobI) knobI.style.display = 'none';
+          if (dialO) {
+            dialO.innerHTML = '';
+            for (var i = 50; i <= 150; i += 10) {
+              var t = 1 - (i - 49) / 107;
+              var p = arcPoint(R_OUTER, t, false);
+              var el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+              el.setAttribute('class', 'arc-dial');
+              el.setAttribute('x', p.x); el.setAttribute('y', p.y);
+              el.textContent = i;
+              dialO.appendChild(el);
+            }
+          }
+          if (dialI) dialI.innerHTML = '';
+        } else {
+          outer.setAttribute('class', 'arc-path');
+          inner.setAttribute('class', 'arc-path inner');
+          if (knobI) knobI.style.display = '';
+          outer.setAttribute('d', buildArcPath(R_OUTER));
+          inner.setAttribute('d', buildArcPath(R_INNER));
+          if (m === 0) {
+            if (dialO) {
+              dialO.innerHTML = '';
+              for (var i = 3; i <= 45; i += 5) {
+                var t = 1 - (i - 3) / 42;
+                var p = arcPoint(R_OUTER, t, false);
+                var el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                el.setAttribute('class', 'arc-dial');
+                el.setAttribute('x', p.x); el.setAttribute('y', p.y);
+                el.textContent = i;
+                dialO.appendChild(el);
+              }
+            }
+            if (dialI) {
+              dialI.innerHTML = '';
+              for (var j = 0; j <= 1000; j += 200) {
+                var t = 1 - j / 1000;
+                var p = arcPoint(R_INNER, t, false);
+                var el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                el.setAttribute('class', 'arc-dial');
+                el.setAttribute('x', p.x); el.setAttribute('y', p.y);
+                el.textContent = j;
+                dialI.appendChild(el);
+              }
+            }
+          } else {
+            if (dialO) {
+              dialO.innerHTML = '';
+              for (var i = 0; i <= 13; i++) {
+                var t = 1 - i / 13;
+                var p = arcPoint(R_OUTER, t, false);
+                var el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                el.setAttribute('class', 'arc-dial');
+                el.setAttribute('x', p.x); el.setAttribute('y', p.y);
+                el.textContent = i;
+                dialO.appendChild(el);
+              }
+            }
+            if (dialI) {
+              dialI.innerHTML = '';
+              var monthVals = [0, 3, 6, 9, 12];
+              for (var k = 0; k < monthVals.length; k++) {
+                var mv = monthVals[k];
+                var t = 1 - mv / 12;
+                var p = arcPoint(R_INNER, t, false);
+                var el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                el.setAttribute('class', 'arc-dial');
+                el.setAttribute('x', p.x); el.setAttribute('y', p.y);
+                el.textContent = mv;
+                dialI.appendChild(el);
+              }
+            }
+          }
+        }
+      }
+      function updateKnobs() {
+        var ko = document.getElementById('knobOuterCircle');
+        var ki = document.getElementById('knobInnerCircle');
+        var gi = document.getElementById('knobInner');
+        if (!ko) return;
+        var m = state.assessMode;
+        if (m === 0) {
+          var tKg = 1 - (state.weightKg - 3) / 42;
+          var tGr = 1 - state.weightGr / 1000;
+          var po = arcPoint(R_OUTER, tKg, false);
+          var pi = arcPoint(R_INNER, tGr, false);
+          ko.setAttribute('cx', po.x); ko.setAttribute('cy', po.y);
+          if (ki) { ki.setAttribute('cx', pi.x); ki.setAttribute('cy', pi.y); }
+        } else if (m === 1) {
+          var ay = state.ageY || 0, am = state.ageM || 0;
+          var py = arcPoint(R_OUTER, 1 - ay / 13, false);
+          var pm = arcPoint(R_INNER, 1 - am / 12, false);
+          ko.setAttribute('cx', py.x); ko.setAttribute('cy', py.y);
+          if (ki) { ki.setAttribute('cx', pm.x); ki.setAttribute('cy', pm.y); }
+          if (gi) gi.classList.toggle('locked', ay >= 13);
+        } else {
+          var t = 1 - (Math.min(156, state.height || 49) - 49) / 107;
+          var po = arcPoint(R_OUTER, t, false);
+          ko.setAttribute('cx', po.x); ko.setAttribute('cy', po.y);
+          if (ki) { ki.setAttribute('cx', 0); ki.setAttribute('cy', 0); }
+        }
+      }
+      window.refreshArcUI = function() {
+        updateHeaderAndValue();
+        renderPathsAndDials();
+        updateKnobs();
+      };
+
+      function angleToYears(angle) {
+        var t = 1 - angleToT(angle);
+        if (t < 0) t = 0; if (t > 1) t = 1;
+        return Math.round(t * 13);
+      }
+      function angleToMonths(angle) {
+        var t = 1 - angleToT(angle);
+        if (t < 0) t = 0; if (t > 1) t = 1;
+        return Math.round(t * 12 * 2) / 2;
+      }
+      function angleToKg(angle) {
+        var t = 1 - angleToT(angle);
+        if (t < 0) t = 0; if (t > 1) t = 1;
+        return Math.round(3 + t * 42);
+      }
+      function angleToGr(angle) {
+        var t = 1 - angleToT(angle);
+        if (t < 0) t = 0; if (t > 1) t = 1;
+        return Math.round(t * 10) * 100;
+      }
+      function angleToLength(angle) {
+        var t = 1 - angleToT(angle);
+        if (t < 0) t = 0; if (t > 1) t = 1;
+        return Math.round(49 + t * 107);
+      }
+      function hitTest(x, y) {
+        var dist = Math.hypot(x - CX, y - CY);
+        var angle = angleAt(x, y);
+        var t = angleToT(angle);
+        if (t < 0 || t > 1) return null;
+        var m = state.assessMode;
+        var midR = (R_OUTER + R_INNER) / 2;
+        if (m === 0) return dist > midR ? 'kg' : 'grams';
+        if (m === 1) return dist > midR ? 'years' : (state.ageY >= 13 ? 'years' : 'months');
+        return 'length';
+      }
+      function applyPointer(x, y, which) {
+        var angle = angleAt(x, y);
+        var m = state.assessMode;
+        if (m === 0) {
+          if (which === 'kg') {
+            state.weightKg = Math.max(3, Math.min(45, angleToKg(angle)));
+            state.weight = state.weightKg + state.weightGr / 1000;
+          } else {
+            state.weightGr = Math.max(0, Math.min(1000, angleToGr(angle)));
+            state.weight = state.weightKg + state.weightGr / 1000;
+          }
+          state.canonicalRow = findClosestRowByWeight(state.weight);
+        } else if (m === 1) {
+          if (which === 'years') {
+            state.ageY = Math.max(0, Math.min(13, angleToYears(angle)));
+            if (state.ageY >= 13) state.ageM = 0;
+            else {
+              var total = state.ageY * 12 + state.ageM;
+              if (total > 156) state.ageM = Math.max(0, 156 - state.ageY * 12);
+            }
+          } else {
+            state.ageM = Math.max(0, Math.min(12, angleToMonths(angle)));
+            var total = state.ageY * 12 + state.ageM;
+            if (total > 156) { state.ageY = Math.floor(156 / 12); state.ageM = 156 - state.ageY * 12; }
+          }
+          state.canonicalRow = totalMonths();
+        } else if (m === 2 && which === 'length') {
+          state.height = Math.max(49, Math.min(156, angleToLength(angle)));
+          state.canonicalRow = findClosestRowByHeight(state.height);
+        }
+        updateHeaderAndValue();
+        updateKnobs();
+      }
+      function onPointerDown(e) {
+        e.preventDefault();
+        var xy = getClientXY(e);
+        var svgXY = clientToSvg(xy.x, xy.y);
+        dragging = hitTest(svgXY.x, svgXY.y);
+        if (dragging) {
+          var p;
+          var m = state.assessMode;
+          if (m === 0) p = dragging === 'kg' ? arcPoint(R_OUTER, 1 - (state.weightKg - 3) / 42, false) : arcPoint(R_INNER, 1 - state.weightGr / 1000, false);
+          else if (m === 1) p = dragging === 'years' ? arcPoint(R_OUTER, 1 - (state.ageY || 0) / 13, false) : arcPoint(R_INNER, 1 - (state.ageM || 0) / 12, false);
+          else p = arcPoint(R_OUTER, 1 - (Math.min(156, state.height || 49) - 49) / 107, false);
+          var d = Math.hypot(svgXY.x - p.x, svgXY.y - p.y);
+          if (d > KNOB_DEAD_ZONE) applyPointer(svgXY.x, svgXY.y, dragging);
+        }
+      }
+      function onPointerMove(e) {
+        if (!dragging) return;
+        e.preventDefault();
+        var xy = getClientXY(e);
+        var svgXY = clientToSvg(xy.x, xy.y);
+        applyPointer(svgXY.x, svgXY.y, dragging);
+      }
+      function onPointerUp(e) {
+        if (e && e.type === 'touchend') e.preventDefault();
+        dragging = null;
+      }
+
+      updateHeaderAndValue();
+      renderPathsAndDials();
+      updateKnobs();
+
+      var svg = document.getElementById('arcSvg');
+      if (svg) {
+        svg.addEventListener('mousedown', onPointerDown);
+        svg.addEventListener('touchstart', onPointerDown, { passive: false });
+      }
+      document.addEventListener('mousemove', onPointerMove);
+      document.addEventListener('mouseup', onPointerUp);
+      document.addEventListener('touchmove', onPointerMove, { passive: false });
+      document.addEventListener('touchend', onPointerUp);
+      window._arcPointerMove = onPointerMove;
+      window._arcPointerUp = onPointerUp;
+
+      var centerBtn = document.getElementById('arcCenterBtn');
+      if (centerBtn) {
+        centerBtn.onclick = function(e) {
+          e.preventDefault();
+          var m = state.assessMode;
+          if (m === 0) { state.varType = 'Weight'; state.weight = state.weightKg + state.weightGr / 1000; }
+          else if (m === 1) state.varType = 'Age';
+          else { state.varType = 'Height'; state.height = Math.max(49, Math.min(156, state.height || 49)); }
+          goToProtocols();
+        };
+        centerBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          var m = state.assessMode;
+          if (m === 0) { state.varType = 'Weight'; state.weight = state.weightKg + state.weightGr / 1000; }
+          else if (m === 1) state.varType = 'Age';
+          else { state.varType = 'Height'; state.height = Math.max(49, Math.min(156, state.height || 49)); }
+          goToProtocols();
+        }, { passive: false });
+      }
+    }
+
+    function showAbout() {
+      apiPost({ action: 'logAbout' });
+      var aboutHtml = '<p style="font-size:1.5rem;">';
+      aboutHtml += 'אפליקציה זו נכתבה ע"י דן דרורי, פרמדיק. בהתאם לפרוטוקולים של מד"א, מאפריל 2024. ';
+      aboutHtml += 'מטרתה להקטין משמעותית טעויות חישוב והערכת משקל בילדים. ';
+      aboutHtml += 'הנוסחאות שנמצאות כרגע בשימוש בעולם רפואת החירום אינן עושות תיקון לפי מין, ובין 18% עד 48% מהמקרים נותנות למטפלים הערכת משקל שחורגת ביותר מ 10% כאשר מכינים לפיהן את מנת התרופה. ';
+      aboutHtml += 'בנוסף, האפליקציה פותרת את בעיית הטעות העשרונית אשר כה נפוצה בעולם רפואת החירום. ';
+      aboutHtml += 'ניתן לקרוא על כך כאן: <a href="https://drive.google.com/file/d/1FPqFGfjW9KoVzMGBKnpQATmk4Btp57FT/view?usp=drive_link" target="_blank" onclick="window.__logLink()">קישור למאמר</a></p>';
+      aboutHtml += '<button type="button" class="btn btn-secondary" data-action="showStep1">סגור</button>';
+      show(aboutHtml);
+    }
+
+    function showProtocols(fromResult) {
+      var arr = state.protocols || [];
+      if (!fromResult || !arr || arr.length === 0) {
+        state.protocolListMode = 'browse';
+        var html = '';
+        if (fromResult && arr) {
+          html += getPatientBoxHtml(state.sex || 'Male', null, true);
+          html += '<h1>בחר פרוטוקול</h1>';
+        }
+        if (arr) {
+          for (var i = 0; i < arr.length; i++) {
+            var p = arr[i];
+            var name = p.name || '';
+            html += '<button type="button" class="btn btn-primary" data-action="chooseProtocol" data-param="' + attrEsc(name) + '">' + name + '</button>';
+          }
+        }
+        html += '<button type="button" class="floating-back" data-action="reset" data-curtain="טוען נתונים">חזור</button>';
+        show(html);
+        return;
+      }
+      state.protocolListMode = 'choose';
+      var val = state.varType === 'Age' ? state.ageY * 12 + state.ageM : (state.varType === 'Height' ? state.height : state.weight);
+      showLoadingCurtain('טוען נתונים...');
+      apiGet('calc', { sex: state.sex, protocol: arr[0].name, variableType: state.varType, variableValue: val })
+        .then(function(res) {
+          hideLoadingCurtain();
+          var data = res && !res.error ? res : { ageAlt: getAgeLabelForDisplay(), weight: state.weight, height: state.height };
+          showProtocolList(arr, true, data);
+        })
+        .catch(function() {
+          hideLoadingCurtain();
+          showProtocolList(arr, true, { ageAlt: getAgeLabelForDisplay(), weight: state.weight, height: state.height });
+        });
+    }
+
+    function showDrugs() {
+      var arr = state.drugs || [];
+      var html = '';
+      for (var j = 0; j < arr.length; j++) {
+        var q = arr[j];
+        html += '<button type="button" class="btn btn-primary" data-action="openPage" data-param="' + (q.page != null ? q.page : '') + '">' + (q.name || '') + '</button>';
+      }
+      html += '<button type="button" class="floating-back" data-action="reset" data-curtain="טוען נתונים">חזור</button>';
+      show(html);
+    }
+
+    function openPage(page) {
+      window.open('https://online.fliphtml5.com/kpkfh/rapg/#p=' + page, '_blank');
+    }
+
+    function chooseProtocol(name) {
+      state.protocol = name;
+      if (state.protocolListMode === 'browse') {
+        openProtocol();
+        return;
+      }
+      if (!state.sex || !state.varType) {
+        openProtocol();
+      } else {
+        var ageWords = getAgeLabelForDisplay() || 'יילוד';
+        var msg = (state.sex === 'Male' ? 'טוען נתונים לבן ' : 'טוען נתונים לבת ') + ageWords + ', ע"פ פרוטוקול: ' + name;
+        showLoadingCurtain(msg);
+        showStep6();
+      }
+    }
+
+    function chooseVar(v) {
+      state.varType = v;
+      if (v === 'Height') showDial('הזן גובה בס"מ', 'height', showStep4);
+      else showDial('הזן משקל בק"ג', 'weight', showStep4);
+    }
+
+    function showLoadingCurtain(msg) {
+      var el = document.getElementById('loadingCurtain');
+      if (el) {
+        if (msg != null && msg !== '') el.textContent = msg;
+        el.classList.add('show');
+      }
+    }
+    function hideLoadingCurtain() {
+      var el = document.getElementById('loadingCurtain');
+      if (el) el.classList.remove('show');
+    }
+    var PATIENT_BOX_SIGNS_ORDER = ['נשימות בדקה', 'פעימות בדקה', 'סיסטולי תקין', 'דיאסטולי תקין', 'סיסטולי מינימאלי תקין'];
+    function fixSignHeaderForDisplay(header) {
+      if (header == null) return '';
+      var s = String(header).replace(/כותר/g, 'קוטר');
+      if (s.indexOf('LMA') !== -1) s = s.replace(/LMA/g, '<span dir="ltr">LMA</span>');
+      return s;
+    }
+    function getPatientBoxHtml(sex, optDetails, inList) {
+      var isMale = sex === 'Male';
+      var title = isMale ? 'המטופל שנבחר' : 'המטופלת שנבחרה';
+      var cls = isMale ? 'patient-summary-box patient-male' : 'patient-summary-box patient-female';
+      if (inList) cls += ' patient-summary-box--in-list';
+      var h = '<div class="' + cls + '"><h1>' + title + '</h1>';
+      if (optDetails) {
+        if (optDetails.ageAlt != null) h += '<p>גיל: ' + optDetails.ageAlt + '</p>';
+        if (optDetails.weight != null) h += '<p>משקל: ' + optDetails.weight.toFixed(2) + ' ק"ג</p>';
+        if (optDetails.height != null) h += '<p>גובה: ' + optDetails.height.toFixed(2) + ' ס"מ</p>';
+        if (optDetails.signs && optDetails.signs.headers && optDetails.signs.values) {
+          var headers = optDetails.signs.headers;
+          var values = optDetails.signs.values;
+          for (var oi = 0; oi < PATIENT_BOX_SIGNS_ORDER.length; oi++) {
+            var key = PATIENT_BOX_SIGNS_ORDER[oi];
+            for (var si = 0; si < headers.length; si++) {
+              if (headers[si] && String(headers[si]).indexOf(key) !== -1) {
+                h += '<p>' + fixSignHeaderForDisplay(headers[si]) + ': ' + values[si] + '</p>';
+                break;
+              }
+            }
+          }
+        }
+      }
+      h += '</div>';
+      return h;
+    }
+    function showProtocolList(arr, withPatientBox, patientData) {
+      state.protocolListMode = withPatientBox ? 'choose' : 'browse';
+      var html = '';
+      if (withPatientBox) {
+        html += getPatientBoxHtml(state.sex || 'Male', patientData || null, true);
+        html += '<h1>בחר פרוטוקול</h1>';
+      }
+      for (var i = 0; i < arr.length; i++) {
+        var p = arr[i];
+        var name = (p && p.name) || '';
+        html += '<button type="button" class="btn btn-primary" data-action="chooseProtocol" data-param="' + attrEsc(name) + '">' + name + '</button>';
+      }
+      html += '<button type="button" class="floating-back" data-action="reset" data-curtain="טוען נתונים">חזור</button>';
+      show(html);
+    }
+    function goToProtocols() {
+      state.varType = 'Age';
+      var arr = state.protocols || [];
+      if (!arr || arr.length === 0) {
+        showProtocolList([], true, null);
+        return;
+      }
+      var val = state.ageY * 12 + state.ageM;
+      showLoadingCurtain('טוען רשימת פרוטוקולים...');
+      apiGet('calc', { sex: state.sex, protocol: arr[0].name, variableType: 'Age', variableValue: val })
+        .then(function(res) {
+          hideLoadingCurtain();
+          var data = res && !res.error ? res : { ageAlt: getAgeLabelForDisplay(), weight: state.weight, height: state.height };
+          showProtocolList(arr, true, data);
+        })
+        .catch(function() {
+          hideLoadingCurtain();
+          showProtocolList(arr, true, { ageAlt: getAgeLabelForDisplay(), weight: state.weight, height: state.height });
+        });
+    }
+
+    function showDial(title, field, nextFn) {
+      var keys = ['3','2','1','6','5','4','9','8','7','.','0','תקן'];
+      var keyHtml = '';
+      for (var ki = 0; ki < keys.length; ki++) {
+        var k = keys[ki];
+        keyHtml += '<button type="button" class="key" data-action="dialPress" data-key="' + attrEsc(k) + '">' + k + '</button>';
+      }
+      var btnLabel = (nextFn && nextFn.name === 'showAgeM') ? 'המשך להזנת חודשים' : 'המשך';
+      var dialHtml = '<p style="font-size:4rem;">' + title + '</p>';
+      dialHtml += '<div id="numericDisplay" class="display">0</div>';
+      dialHtml += '<div class="keypad">' + keyHtml + '</div>';
+      dialHtml += '<button type="button" class="btn btn-primary" data-action="showStep4">' + btnLabel + '</button>';
+      dialHtml += '<button type="button" class="btn btn-secondary" data-action="reset">חזור</button>';
+      show(dialHtml);
+      window.currentField = field;
+      var initial = state[field];
+      window.dialDisplay = (initial === 0 || initial === '0') ? '0' : String(initial);
+      updateDisplay();
+    }
+
+    function dialPress(k, field) {
+      var v = (window.dialDisplay != null ? window.dialDisplay : state[field].toString());
+      if (k === 'תקן') {
+        v = v.slice(0, -1) || '0';
+      } else if (k === '.') {
+        if (v.indexOf('.') === -1) v += '.';
+      } else {
+        v = (v === '0' && k !== '.') ? k : v + k;
+      }
+      window.dialDisplay = v;
+      state[field] = parseFloat(v) || 0;
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      var el = document.getElementById('numericDisplay');
+      if (el) el.innerText = (window.dialDisplay != null ? window.dialDisplay : state[window.currentField]);
+    }
+
+    function showStep4() {
+      showProtocols(false);
+    }
+
+    function showStep6() {
+      var val = state.varType === 'Age'
+        ? state.ageY * 12 + state.ageM
+        : (state.varType === 'Height' ? state.height : state.weight);
+
+      apiGet('calc', { sex: state.sex, protocol: state.protocol, variableType: state.varType, variableValue: val })
+        .then(renderResult)
+        .catch(function() {
+          hideLoadingCurtain();
+          show('<p style="color:red; font-size:4rem; text-align:center;">שגיאה בטעינת הנתונים. נסה שוב.</p><button type="button" class="btn btn-secondary" data-action="reset" data-curtain="טוען נתונים">חזור</button>');
+        });
+    }
+
+    function renderResult(res) {
+      hideLoadingCurtain();
+      if (res.error === 'outOfRange') {
+        return show('<p style="color:red; font-size:4rem; text-align:center;">ערך שנבחר הינו מחוץ לטווח, נא לבדוק סימני מין משניים.</p><button type="button" class="btn btn-secondary" data-action="reset" data-curtain="טוען נתונים">חזור</button>');
+      }
+      if (res.error === 'neonatalOutOfRange') {
+        return show('<p style="color:red; font-size:4rem; text-align:center;">המטופל שהוגדר אינו מתאים להחייאת יילוד</p><button type="button" class="btn btn-secondary" data-action="showProtocols">חזור</button>');
+      }
+
+      var html = '<div class="result-screen">';
+      html += getPatientBoxHtml(res.sex, { ageAlt: res.ageAlt, weight: res.weight, height: res.height, signs: res.signs, protocol: res.protocol });
+
+      html += '<div class="result-section">';
+      html += '<h2>נ"א מתקדם - גדלים ונפחים</h2>';
+      for (var si = 0; si < res.signs.headers.length; si++) {
+        var header = res.signs.headers[si];
+        var skip = false;
+        for (var pi = 0; pi < PATIENT_BOX_SIGNS_ORDER.length; pi++) {
+          if (header && String(header).indexOf(PATIENT_BOX_SIGNS_ORDER[pi]) !== -1) { skip = true; break; }
+        }
+        if (!skip) html += '<div class="dosage-line" style="text-align:right;" dir="rtl">' + fixSignHeaderForDisplay(header) + ': ' + res.signs.values[si] + '</div>';
+      }
+      html += '</div>';
+
+      html += '<div class="result-section result-section--ltr">';
+      html += '<h2>מינונים ע"פ משקל</h2>';
+      for (var di = 0; di < res.drugDosages.length; di++) {
+        var d = res.drugDosages[di];
+        if (d.notAllowed) {
+          html += '<div class="dosage-line"><b style="color:red;">' + d.name + ' התרופה אסורה לגיל הזה</b></div>';
+        } else if (d.low != null) {
+          html += '<div class="dosage-line">' + d.name + ' <b>' + d.low.toFixed(2) + '-' + d.high.toFixed(2) + '</b> ' + d.unit + '</div>';
+        } else {
+          html += '<div class="dosage-line">' + d.name + ' <b>' + d.val.toFixed(2) + '</b> ' + d.unit + '</div>';
+        }
+      }
+      html += '</div>';
+
+      html += '<p class="result-disclaimer" style="color:red; font-weight:bold; text-align:center;">! השימוש בנתונים הוא באחריות המשתמש !</p>';
+      html += '</div>';
+
+      html += '<button type="button" class="btn btn-primary" data-action="openProtocol">הצג פרוטוקול</button>';
+      html += '<button type="button" class="btn btn-secondary" data-action="showProtocols" data-param="true">שנה פרוטוקול</button>';
+      html += '<button type="button" class="btn btn-secondary" data-action="reset" data-curtain="טוען נתונים">שנה מטופל</button>';
+
+      // 7) הצגה ולוג
+      show(html);
+      apiPost({ action: 'logResult', sex: res.sex, what: state.varType, protocol: res.protocol, value: res.weight });
+    }
+
+    function openProtocol() {
+      var arr = state.protocols || [];
+      var q = null;
+      for (var qi = 0; qi < arr.length; qi++) {
+        if (arr[qi].name === state.protocol) { q = arr[qi]; break; }
+      }
+      if (q) window.open('https://online.fliphtml5.com/kpkfh/rapg/#p=' + q.page, '_blank');
+    }
+
+    // Expose handlers to window so inline onclick works in GAS iframe (e.g. on iOS)
+    window.chooseVar = chooseVar;
+    window.showProtocols = showProtocols;
+    window.showDrugs = showDrugs;
+    window.showAbout = showAbout;
+    window.reset = reset;
+    window.showStep1 = showStep1;
+    window.showStep4 = showStep4;
+    window.chooseProtocol = chooseProtocol;
+    window.openPage = openPage;
+    window.dialPress = dialPress;
+    window.openProtocol = openProtocol;
+
+    // Initialize: one round-trip loads age labels, boys/girls weight-height,
+    // protocols and drug list; then show step 1.
+    function startApp() {
+      showStep1();
+    }
+    apiGet('init').then(function(d) {
+      d = d || {};
+      state.ageLabels  = d.ageLabels || [];
+      state.boysWeight  = (d.boys && d.boys.weight)  ? d.boys.weight  : [];
+      state.boysHeight  = (d.boys && d.boys.height)  ? d.boys.height  : [];
+      state.girlsWeight = (d.girls && d.girls.weight) ? d.girls.weight : [];
+      state.girlsHeight = (d.girls && d.girls.height) ? d.girls.height : [];
+      state.protocols  = d.protocols || [];
+      state.drugs      = d.drugs || [];
+      startApp();
+    }).catch(function() {
+      state.ageLabels = []; state.boysWeight = []; state.boysHeight = [];
+      state.girlsWeight = []; state.girlsHeight = []; state.protocols = []; state.drugs = [];
+      var el = document.getElementById('loadingCurtain');
+      if (el) el.textContent = 'שגיאה בטעינת הנתונים. נסה לרענן את הדף.';
+    });
+  </script>
+</body>
+</html>
