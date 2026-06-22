@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open Book - Interactive Lessons</title>
+  <style>
+    :root { --bg:#0e1726; --panel:#16233a; --accent:#2f7d4f; --text:#eef3f8; --muted:#9fb2c8; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #1b2c47, var(--bg));
+      color: var(--text); min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 20px; text-align: center;
+    }
+    h1 { font-size: clamp(28px, 5vw, 44px); margin: 18px 0 6px; }
+    .tag { color: var(--muted); font-size: clamp(15px, 2.5vw, 18px); margin-bottom: 28px; }
+    .card {
+      background: var(--panel); border: 1px solid #24364f; border-radius: 16px;
+      padding: 28px 26px; max-width: 640px; width: 100%;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    }
+    .card h2 { margin: 0 0 10px; font-size: 20px; }
+    .card p { color: var(--muted); line-height: 1.6; margin: 0 0 8px; }
+    .lessons { list-style: none; padding: 0; margin: 16px 0 0; text-align: left; }
+    .lessons li { margin: 8px 0; }
+    .lessons a { color: #7fd1a0; text-decoration: none; font-weight: 600; }
+    .lessons a:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    footer { margin-top: 26px; color: var(--muted); font-size: 13px; }
+    .badge {
+      display:inline-block; background: var(--accent); color:#fff; font-weight:700;
+      padding:4px 12px; border-radius:999px; font-size:13px; letter-spacing:.3px;
+    }
+  </style>
+</head>
+<body>
+  <span class="badge">Open Book</span>
+  <h1>Open Book - Interactive Lessons</h1>
+  <div class="tag">Interactive lessons by Dan Drory, EMT-P, EMS-BA</div>
+
+  <div class="card">
+    <h2>Lessons</h2>
+    <p>Published lessons will appear here. Each lesson runs right in your browser&nbsp;&mdash; no download or install needed.</p>
+    <ul class="lessons">
+      <li class="empty">No lessons published yet&mdash;check back soon.</li>
+      <!-- To publish a lesson: export it from the app, drop the folder inside /lessons,
+           then add a link here, e.g.:
+           <li><a href="lessons/my-lesson/index.html">My First Lesson</a></li> -->
+    </ul>
+  </div>
+
+  <footer>&copy; 2026 Open Book - Interactive Lessons</footer>
+</body>
+</html>
