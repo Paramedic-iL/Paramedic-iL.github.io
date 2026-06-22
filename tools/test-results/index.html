@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>סטטיסטיקות מבחן חובשים</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+      box-sizing: border-box;
+    }
+
+    /* MASTER SIZE KNOB — ?tune=1 slider adjusts this; set your default here */
+    html { font-size: 16px; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+      direction: rtl;
+      text-align: right;
+    }
+    body {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 2rem 1.5rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 1rem 0;
+      font-size: 3rem;
+    }
+
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      z-index: 999;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .top-container {
+      display: flex;
+      gap: 1rem;
+      align-items: stretch;
+      margin-bottom: 1rem;
+    }
+
+    .top-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 0.75rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+
+    .logo-box {
+      flex: 0 0 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #logoImg {
+      max-width: 100%;
+      max-height: 120px;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    .podium-box {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0.75rem;
+      position: relative;
+      padding-top: 1.5rem;
+    }
+
+    .podium-title {
+      position: absolute;
+      top: 0;
+      right: 0.5rem;
+      font-weight: bold;
+      font-size: 1.4rem;
+    }
+
+    .podium-column {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .podium-name {
+      font-size: 1.3rem;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .podium-score {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 0.25rem;
+    }
+
+    .podium-block {
+      width: 100%;
+      border-radius: 10px 10px 0 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0.35rem;
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #222;
+    }
+
+    .podium-first {
+      background: linear-gradient(to top, #ffd700, #fff3a0);
+      height: 140px;
+    }
+    .podium-second {
+      background: linear-gradient(to top, #c0c0c0, #f0f0f0);
+      height: 100px;
+    }
+    .podium-third {
+      background: linear-gradient(to top, #cd7f32, #f0d3a5);
+      height: 85px;
+    }
+
+    .buttons-box {
+      flex: 0 0 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .top-button {
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      padding: 0.9rem 1.1rem;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #fff;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+      width: 100%;
+      text-align: center;
+    }
+
+    .top-button:active {
+      transform: scale(0.97);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
+    }
+
+    #toggleModeBtn { background: #007bff; }
+    #sendEmailBtn { background: #e53935; }
+    #mistakeToggleBtn { background: #4caf50; opacity: 0.75; }
+    #mistakeToggleBtn.active {
+      opacity: 1;
+      box-shadow: 0 0 0 2px rgba(76,175,80,0.4);
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 1.4fr 1.2fr;
+      gap: 1rem;
+      height: calc(100vh - 260px);
+      min-height: 450px;
+    }
+
+    .panel {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 1.1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+
+    #detailPanel { overflow-y: auto; }
+
+    #listPanel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+    }
+
+    .list-scroll {
+      margin-top: 0.4rem;
+      overflow-y: auto;
+      flex: 1 1 auto;
+      padding-right: 0.2rem;
+    }
+
+    .list-item-btn {
+      display: block;
+      width: 100%;
+      text-align: right;
+      padding: 0.7rem 0.9rem;
+      margin-bottom: 0.35rem;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      cursor: pointer;
+      font-size: 1.35rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.1s ease, border-color 0.1s ease;
+    }
+
+    .list-item-btn:hover { background: #f0f8ff; }
+
+    .list-item-btn.selected {
+      background: #1976d2;
+      border-color: #1976d2;
+      color: #fff;
+    }
+
+    .question-header {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.4rem;
+    }
+
+    .stats-line {
+      font-size: 1.35rem;
+      margin-bottom: 0.4rem;
+      color: #1a73e8;
+      text-align: right;
+    }
+
+    .answers-list { margin: 0; padding: 0; list-style: none; }
+    .answers-list li { margin-bottom: 0.3rem; font-size: 1.35rem; }
+    .answer-label { font-weight: bold; margin-left: 0.3rem; }
+    .answer-text { margin-left: 0.3rem; }
+    .answer-count { margin-right: 0.4rem; cursor: pointer; font-size: 1.2rem; }
+    .answer-correct { color: #2e7d32; }
+    .answer-incorrect { color: #c62828; }
+
+    .student-header { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.4rem; }
+    .student-summary { font-size: 1.35rem; margin-bottom: 0.5rem; }
+
+    .rect-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .q-rect {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      cursor: pointer;
+      border: 1px solid #ddd;
+    }
+
+    .q-rect.correct { background: #c8e6c9; border-color: #81c784; }
+    .q-rect.incorrect { background: #ffcdd2; border-color: #e57373; }
+    .q-rect.unanswered { background: #bbdefb; border-color: #64b5f6; }
+    .q-rect.selected { box-shadow: 0 0 0 2px #1976d2; }
+
+    .student-question-section {
+      border-top: 1px solid #eee;
+      padding-top: 0.5rem;
+      margin-top: 0.4rem;
+    }
+
+    .student-answer-line { font-size: 1.35rem; margin-bottom: 0.3rem; }
+
+    #tooltip {
+      position: fixed;
+      background: #333;
+      color: #fff;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      max-width: 260px;
+      display: none;
+      z-index: 1000;
+      pointer-events: none;
+      white-space: pre-wrap;
+      text-align: right;
+      direction: rtl;
+    }
+
+    #emailModalBackdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+    }
+
+    #emailModal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      width: 380px;
+      max-width: 92vw;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    #emailModal h2 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
+
+    .email-list {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0.4rem;
+      margin-bottom: 0.6rem;
+      max-height: 45vh;
+      overflow-y: auto;
+      font-size: 1.2rem;
+    }
+
+    .email-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .email-row label { flex: 1; cursor: pointer; text-align: right; }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .modal-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 0.6rem 1rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .modal-btn.back { background: #e0e0e0; }
+    .modal-btn.send { background: #1976d2; color: #fff; }
+
+    .small-note { font-size: 1.1rem; color: #666; margin-top: 0.2rem; }
+
+    /* back-to-site link + size slider (fixed px, independent of scale) */
+    .site-back {
+      position: fixed;
+      top: 8px;
+      left: 12px;
+      z-index: 3000;
+      font-size: 15px;
+      color: #334155;
+      text-decoration: none;
+      background: rgba(255,255,255,0.9);
+      padding: 4px 10px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+    #size-control {
+      position: fixed;
+      top: 6px;
+      left: 110px;
+      z-index: 4000;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15,23,42,0.92);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      direction: ltr;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    #size-control.show { display: flex; }
+    #size-control input[type=range] { width: 120px; }
+    #size-control b { min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* Responsive: stack on phones/tablets */
+    @media (max-width: 860px) {
+      body { padding: 0.6rem; }
+      h1 { font-size: 2rem; }
+      .top-container { flex-direction: column; }
+      .buttons-box, .logo-box { flex: none; }
+      .logo-box { order: -1; }
+      #logoImg { max-height: 90px; }
+      .main-container {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 0;
+      }
+      .panel { overflow: visible; }
+      #listPanel { max-height: 50vh; }
+      #detailPanel { overflow: visible; }
+      .q-rect { width: 40px; height: 40px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="site-back" href="../../index.html">&larr; Open Book</a>
+  <div id="size-control">
+    <span>גודל</span>
+    <input type="range" id="size-slider" min="8" max="26" step="0.5" value="16">
+    <b id="size-val">16.0px</b>
+  </div>
+
+  <div id="loadingOverlay">טוען נתונים...</div>
+
+  <h1>סטטיסטיקות מבחן חובשים</h1>
+
+  <div id="tooltip"></div>
+
+  <!-- Email Modal -->
+  <div id="emailModalBackdrop">
+    <div id="emailModal">
+      <h2>שליחת תוצאות במייל</h2>
+      <div class="small-note">
+        בחר למי לשלוח את סיכום התוצאות (אותו קובץ לכל הנמענים).
+      </div>
+      <div class="email-list" id="emailList"></div>
+      <div class="small-note" id="emailStatus"></div>
+      <div class="modal-buttons">
+        <button class="modal-btn back" id="emailBackBtn">חזור</button>
+        <button class="modal-btn send" id="emailSendBtn">שלח</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top area: buttons | podium | logo -->
+  <div class="top-container">
+    <div class="top-box buttons-box">
+      <button id="toggleModeBtn" class="top-button">הצג לפי שמות</button>
+      <button id="sendEmailBtn" class="top-button">שלח תוצאות במייל</button>
+      <button id="mistakeToggleBtn" class="top-button">לפי טעויות</button>
+    </div>
+
+    <div class="top-box podium-box">
+      <div class="podium-title">שלושת המובילים</div>
+      <div class="podium-column" id="podiumSecond">
+        <div class="podium-name" id="secondName">—</div>
+        <div class="podium-score" id="secondScore"></div>
+        <div class="podium-block podium-second">2</div>
+      </div>
+      <div class="podium-column" id="podiumFirst">
+        <div class="podium-name" id="firstName">—</div>
+        <div class="podium-score" id="firstScore"></div>
+        <div class="podium-block podium-first">1</div>
+      </div>
+      <div class="podium-column" id="podiumThird">
+        <div class="podium-name" id="thirdName">—</div>
+        <div class="podium-score" id="thirdScore"></div>
+        <div class="podium-block podium-third">3</div>
+      </div>
+    </div>
+
+    <div class="top-box logo-box">
+      <img id="logoImg" alt="Logo">
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div class="main-container">
+    <div id="listPanel" class="panel">
+      <div class="panel-title" id="listTitle"></div>
+      <div class="list-scroll" id="listScroll"></div>
+    </div>
+    <div id="detailPanel" class="panel"></div>
+  </div>
+
+  <script>
+    /*****************************************************
+     * API CONFIG  ← set this
+     *****************************************************/
+    const API_URL = "https://script.google.com/macros/s/AKfycbykQC8uLHDjTNkT9uWz7ZJ_5GP66QFJbHpyp6Dl1wzDrhJoxBhsA-NeOCy9L6rBylCj/exec";
+
+    /*****************************************************
+     * SIZE TUNING (master scale = root font-size in px)
+     * Shown only with ?tune=1.
+     *****************************************************/
+    (function () {
+      const root = document.documentElement;
+      const slider = document.getElementById('size-slider');
+      const valEl = document.getElementById('size-val');
+      const control = document.getElementById('size-control');
+      function apply(px) { root.style.fontSize = px + 'px'; valEl.textContent = px.toFixed(1) + 'px'; }
+      const saved = parseFloat(localStorage.getItem('testResultsRootPx'));
+      if (!isNaN(saved)) { slider.value = saved; apply(saved); }
+      if (/[?&]tune=1\b/.test(location.search)) control.classList.add('show');
+      slider.addEventListener('input', function () {
+        const v = parseFloat(slider.value); apply(v);
+        localStorage.setItem('testResultsRootPx', v);
+      });
+    })();
+
+    let appData = null;
+    let logoReady = false;
+    let dataReady = false;
+
+    let currentMode = 'questions'; // 'questions' or 'names'
+    let mistakeOnly = false;
+    let currentQuestionIndex = 0;  // 0-based
+    let currentStudentIndex = 0;
+
+    // Load data + logo via fetch (instead of google.script.run)
+    fetch(API_URL + '?action=stats')
+      .then(r => r.json())
+      .then(function (data) {
+        dataReady = true;
+        appData = data;
+        checkReady();
+      })
+      .catch(function (err) {
+        document.getElementById('loadingOverlay').textContent =
+          'שגיאה בטעינת הנתונים: ' + (err && err.message ? err.message : err);
+      });
+
+    fetch(API_URL + '?action=logo')
+      .then(r => r.json())
+      .then(function (logo) {
+        logoReady = true;
+        if (logo && logo.dataUrl) document.getElementById('logoImg').src = logo.dataUrl;
+        checkReady();
+      })
+      .catch(function () {
+        logoReady = true;
+        checkReady();
+      });
+
+    function checkReady() {
+      if (!dataReady || !logoReady) return;
+      if (appData && appData.status === 'ERROR') {
+        document.getElementById('loadingOverlay').textContent =
+          'שגיאה: ' + (appData.message || 'לא ידוע');
+        return;
+      }
+      document.getElementById('loadingOverlay').style.display = 'none';
+      initApp();
+    }
+
+    function initApp() {
+      if (!appData || appData.status !== 'OK') {
+        alert('שגיאה בנתונים');
+        return;
+      }
+
+      setupPodium();
+      setupButtons();
+      renderListPanel();
+      renderDetailPanel();
+
+      document.addEventListener('click', hideTooltip);
+    }
+
+    function setupPodium() {
+      const p = appData.podium;
+
+      function setPodium(place, student) {
+        const nameEl = document.getElementById(place + 'Name');
+        const scoreEl = document.getElementById(place + 'Score');
+        if (!student) {
+          nameEl.textContent = '—';
+          scoreEl.textContent = '';
+        } else {
+          nameEl.textContent = student.name || '(ללא שם)';
+          scoreEl.textContent = student.gradeText + ' (' + student.percentage + '%)';
+        }
+      }
+
+      setPodium('first', p.first);
+      setPodium('second', p.second);
+      setPodium('third', p.third);
+    }
+
+    function setupButtons() {
+      const toggleBtn = document.getElementById('toggleModeBtn');
+      const emailBtn  = document.getElementById('sendEmailBtn');
+      const mistakeBtn = document.getElementById('mistakeToggleBtn');
+
+      toggleBtn.addEventListener('click', function() {
+        if (currentMode === 'questions') {
+          currentMode = 'names';
+          toggleBtn.textContent = 'הצג לפי שאלות';
+        } else {
+          currentMode = 'questions';
+          toggleBtn.textContent = 'הצג לפי שמות';
+        }
+        renderListPanel();
+        renderDetailPanel();
+      });
+
+      mistakeBtn.addEventListener('click', function() {
+        mistakeOnly = !mistakeOnly;
+        mistakeBtn.classList.toggle('active', mistakeOnly);
+        renderListPanel();
+        if (currentMode === 'questions') {
+          fixCurrentQuestionAfterFilter();
+          renderDetailPanel();
+        }
+      });
+
+      emailBtn.addEventListener('click', openEmailModal);
+
+      document.getElementById('emailBackBtn').addEventListener('click', closeEmailModal);
+      document.getElementById('emailSendBtn').addEventListener('click', sendEmailsFromModal);
+    }
+
+    // --- LIST PANEL ---
+
+    function getQuestionIndicesForList() {
+      const qs = appData.questionStats;
+      const indices = [];
+
+      for (let i = 0; i < qs.length; i++) {
+        if (mistakeOnly) {
+          if (qs[i].incorrectCount > 0) {
+            indices.push(i);
+          }
+        } else {
+          indices.push(i);
+        }
+      }
+
+      if (mistakeOnly) {
+        indices.sort((a, b) => {
+          const qa = appData.questionStats[a];
+          const qb = appData.questionStats[b];
+          if (qb.incorrectCount !== qa.incorrectCount) {
+            return qb.incorrectCount - qa.incorrectCount; // most mistakes first
+          }
+          return a - b; // by question number
+        });
+      }
+
+      return indices;
+    }
+
+    function renderListPanel() {
+      const listTitle = document.getElementById('listTitle');
+      const listScroll = document.getElementById('listScroll');
+      listScroll.innerHTML = '';
+
+      if (currentMode === 'questions') {
+        listTitle.textContent = 'שאלות';
+
+        const indices = getQuestionIndicesForList();
+
+        if (!indices.includes(currentQuestionIndex) && indices.length > 0) {
+          currentQuestionIndex = indices[0];
+        }
+
+        indices.forEach(i => {
+          const btn = document.createElement('button');
+          btn.className = 'list-item-btn' + (i === currentQuestionIndex ? ' selected' : '');
+          btn.textContent = 'שאלה ' + (i + 1);
+          btn.dataset.qIndex = i;
+          btn.addEventListener('click', function() {
+            currentQuestionIndex = parseInt(this.dataset.qIndex, 10);
+            renderListPanel();
+            renderDetailPanel();
+          });
+          listScroll.appendChild(btn);
+        });
+
+        if (indices.length === 0) {
+          const p = document.createElement('p');
+          p.textContent = 'אין שאלות להציג במצב זה.';
+          p.style.fontSize = '1.2rem';
+          listScroll.appendChild(p);
+        }
+
+      } else {
+        listTitle.textContent = 'נבחנים';
+        const students = appData.students;
+
+        students.forEach((s, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'list-item-btn' + (i === currentStudentIndex ? ' selected' : '');
+          btn.textContent = (s.name || '(ללא שם)');
+          btn.dataset.sIndex = i;
+          btn.addEventListener('click', function() {
+            currentStudentIndex = parseInt(this.dataset.sIndex, 10);
+            renderListPanel();
+            renderDetailPanel();
+          });
+          listScroll.appendChild(btn);
+        });
+
+        if (students.length === 0) {
+          const p = document.createElement('p');
+          p.textContent = 'אין נבחנים להציג.';
+          p.style.fontSize = '1.2rem';
+          listScroll.appendChild(p);
+        }
+      }
+    }
+
+    function fixCurrentQuestionAfterFilter() {
+      const indices = getQuestionIndicesForList();
+      if (!indices.includes(currentQuestionIndex) && indices.length > 0) {
+        currentQuestionIndex = indices[0];
+      }
+    }
+
+    // --- DETAIL PANEL ---
+
+    function renderDetailPanel() {
+      const panel = document.getElementById('detailPanel');
+      panel.innerHTML = '';
+
+      if (currentMode === 'questions') {
+        renderQuestionDetail(panel);
+      } else {
+        renderStudentDetail(panel);
+      }
+    }
+
+    function renderQuestionDetail(panel) {
+      const qs = appData.questionStats[currentQuestionIndex];
+      if (!qs) {
+        panel.textContent = 'אין נתונים לשאלה זו.';
+        return;
+      }
+      const q = appData.questions[currentQuestionIndex];
+
+      const header = document.createElement('div');
+      header.className = 'question-header';
+      header.textContent = (qs.index) + '. ' + q.text;
+      panel.appendChild(header);
+
+      const statsLine = document.createElement('div');
+      statsLine.className = 'stats-line';
+      statsLine.textContent =
+        'נכון: ' + qs.correctCount +
+        ', לא נכון: ' + qs.incorrectCount +
+        ', אין תשובה: ' + qs.unansweredCount;
+      panel.appendChild(statsLine);
+
+      const ul = document.createElement('ul');
+      ul.className = 'answers-list';
+
+      qs.optionStats.forEach((os, idx) => {
+        const li = document.createElement('li');
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'answer-label';
+        labelSpan.textContent = os.label + '.';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'answer-text';
+        textSpan.textContent = os.text;
+
+        const countSpan = document.createElement('span');
+        countSpan.className = 'answer-count';
+        countSpan.textContent = '[' + os.count + ']';
+        countSpan.dataset.qIndex = currentQuestionIndex;
+        countSpan.dataset.optIndex = idx;
+        countSpan.addEventListener('mouseenter', onAnswerCountHover);
+        countSpan.addEventListener('mousemove', onAnswerCountMove);
+        countSpan.addEventListener('mouseleave', hideTooltip);
+        countSpan.addEventListener('click', onAnswerCountTap);
+
+        if (idx === 0) {
+          textSpan.classList.add('answer-correct');
+        } else {
+          textSpan.classList.add('answer-incorrect');
+        }
+
+        li.appendChild(labelSpan);
+        li.appendChild(textSpan);
+        li.appendChild(countSpan);
+        ul.appendChild(li);
+      });
+
+      panel.appendChild(ul);
+    }
+
+    function renderStudentDetail(panel) {
+      const students = appData.students;
+      const s = students[currentStudentIndex];
+      if (!s) {
+        panel.textContent = 'אין נתונים לנבחן זה.';
+        return;
+      }
+
+      const header = document.createElement('div');
+      header.className = 'student-header';
+      header.textContent = s.name || '(ללא שם)';
+      panel.appendChild(header);
+
+      const summary = document.createElement('div');
+      summary.className = 'student-summary';
+      summary.innerHTML =
+        'נכון: <strong>' + s.correctCount + '</strong>, ' +
+        'לא נכון: <strong>' + s.incorrectCount + '</strong>, ' +
+        'ללא תשובה: <strong>' + s.unansweredCount + '</strong><br>' +
+        'ציון כולל: <strong>' + s.gradeText +
+        '</strong>, ציון באחוזים: <strong>' + s.percentage + '%</strong>';
+      panel.appendChild(summary);
+
+      const rectGrid = document.createElement('div');
+      rectGrid.className = 'rect-grid';
+
+      const effectiveQCount = appData.questionStats.length;
+      let selectedIdx = 0;
+
+      for (let i = 0; i < effectiveQCount; i++) {
+        const ans = s.answers[i];
+        const rect = document.createElement('div');
+        rect.className = 'q-rect';
+        rect.textContent = (i + 1);
+        rect.dataset.qIndex = i;
+
+        const status = ans ? ans.status : 'unanswered';
+        if (status === 'correct') rect.classList.add('correct');
+        else if (status === 'incorrect') rect.classList.add('incorrect');
+        else rect.classList.add('unanswered');
+
+        rect.addEventListener('click', function() {
+          const qIdx = parseInt(this.dataset.qIndex, 10);
+          selectedIdx = qIdx;
+          renderStudentQuestionDetail(panel, s, qIdx);
+          Array.from(rectGrid.children).forEach(child => child.classList.remove('selected'));
+          this.classList.add('selected');
+        });
+
+        rectGrid.appendChild(rect);
+
+        if (i === 0) rect.classList.add('selected');
+      }
+
+      panel.appendChild(rectGrid);
+      renderStudentQuestionDetail(panel, s, selectedIdx);
+    }
+
+    function renderStudentQuestionDetail(panel, student, qIndex) {
+      let section = panel.querySelector('.student-question-section');
+      if (!section) {
+        section = document.createElement('div');
+        section.className = 'student-question-section';
+        panel.appendChild(section);
+      }
+      section.innerHTML = '';
+
+      const qs = appData.questionStats[qIndex];
+      const q = appData.questions[qIndex];
+      if (!qs || !q) {
+        section.textContent = 'אין נתונים לשאלה זו.';
+        return;
+      }
+
+      const ans = student.answers[qIndex];
+
+      const header = document.createElement('div');
+      header.className = 'question-header';
+      header.textContent = (qs.index) + '. ' + q.text;
+      section.appendChild(header);
+
+      const statsLine = document.createElement('div');
+      statsLine.className = 'stats-line';
+      statsLine.textContent =
+        'נכון: ' + qs.correctCount +
+        ', לא נכון: ' + qs.incorrectCount +
+        ', ללא תשובה: ' + qs.unansweredCount;
+      section.appendChild(statsLine);
+
+      const studentAnsLine = document.createElement('div');
+      studentAnsLine.className = 'student-answer-line';
+
+      const status = ans ? ans.status : 'unanswered';
+      let statusText = 'לא ענה';
+      if (status === 'correct') statusText = 'נכון';
+      else if (status === 'incorrect') statusText = 'לא נכון';
+
+      studentAnsLine.textContent =
+        'תשובתך: ' + (ans && ans.answer ? ans.answer : '(לא ענה)') +
+        ' [' + statusText + ']';
+      section.appendChild(studentAnsLine);
+
+      const ul = document.createElement('ul');
+      ul.className = 'answers-list';
+
+      const qsOpt = qs.optionStats;
+      qsOpt.forEach((os, idx) => {
+        const li = document.createElement('li');
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'answer-label';
+        labelSpan.textContent = os.label + '.';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'answer-text';
+        textSpan.textContent = os.text;
+
+        if (idx === 0) {
+          textSpan.style.color = '#2e7d32';
+        } else if (status === 'incorrect' && ans && ans.answer === os.text) {
+          textSpan.style.color = '#c62828';
+        } else {
+          textSpan.style.color = '#000000';
+        }
+
+        const countSpan = document.createElement('span');
+        countSpan.className = 'answer-count';
+        countSpan.textContent = '[' + os.count + ']';
+        countSpan.dataset.qIndex = qIndex;
+        countSpan.dataset.optIndex = idx;
+        countSpan.addEventListener('mouseenter', onAnswerCountHover);
+        countSpan.addEventListener('mousemove', onAnswerCountMove);
+        countSpan.addEventListener('mouseleave', hideTooltip);
+        countSpan.addEventListener('click', onAnswerCountTap);
+
+        li.appendChild(labelSpan);
+        li.appendChild(textSpan);
+        li.appendChild(countSpan);
+        ul.appendChild(li);
+      });
+
+      section.appendChild(ul);
+    }
+
+    // --- TOOLTIP ---
+
+    function onAnswerCountHover(e) {
+      const qIndex = parseInt(e.target.dataset.qIndex, 10);
+      const optIndex = parseInt(e.target.dataset.optIndex, 10);
+      const qs = appData.questionStats[qIndex];
+      if (!qs) return;
+      const os = qs.optionStats[optIndex];
+      if (!os) return;
+
+      const names = os.names;
+      const tooltip = document.getElementById('tooltip');
+      if (!names || names.length === 0) {
+        tooltip.textContent = 'אין שמות להצגה.';
+      } else {
+        tooltip.textContent = names.join('\n');
+      }
+      tooltip.style.display = 'block';
+      positionTooltip(e);
+    }
+
+    // Tap support for touch devices (no hover)
+    function onAnswerCountTap(e) {
+      e.stopPropagation();
+      const tooltip = document.getElementById('tooltip');
+      if (tooltip.style.display === 'block') { hideTooltip(); return; }
+      onAnswerCountHover(e);
+    }
+
+    function onAnswerCountMove(e) {
+      positionTooltip(e);
+    }
+
+    function positionTooltip(e) {
+      const tooltip = document.getElementById('tooltip');
+      const padding = 10;
+      let x = (e.clientX != null ? e.clientX : 20) + padding;
+      let y = (e.clientY != null ? e.clientY : 20) + padding;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    }
+
+    function hideTooltip() {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.style.display = 'none';
+    }
+
+    // --- EMAIL MODAL ---
+
+    function openEmailModal() {
+      const emails = appData.emails || [];
+      const list = document.getElementById('emailList');
+      list.innerHTML = '';
+
+      emails.forEach((e, idx) => {
+        const row = document.createElement('div');
+        row.className = 'email-row';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = 'emailCb_' + idx;
+        cb.dataset.email = e.email;
+
+        const label = document.createElement('label');
+        label.setAttribute('for', cb.id);
+        label.textContent = (e.name || '');
+
+        row.appendChild(cb);
+        row.appendChild(label);
+        list.appendChild(row);
+      });
+
+      document.getElementById('emailStatus').textContent = '';
+      document.getElementById('emailModalBackdrop').style.display = 'flex';
+    }
+
+    function closeEmailModal() {
+      document.getElementById('emailModalBackdrop').style.display = 'none';
+    }
+
+    function sendEmailsFromModal() {
+      const checkboxes = document.querySelectorAll('#emailList input[type="checkbox"]');
+      const selected = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked && cb.dataset.email) {
+          selected.push(cb.dataset.email);
+        }
+      });
+
+      if (selected.length === 0) {
+        document.getElementById('emailStatus').textContent = 'לא נבחרו נמענים.';
+        return;
+      }
+
+      document.getElementById('emailStatus').textContent = 'שולח...';
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'sendEmail', recipients: selected })
+      })
+        .then(r => r.json())
+        .then(function (res) {
+          if (res && res.ok) {
+            document.getElementById('emailStatus').textContent =
+              'נשלחו קבצים ל-' + res.sentCount + ' נמענים.';
+          } else {
+            document.getElementById('emailStatus').textContent =
+              'שגיאה בשליחה: ' + (res && res.message ? res.message : 'לא ידוע');
+          }
+        })
+        .catch(function (err) {
+          document.getElementById('emailStatus').textContent =
+            'שגיאה בשליחה: ' + (err && err.message ? err.message : err);
+        });
+    }
+  </script>
+</body>
+</html>
