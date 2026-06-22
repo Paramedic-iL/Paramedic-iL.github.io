@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Open Book — Tactical Medicine</title>
+  <title>Paramedic-iL — Tactical Medicine</title>
   <meta name="description" content="Tactical medicine training: interactive lessons, articles, and field protocols by Dan Drory, EMT-P." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,8 +28,8 @@
 
     /* ---------- NAV ---------- */
     header.nav{
-      position:sticky;top:0;z-index:50;
-      background:rgba(11,16,24,.86);backdrop-filter:blur(10px);
+      position:sticky;top:0;z-index:60;
+      background:rgba(11,16,24,.92);backdrop-filter:blur(10px);
       border-bottom:1px solid var(--line);
     }
     .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
@@ -51,6 +51,31 @@
       font-weight:700;font-size:12px;letter-spacing:.5px;transition:.15s}
     .lang button:hover{color:var(--text)}
     .lang button.active{background:var(--red);color:#fff;border-color:var(--red)}
+
+    /* ---------- SEARCH BAR ---------- */
+    .searchbar{position:sticky;top:64px;z-index:55;background:rgba(15,22,34,.96);
+      backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+    .search-inner{display:flex;align-items:center;gap:14px;padding:11px 0;position:relative;flex-wrap:wrap}
+    #searchBox{flex:1 1 280px;min-width:200px;font-family:"Inter",sans-serif;font-size:15px;
+      padding:11px 15px;border-radius:10px;background:var(--bg);border:1px solid var(--line);color:var(--text)}
+    #searchBox:focus{outline:none;border-color:var(--olive)}
+    #searchBox::placeholder{color:#5b6b7e}
+    .pdfopt{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:13px;
+      font-weight:600;cursor:pointer;white-space:nowrap;user-select:none}
+    .pdfopt input{width:16px;height:16px;accent-color:var(--red);cursor:pointer}
+    .search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:70;
+      background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+      box-shadow:0 22px 50px rgba(0,0,0,.5);display:none;max-height:60vh;overflow-y:auto}
+    .search-results.show{display:block}
+    .sr-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);transition:.12s}
+    .sr-row:last-child{border-bottom:none}
+    .sr-row:hover{background:var(--panel2)}
+    .sr-row .tag{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+      padding:3px 8px;border-radius:999px;background:rgba(179,36,43,.16);color:var(--red-bright)}
+    .sr-row .nm{min-width:0;font-weight:600}
+    .sr-row .nm small{display:block;color:var(--muted);font-weight:400;font-size:12px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sr-note{padding:12px 16px;color:var(--muted);font-size:13px;font-style:italic}
 
     /* ---------- HERO ---------- */
     .hero{position:relative;min-height:74vh;display:flex;align-items:center;overflow:hidden}
@@ -92,13 +117,22 @@
     .fcard p{color:var(--muted);font-size:14.5px;margin:8px 0 16px}
     .fcard .go{color:var(--red-bright);font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-size:13px}
 
-    /* list items (lessons/articles/protocols) */
+    /* category chips */
+    .cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+    .chip{background:var(--panel);border:1px solid var(--line);color:var(--muted);
+      padding:8px 16px;border-radius:999px;font-family:"Inter",sans-serif;font-weight:700;font-size:13px;
+      letter-spacing:.4px;cursor:pointer;transition:.15s}
+    .chip:hover{color:var(--text);border-color:var(--olive)}
+    .chip.active{background:var(--red);color:#fff;border-color:var(--red)}
+
+    /* list items (lessons/articles/protocols/tools) */
     .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
     .item{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);
       border-radius:12px;padding:16px 18px;transition:.15s}
     .item:hover{border-color:var(--olive);background:var(--panel2);transform:translateY(-2px)}
     .item .ic{width:42px;height:42px;border-radius:9px;flex:0 0 auto;display:grid;place-items:center;
       background:rgba(179,36,43,.14);color:var(--red-bright);font-weight:700}
+    .item .ic.code{font-size:12px;letter-spacing:0}
     .item .meta{min-width:0}
     .item .meta strong{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .item .meta span{color:var(--muted);font-size:13px}
@@ -127,13 +161,11 @@
     [dir="rtl"] .brand,[dir="rtl"] .brand small{
       font-family:"Heebo",system-ui,sans-serif;
     }
-    /* Hebrew shouldn't be letter-spaced or uppercased */
     [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,[dir="rtl"] .brand,[dir="rtl"] .brand small,
     [dir="rtl"] .eyebrow,[dir="rtl"] .sec-head .kicker,[dir="rtl"] nav.links a,
     [dir="rtl"] .btn,[dir="rtl"] .fcard .go,[dir="rtl"] .empty .tag{
       letter-spacing:normal;text-transform:none;
     }
-    /* flip the hero so the dark, readable side is where Hebrew text starts (right) */
     [dir="rtl"] .hero::after{
       background:linear-gradient(270deg,var(--bg) 8%,rgba(11,16,24,.55) 45%,rgba(11,16,24,.15) 100%);
     }
@@ -149,7 +181,7 @@
           <polygon points="12,2 3.34,17 20.66,17" fill="#d8333b"/>
           <polygon points="12,22 3.34,7 20.66,7" fill="#d8333b"/>
         </svg>
-        <span>Open Book<small data-i18n="brand.sub">Tactical Medicine</small></span>
+        <span>Paramedic-iL<small data-i18n="brand.sub">Tactical Medicine</small></span>
       </a>
       <div class="nav-right">
         <nav class="links">
@@ -165,6 +197,15 @@
       </div>
     </div>
   </header>
+
+  <!-- SEARCH -->
+  <div class="searchbar">
+    <div class="wrap search-inner">
+      <input id="searchBox" type="search" autocomplete="off" data-i18n-ph="search.ph" placeholder="Search lessons, protocols, tools…" />
+      <label class="pdfopt"><input type="checkbox" id="searchPdf" /> <span data-i18n="search.pdf">Search inside PDFs</span></label>
+      <div id="searchResults" class="search-results"></div>
+    </div>
+  </div>
 
   <a id="top"></a>
   <div class="hero">
@@ -267,24 +308,8 @@
         <h2 data-i18n="protocols.title">Protocols</h2>
         <p data-i18n="protocols.sub">Quick-reference algorithms and checklists for the field.</p>
       </div>
-      <div class="items">
-        <a class="item doc" href="protocols/tccc-guidelines-1.5.26.pdf" target="_blank" rel="noopener">
-          <span class="ic">▤</span>
-          <span class="meta"><strong data-i18n="proto.tccc.name">TCCC Guidelines 1.5.26</strong><span data-i18n="proto.pdf">PDF document</span></span>
-        </a>
-        <a class="item doc" href="https://chatgpt.com/g/g-68e166fe4af88191b3017f418b3d48f4-bvnh-trkhyshy-trvmh" target="_blank" rel="noopener">
-          <span class="ic">↗</span>
-          <span class="meta"><strong data-i18n="proto.ai.name">Trauma Scenario AI</strong><span data-i18n="proto.link">External link · ChatGPT</span></span>
-        </a>
-        <a class="item doc" href="protocols/mda-protocols-04-2024.pdf" target="_blank" rel="noopener">
-          <span class="ic">▤</span>
-          <span class="meta"><strong data-i18n="proto.mda.name">MDA Protocols 04.2024</strong><span data-i18n="proto.pdf">PDF document</span></span>
-        </a>
-        <a class="item doc" href="protocols/idf-chapter-1-unified-single-patient.pdf" target="_blank" rel="noopener">
-          <span class="ic">▤</span>
-          <span class="meta"><strong data-i18n="proto.idf.name">IDF - Chapter 1 - Unified protocol for a single patient</strong><span data-i18n="proto.pdf">PDF document</span></span>
-        </a>
-      </div>
+      <div class="cats" id="protoCats"></div>
+      <div class="items" id="protoList"></div>
     </div>
   </section>
 
@@ -303,11 +328,15 @@
         </a>
         <a class="item" href="tools/medics-test/index.html">
           <span class="ic">✓</span>
-          <span class="meta"><strong>מבחן חובשים</strong><span data-i18n="tools.medtest.desc">Medics knowledge test</span></span>
+          <span class="meta"><strong data-i18n="tools.medtest.name">Medics Test</strong><span data-i18n="tools.medtest.desc">Medics knowledge test</span></span>
         </a>
         <a class="item" href="tools/test-results/index.html">
           <span class="ic">▦</span>
-          <span class="meta"><strong>סטטיסטיקות מבחן</strong><span data-i18n="tools.results.desc">Test results dashboard</span></span>
+          <span class="meta"><strong data-i18n="tools.results.name">Test Statistics</strong><span data-i18n="tools.results.desc">Test results dashboard</span></span>
+        </a>
+        <a class="item" id="tool-ai" href="#" target="_blank" rel="noopener">
+          <span class="ic">↗</span>
+          <span class="meta"><strong data-i18n="tools.ai.name">Trauma Scenario AI</strong><span data-i18n="tools.ai.desc">ChatGPT — link coming soon</span></span>
         </a>
       </div>
     </div>
@@ -315,21 +344,26 @@
 
   <footer class="site">
     <div class="wrap foot-inner">
-      <div><strong style="color:var(--text)">Open Book — <span data-i18n="brand.sub">Tactical Medicine</span></strong> <span data-i18n="foot.by">· by Dan Drory, EMT-P</span></div>
+      <div><strong style="color:var(--text)">Paramedic-iL — <span data-i18n="brand.sub">Tactical Medicine</span></strong> <span data-i18n="foot.by">· by Dan Drory, EMT-P</span></div>
       <div data-i18n="foot.rights">&copy; 2026 · All rights reserved</div>
     </div>
   </footer>
 
   <script>
   (function () {
+    /* ---------------- translations ---------------- */
     const DICT = {
       en: {
-        "doc.title": "Open Book — Tactical Medicine",
+        "doc.title": "Paramedic-iL — Tactical Medicine",
         "brand.sub": "Tactical Medicine",
         "nav.lessons": "Lessons",
         "nav.articles": "Articles",
         "nav.protocols": "Protocols",
         "nav.tools": "Tools",
+        "search.ph": "Search lessons, protocols, tools…",
+        "search.pdf": "Search inside PDFs",
+        "search.none": "No matches found.",
+        "search.pdfing": "Searching inside PDFs…",
         "hero.eyebrow": "Train · Reference · Respond",
         "hero.title1": "Tactical Medicine,",
         "hero.title2": "Made Clear",
@@ -361,32 +395,39 @@
         "articles.soon": "The first articles are being prepared — check back shortly.",
         "protocols.kicker": "Reference",
         "protocols.title": "Protocols",
-        "protocols.sub": "Quick-reference algorithms and checklists for the field.",
-        "protocols.soon": "Protocols are on the way — this section will fill up soon.",
+        "protocols.sub": "Browse by source. Tap a category, then open a document.",
+        "proto.all": "All",
+        "proto.empty": "No files in this category yet.",
         "proto.pdf": "PDF document",
-        "proto.link": "External link · ChatGPT",
-        "proto.tccc.name": "TCCC Guidelines 1.5.26",
-        "proto.ai.name": "Trauma Scenario AI",
-        "proto.mda.name": "MDA Protocols 04.2024",
-        "proto.idf.name": "IDF - Chapter 1 - Unified protocol for a single patient",
         "tools.kicker": "Field Utilities",
         "tools.title": "Tools",
         "tools.sub": "Quick utilities for the field. More coming over time.",
         "tools.coord.name": "Coordinate Converter",
         "tools.coord.desc": "UTM 36N ↔ Google Maps",
+        "tools.medtest.name": "Medics Test",
         "tools.medtest.desc": "Medics knowledge test",
+        "tools.results.name": "Test Statistics",
         "tools.results.desc": "Test results dashboard",
+        "tools.ai.name": "Trauma Scenario AI",
+        "tools.ai.desc": "ChatGPT — link coming soon",
+        "kind.lesson": "Lesson",
+        "kind.protocol": "Protocol",
+        "kind.tool": "Tool",
         "common.soon": "Coming Soon",
         "foot.by": "· by Dan Drory, EMT-P",
         "foot.rights": "© 2026 · All rights reserved"
       },
       he: {
-        "doc.title": "ספר פתוח — רפואה טקטית",
+        "doc.title": "Paramedic-iL — רפואה טקטית",
         "brand.sub": "רפואה טקטית",
         "nav.lessons": "לומדות",
         "nav.articles": "מאמרים",
         "nav.protocols": "פרוטוקולים",
         "nav.tools": "כלים",
+        "search.ph": "חיפוש לומדות, פרוטוקולים, כלים…",
+        "search.pdf": "חיפוש בתוך קובצי PDF",
+        "search.none": "לא נמצאו תוצאות.",
+        "search.pdfing": "מחפש בתוך קובצי PDF…",
         "hero.eyebrow": "אימון · עיון · תגובה",
         "hero.title1": "רפואה טקטית,",
         "hero.title2": "פשוט וברור",
@@ -418,29 +459,198 @@
         "articles.soon": "המאמרים הראשונים בהכנה — חזרו בקרוב.",
         "protocols.kicker": "עיון",
         "protocols.title": "פרוטוקולים",
-        "protocols.sub": "אלגוריתמים ורשימות תיוג לעיון מהיר בשטח.",
-        "protocols.soon": "הפרוטוקולים בדרך — המקטע הזה יתמלא בקרוב.",
+        "protocols.sub": "עיון לפי מקור. בחרו קטגוריה ואז פתחו מסמך.",
+        "proto.all": "הכל",
+        "proto.empty": "אין עדיין קבצים בקטגוריה זו.",
         "proto.pdf": "מסמך PDF",
-        "proto.link": "קישור חיצוני · ChatGPT",
-        "proto.tccc.name": "קווים מנחים לטיפול בפצוע במתאר לחימה של ה‑TCCC",
-        "proto.ai.name": "תרחישי טראומה בבינה מלאכותית",
-        "proto.mda.name": "פרוטוקולים מד\"א 04.2024",
-        "proto.idf.name": "צה\"ל - פרק 1 - סכמה אחודה לטיפול בפצוע בודד",
         "tools.kicker": "כלי שטח",
         "tools.title": "כלים",
         "tools.sub": "כלים מהירים לשטח. עוד יתווספו עם הזמן.",
         "tools.coord.name": "ממיר קואורדינטות",
         "tools.coord.desc": "UTM 36N ↔ גוגל מפות",
+        "tools.medtest.name": "מבחן חובשים",
         "tools.medtest.desc": "מבחן ידע לחובשים",
+        "tools.results.name": "סטטיסטיקות מבחן",
         "tools.results.desc": "לוח תוצאות המבחן",
+        "tools.ai.name": "תרחישי טראומה בבינה מלאכותית",
+        "tools.ai.desc": "ChatGPT — קישור יתווסף בקרוב",
+        "kind.lesson": "לומדה",
+        "kind.protocol": "פרוטוקול",
+        "kind.tool": "כלי",
         "common.soon": "בקרוב",
         "foot.by": "· מאת דן דרורי, פרמדיק",
         "foot.rights": "© 2026 · כל הזכויות שמורות"
       }
     };
 
-    function getLang() { return localStorage.getItem('site_lang') || 'en'; }
+    /* ---------------- data ---------------- */
+    // Protocol categories shown as buttons (kept alphabetical).
+    const PCATS = ["AHA", "IDF", "MDA", "TCCC"];
+    const CAT_LABEL = {
+      AHA: { en: "AHA", he: "AHA" },
+      IDF: { en: "IDF", he: "צה\u05f4ל" },
+      MDA: { en: "MDA", he: "מד\u05f4א" },
+      TCCC: { en: "TCCC", he: "TCCC" }
+    };
+    // Protocol documents. Add new ones here under the right "cat".
+    const PROTOCOLS = [
+      { cat: "TCCC", href: "protocols/tccc-guidelines-1.5.26.pdf",
+        en: "TCCC Guidelines 1.5.26",
+        he: "קווים מנחים לטיפול בפצוע במתאר לחימה של ה\u2011TCCC" },
+      { cat: "MDA", href: "protocols/mda-protocols-04-2024.pdf",
+        en: "MDA Protocols 04.2024",
+        he: "פרוטוקולים מד\u05f4א 04.2024" },
+      { cat: "IDF", href: "protocols/idf-chapter-1-unified-single-patient.pdf",
+        en: "IDF - Chapter 1 - Unified protocol for a single patient",
+        he: "צה\u05f4ל - פרק 1 - סכמה אחודה לטיפול בפצוע בודד" }
+    ];
+    // Searchable items that are NOT protocols (lessons + tools).
+    const EXTRA = [
+      { kind: "lesson", href: "lessons/explanation/index.html", en: "לומדה - הסבר", he: "לומדה - הסבר" },
+      { kind: "tool", href: "tools/coordinates/index.html", en: "Coordinate Converter", he: "ממיר קואורדינטות" },
+      { kind: "tool", href: "tools/medics-test/index.html", en: "Medics Test", he: "מבחן חובשים" },
+      { kind: "tool", href: "tools/test-results/index.html", en: "Test Statistics", he: "סטטיסטיקות מבחן" },
+      { kind: "tool", href: "#", newtab: true, en: "Trauma Scenario AI", he: "תרחישי טראומה בבינה מלאכותית" }
+    ];
 
+    /* ---------------- helpers ---------------- */
+    function getLang() { return localStorage.getItem('site_lang') || 'en'; }
+    function L(k, lang) { const d = DICT[lang] || DICT.en; return d[k] != null ? d[k] : (DICT.en[k] != null ? DICT.en[k] : k); }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function nm(item, lang) { return (lang === 'he' ? item.he : item.en) || item.en || item.he; }
+
+    /* ---------------- protocols rendering ---------------- */
+    let activeCat = "ALL";
+    function renderProtocols() {
+      const lang = getLang();
+      const cats = document.getElementById('protoCats');
+      const list = document.getElementById('protoList');
+      if (!cats || !list) return;
+
+      const chips = ["ALL"].concat(PCATS);
+      cats.innerHTML = chips.map(function (c) {
+        const label = c === "ALL" ? L("proto.all", lang) : CAT_LABEL[c][lang] || CAT_LABEL[c].en;
+        return '<button type="button" class="chip' + (c === activeCat ? ' active' : '') +
+          '" onclick="__setCat(\'' + c + '\')">' + esc(label) + '</button>';
+      }).join('');
+
+      let rows = PROTOCOLS.filter(function (p) { return activeCat === "ALL" || p.cat === activeCat; });
+      rows.sort(function (a, b) { return nm(a, lang).localeCompare(nm(b, lang), lang); });
+
+      if (!rows.length) {
+        list.innerHTML = '<div class="empty">' + esc(L("proto.empty", lang)) + '</div>';
+        return;
+      }
+      list.innerHTML = rows.map(function (p) {
+        const sub = (CAT_LABEL[p.cat][lang] || CAT_LABEL[p.cat].en) + " · " + L("proto.pdf", lang);
+        return '<a class="item doc" href="' + esc(p.href) + '" target="_blank" rel="noopener">' +
+          '<span class="ic code">' + esc(p.cat) + '</span>' +
+          '<span class="meta"><strong>' + esc(nm(p, lang)) + '</strong><span>' + esc(sub) + '</span></span>' +
+          '</a>';
+      }).join('');
+    }
+    window.__setCat = function (c) { activeCat = c; renderProtocols(); };
+
+    /* ---------------- search ---------------- */
+    function registry() {
+      const protos = PROTOCOLS.map(function (p) {
+        return { kind: "protocol", cat: p.cat, href: p.href, en: p.en, he: p.he, pdf: true };
+      });
+      return EXTRA.concat(protos);
+    }
+
+    const pdfCache = {};
+    let pdfjsReady = null;
+    function ensurePdfJs() {
+      if (pdfjsReady) return pdfjsReady;
+      pdfjsReady = new Promise(function (res, rej) {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        s.onload = function () {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          res();
+        };
+        s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      return pdfjsReady;
+    }
+    async function getPdfText(url) {
+      if (pdfCache[url] != null) return pdfCache[url];
+      await ensurePdfJs();
+      const pdf = await window.pdfjsLib.getDocument(url).promise;
+      let txt = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        txt += " " + content.items.map(function (it) { return it.str; }).join(" ");
+      }
+      pdfCache[url] = txt;
+      return txt;
+    }
+
+    function resultRow(item, lang, snippet) {
+      const tag = item.kind === "protocol" ? (CAT_LABEL[item.cat][lang] || CAT_LABEL[item.cat].en)
+        : L("kind." + item.kind, lang);
+      const tgt = (item.kind === "protocol" || item.pdf || item.newtab) ? ' target="_blank" rel="noopener"' : '';
+      const sub = snippet ? '<small>' + esc(snippet) + '</small>' : '';
+      return '<a class="sr-row" href="' + esc(item.href) + '"' + tgt + '>' +
+        '<span class="tag">' + esc(tag) + '</span>' +
+        '<span class="nm">' + esc(nm(item, lang)) + sub + '</span></a>';
+    }
+
+    function runSearch() {
+      const box = document.getElementById('searchBox');
+      const panel = document.getElementById('searchResults');
+      const pdfOn = document.getElementById('searchPdf').checked;
+      const q = box.value.trim().toLowerCase();
+      const lang = getLang();
+      if (!q) { panel.classList.remove('show'); panel.innerHTML = ''; return; }
+
+      const reg = registry();
+      const titleMatches = reg.filter(function (it) {
+        return ((it.en || '') + ' ' + (it.he || '')).toLowerCase().indexOf(q) >= 0;
+      });
+
+      let html = titleMatches.map(function (it) { return resultRow(it, lang, ''); }).join('');
+      if (!titleMatches.length && !pdfOn) html = '<div class="sr-note">' + esc(L("search.none", lang)) + '</div>';
+      if (pdfOn) html += '<div class="sr-note" id="pdfStatus">' + esc(L("search.pdfing", lang)) + '</div>';
+      panel.innerHTML = html;
+      panel.classList.add('show');
+
+      if (pdfOn) {
+        const already = new Set(titleMatches.filter(function (i) { return i.pdf; }).map(function (i) { return i.href; }));
+        const pdfItems = reg.filter(function (i) { return i.pdf && !already.has(i.href); });
+        (async function () {
+          for (const it of pdfItems) {
+            if (box.value.trim().toLowerCase() !== q) return; // query changed -> abort
+            try {
+              const txt = await getPdfText(it.href);
+              const low = txt.toLowerCase();
+              const idx = low.indexOf(q);
+              if (idx >= 0) {
+                const start = Math.max(0, idx - 30);
+                const snip = (start > 0 ? '…' : '') + txt.substr(start, 80).replace(/\s+/g, ' ').trim() + '…';
+                const status = document.getElementById('pdfStatus');
+                const row = resultRow(it, lang, snip);
+                if (status) status.insertAdjacentHTML('beforebegin', row);
+                else panel.insertAdjacentHTML('beforeend', row);
+              }
+            } catch (e) { /* ignore a single failed pdf */ }
+          }
+          if (box.value.trim().toLowerCase() === q) {
+            const status = document.getElementById('pdfStatus');
+            if (status) status.remove();
+            if (!panel.querySelector('.sr-row')) {
+              panel.innerHTML = '<div class="sr-note">' + esc(L("search.none", lang)) + '</div>';
+            }
+          }
+        })();
+      }
+    }
+
+    /* ---------------- i18n apply ---------------- */
     function apply(lang) {
       const d = DICT[lang] || DICT.en;
       document.documentElement.lang = lang;
@@ -457,9 +667,25 @@
       document.querySelectorAll('.lang button').forEach(function (b) {
         b.classList.toggle('active', b.getAttribute('data-lang') === lang);
       });
+      renderProtocols();
+      runSearch();
     }
-
     window.__setLang = function (l) { localStorage.setItem('site_lang', l); apply(l); };
+
+    /* ---------------- wire up ---------------- */
+    let tmr = null;
+    document.getElementById('searchBox').addEventListener('input', function () {
+      clearTimeout(tmr); tmr = setTimeout(runSearch, 180);
+    });
+    document.getElementById('searchPdf').addEventListener('change', runSearch);
+    document.addEventListener('click', function (e) {
+      const panel = document.getElementById('searchResults');
+      if (!e.target.closest('.search-inner')) panel.classList.remove('show');
+    });
+    document.getElementById('searchBox').addEventListener('focus', function () {
+      if (this.value.trim()) document.getElementById('searchResults').classList.add('show');
+    });
+
     apply(getLang());
   })();
   </script>
