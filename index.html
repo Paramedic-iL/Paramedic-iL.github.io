@@ -34,13 +34,7 @@
     }
     .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
     .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;text-transform:uppercase}
-    .brand .mark{
-      width:30px;height:30px;border-radius:7px;flex:0 0 auto;position:relative;
-      background:var(--red);
-    }
-    .brand .mark::before,.brand .mark::after{content:"";position:absolute;background:#fff;border-radius:1px}
-    .brand .mark::before{left:50%;top:22%;width:4px;height:56%;transform:translateX(-50%)}
-    .brand .mark::after{top:50%;left:22%;height:4px;width:56%;transform:translateY(-50%)}
+    .brand .mark{width:30px;height:30px;flex:0 0 auto}
     .brand small{display:block;font-family:"Inter";font-size:10px;letter-spacing:2px;color:var(--olive);font-weight:600}
     nav.links{display:flex;gap:6px}
     nav.links a{
@@ -121,7 +115,10 @@
   <header class="nav">
     <div class="wrap nav-inner">
       <a class="brand" href="#top">
-        <span class="mark"></span>
+        <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+          <polygon points="12,2 3.34,17 20.66,17" fill="#d8333b"/>
+          <polygon points="12,22 3.34,7 20.66,7" fill="#d8333b"/>
+        </svg>
         <span>Open Book<small>Tactical Medicine</small></span>
       </a>
       <nav class="links">
