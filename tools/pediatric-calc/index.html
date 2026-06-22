@@ -74,8 +74,9 @@
 
   <script>
     // Pass ?tune=1 through to the app so the size slider appears inside the frame.
-    var tune = /[?&]tune=1\b/.test(location.search) ? "?tune=1" : "";
-    document.getElementById("app-frame").src = "app.html" + tune;
+    var params = ["v=3"];
+    if (/[?&]tune=1\b/.test(location.search)) params.push("tune=1");
+    document.getElementById("app-frame").src = "app.html?" + params.join("&");
   </script>
 </body>
 </html>

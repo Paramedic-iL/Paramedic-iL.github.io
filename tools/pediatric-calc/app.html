@@ -48,12 +48,13 @@
       margin: 0; padding: 0; direction: rtl; text-align: center;
       background: var(--bg); color: var(--text);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      font-size: var(--fs-base);
       overflow-x: hidden;
       touch-action: manipulation;
       -webkit-user-select: none;
       user-select: none;
     }
+    /* font-size lives on body only, so the rem-based master knob on <html> works */
+    body { font-size: var(--fs-base); }
     #app {
       width: var(--app-width); max-width: var(--app-width);
       margin: 0 auto; padding: 12px 0 28px;
