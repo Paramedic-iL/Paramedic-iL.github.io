@@ -1,0 +1,23 @@
+{
+  "articles": [],
+  "protocols": [],
+  "presentations": [
+    {
+      "href": "presentations/file.pdf",
+      "en": "CPR - Adult CPR",
+      "he": "ציר החייאה - החייאת מבוגר",
+      "folder": "f_1cd15361"
+    }
+  ],
+  "folders": {
+    "articles": [],
+    "protocols": [],
+    "presentations": [
+      {
+        "id": "f_1cd15361",
+        "en": "IDF - Combat Medics Course",
+        "he": "צה\"ל - קורס חובשים קרביים"
+      }
+    ]
+  }
+}
