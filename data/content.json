@@ -1,6 +1,25 @@
 {
   "articles": [],
-  "protocols": [],
+  "protocols": [
+    {
+      "cat": "TCCC",
+      "href": "protocols/tccc-guidelines-1.5.26.pdf",
+      "en": "TCCC Guidelines 1.5.26",
+      "he": "קווים מנחים לטיפול בפצוע במתאר לחימה של ה‑TCCC"
+    },
+    {
+      "cat": "MDA",
+      "href": "protocols/mda-protocols-04-2024.pdf",
+      "en": "MDA Protocols 04.2024",
+      "he": "פרוטוקולים מד״א 04.2024"
+    },
+    {
+      "cat": "IDF",
+      "href": "protocols/idf-chapter-1-unified-single-patient.pdf",
+      "en": "IDF - Chapter 1 - Unified protocol for a single patient",
+      "he": "צה״ל - פרק 1 - סכמה אחודה לטיפול בפצוע בודד"
+    }
+  ],
   "presentations": [
     {
       "href": "presentations/file.pdf",

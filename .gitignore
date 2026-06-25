@@ -1,0 +1,7 @@
+# Backend code / setup notes — contain the admin username, default
+# password and email, plus setup instructions. Keep OUT of the public repo.
+apps-script/
+
+# OS / editor noise
+Thumbs.db
+.DS_Store

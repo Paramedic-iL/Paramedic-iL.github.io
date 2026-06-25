@@ -94,8 +94,8 @@
       font-weight:700;text-transform:uppercase;letter-spacing:.8px;font-size:14px;transition:.15s;border:1px solid transparent}
     .btn-primary{background:var(--red);color:#fff}
     .btn-primary:hover{background:var(--red-bright);transform:translateY(-2px)}
-    .btn-ghost{border-color:var(--line);color:var(--text)}
-    .btn-ghost:hover{border-color:var(--olive);background:var(--panel)}
+    .btn-ghost{border-color:var(--line);color:var(--text);background:transparent}
+    .btn-ghost:hover{border-color:var(--olive);background:var(--panel2)}
 
     /* ---------- SECTIONS ---------- */
     section{padding:74px 0;border-top:1px solid var(--line)}
@@ -144,6 +144,72 @@
     .empty .tag{display:inline-block;background:var(--olive-dim);color:#fff;font-size:11px;font-weight:700;
       letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:8px}
 
+    /* ---------- FOLDERS ---------- */
+    .listwrap{display:flex;flex-direction:column;gap:16px}
+    .listwrap .items{margin:0}
+    .folder{border:1px solid var(--line);border-radius:12px;background:var(--panel2);overflow:hidden}
+    .folder>summary{cursor:pointer;padding:14px 16px;font-family:"Oswald",sans-serif;font-weight:600;
+      letter-spacing:.5px;list-style:none;display:flex;align-items:center;gap:10px;user-select:none;
+      text-transform:uppercase;font-size:16px}
+    .folder>summary::-webkit-details-marker{display:none}
+    .folder>summary::before{content:"▸";color:var(--olive);font-size:13px;transition:transform .15s}
+    .folder[open]>summary::before{transform:rotate(90deg)}
+    .folder>summary:hover{color:var(--text);background:var(--panel)}
+    .folder .fname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .folder .fcount{margin-inline-start:auto;background:var(--bg);border:1px solid var(--line);color:var(--muted);
+      font-family:"Inter",sans-serif;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;text-transform:none}
+    .folder .items{padding:4px 14px 16px}
+    [dir="rtl"] .folder>summary{letter-spacing:normal;text-transform:none}
+    [dir="rtl"] .folder>summary::before{content:"◂"}
+    [dir="rtl"] .folder[open]>summary::before{transform:rotate(-90deg)}
+
+    /* ---------- ADMIN ---------- */
+    .admin-btn{background:none;border:1px solid var(--line);color:var(--muted);
+      padding:7px 13px;border-radius:8px;cursor:pointer;font-family:"Inter",sans-serif;
+      font-weight:700;font-size:12px;letter-spacing:.6px;text-transform:uppercase;transition:.15s;white-space:nowrap}
+    .admin-btn:hover{color:var(--text);border-color:var(--olive)}
+    .admin-btn.on{border-color:var(--olive);color:var(--olive);background:rgba(125,138,79,.12)}
+
+    /* drag-and-drop upload zones (admins only) */
+    .dropzone{border:2px dashed var(--olive-dim);border-radius:12px;padding:22px;margin-bottom:18px;
+      text-align:center;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;
+      background:rgba(125,138,79,.05);transition:.15s}
+    .dropzone:hover{border-color:var(--olive);color:var(--text)}
+    .dropzone.drag{border-color:var(--red-bright);background:rgba(179,36,43,.1);color:var(--text)}
+    .dropzone .dz-ic{font-size:22px;display:block;margin-bottom:6px;color:var(--olive)}
+
+    /* modal / dialog system */
+    .modal-back{position:fixed;inset:0;z-index:200;background:rgba(5,8,13,.72);backdrop-filter:blur(4px);
+      display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-back.show{display:flex}
+    .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;width:100%;max-width:420px;
+      box-shadow:0 30px 70px rgba(0,0,0,.6);overflow:hidden}
+    .modal-head{padding:20px 22px 0}
+    .modal-head h3{font-size:22px;text-transform:uppercase}
+    .modal-head p{color:var(--muted);font-size:13.5px;margin-top:6px}
+    .modal-body{padding:18px 22px 22px;display:flex;flex-direction:column;gap:14px}
+    .field label{display:block;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+      color:var(--muted);margin-bottom:6px}
+    .field input,.field select{width:100%;font-family:"Inter",sans-serif;font-size:15px;padding:11px 13px;
+      border-radius:9px;background:var(--bg);border:1px solid var(--line);color:var(--text)}
+    .field input:focus,.field select:focus{outline:none;border-color:var(--olive)}
+    .modal .row{display:flex;gap:10px;flex-wrap:wrap}
+    .modal .row .btn{flex:1 1 auto;justify-content:center;cursor:pointer}
+    .modal-msg{font-size:13.5px;font-weight:600;min-height:18px}
+    .modal-msg.err{color:var(--red-bright)}
+    .modal-msg.ok{color:var(--olive)}
+    .modal-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);
+      font-size:24px;cursor:pointer;line-height:1}
+    .modal-x:hover{color:var(--text)}
+    .modal-wrap{position:relative}
+    .admin-menu .mi{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;
+      border:1px solid var(--line);border-radius:10px;padding:13px 15px;color:var(--text);cursor:pointer;
+      font-family:"Inter",sans-serif;font-size:14.5px;font-weight:600;transition:.15s}
+    .admin-menu .mi:hover{border-color:var(--olive);background:var(--panel2)}
+    .admin-menu .mi.danger:hover{border-color:var(--red);color:var(--red-bright)}
+    .file-pill{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);
+      border-radius:9px;padding:10px 13px;font-size:13.5px;color:var(--muted);word-break:break-all}
+
     /* ---------- FOOTER ---------- */
     footer.site{border-top:1px solid var(--line);background:var(--bg2);padding:36px 0;color:var(--muted)}
     .foot-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-size:14px}
@@ -188,8 +254,10 @@
           <a href="#lessons" data-i18n="nav.lessons">Lessons</a>
           <a href="#articles" data-i18n="nav.articles">Articles</a>
           <a href="#protocols" data-i18n="nav.protocols">Protocols</a>
+          <a href="#presentations" data-i18n="nav.presentations">Presentations</a>
           <a href="#tools" data-i18n="nav.tools">Tools</a>
         </nav>
+        <button type="button" id="adminBtn" class="admin-btn" onclick="__admin.openMenu()" data-i18n="admin.login">Admin</button>
         <div class="lang">
           <button type="button" data-lang="en" onclick="__setLang('en')">EN</button>
           <button type="button" data-lang="he" onclick="__setLang('he')">עב</button>
@@ -256,6 +324,14 @@
             <span class="go" data-i18n="card.protocols.go">Open protocols →</span>
           </div>
         </a>
+        <a class="fcard" href="#presentations">
+          <div class="thumb"><img src="assets/card-presentations.png?v=2" alt="Presentations" /></div>
+          <div class="body">
+            <h3 data-i18n="card.presentations.title">Presentations</h3>
+            <p data-i18n="card.presentations.desc">Slide decks and briefings — ready to present, study, or share in the field.</p>
+            <span class="go" data-i18n="card.presentations.go">View presentations →</span>
+          </div>
+        </a>
         <a class="fcard" href="#tools">
           <div class="thumb"><img src="assets/card-tools.png?v=2" alt="Field tools" /></div>
           <div class="body">
@@ -293,10 +369,8 @@
         <h2 data-i18n="articles.title">Articles</h2>
         <p data-i18n="articles.sub">Field-tested write-ups and case reviews.</p>
       </div>
-      <div class="empty">
-        <div class="tag" data-i18n="common.soon">Coming Soon</div>
-        <div data-i18n="articles.soon">The first articles are being prepared — check back shortly.</div>
-      </div>
+      <div class="dropzone" data-section="articles" hidden></div>
+      <div class="listwrap" id="articleList"></div>
     </div>
   </section>
 
@@ -308,8 +382,22 @@
         <h2 data-i18n="protocols.title">Protocols</h2>
         <p data-i18n="protocols.sub">Quick-reference algorithms and checklists for the field.</p>
       </div>
+      <div class="dropzone" data-section="protocols" hidden></div>
       <div class="cats" id="protoCats"></div>
-      <div class="items" id="protoList"></div>
+      <div class="listwrap" id="protoList"></div>
+    </div>
+  </section>
+
+  <!-- PRESENTATIONS -->
+  <section id="presentations">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker" data-i18n="presentations.kicker">Briefings</div>
+        <h2 data-i18n="presentations.title">Presentations</h2>
+        <p data-i18n="presentations.sub">Slide decks and briefings, ready to present or study.</p>
+      </div>
+      <div class="dropzone" data-section="presentations" hidden></div>
+      <div class="listwrap" id="presoList"></div>
     </div>
   </section>
 
@@ -346,6 +434,16 @@
     </div>
   </section>
 
+  <!-- ADMIN MODAL (filled by JS) -->
+  <div id="modalBack" class="modal-back" aria-hidden="true">
+    <div class="modal modal-wrap" role="dialog" aria-modal="true">
+      <button type="button" class="modal-x" onclick="__admin.close()" aria-label="Close">&times;</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <input type="file" id="adminFileInput" accept="application/pdf,.pdf" multiple hidden />
+
   <footer class="site">
     <div class="wrap foot-inner">
       <div><strong style="color:var(--text)">Paramedic-iL — <span data-i18n="brand.sub">Tactical Medicine</span></strong> <span data-i18n="foot.by">· by Dan Drory, EMT-P</span></div>
@@ -363,6 +461,7 @@
         "nav.lessons": "Lessons",
         "nav.articles": "Articles",
         "nav.protocols": "Protocols",
+        "nav.presentations": "Presentations",
         "nav.tools": "Tools",
         "search.ph": "Search lessons, protocols, tools…",
         "search.pdf": "Search inside PDFs",
@@ -375,7 +474,7 @@
         "hero.btnStart": "Start a Lesson",
         "hero.btnProtocols": "View Protocols",
         "explore.kicker": "What's Inside",
-        "explore.title": "Three Ways to Train",
+        "explore.title": "Ways to Train",
         "explore.sub": "This hub grows over time. Each section is a different tool for sharpening tactical medical skills.",
         "card.lessons.title": "Lessons",
         "card.lessons.desc": "Interactive, browser-based training that runs anywhere — no install, no login.",
@@ -389,6 +488,9 @@
         "card.tools.title": "Tools",
         "card.tools.desc": "Fast field utilities — like converting between map grid and GPS coordinates.",
         "card.tools.go": "Open tools →",
+        "card.presentations.title": "Presentations",
+        "card.presentations.desc": "Slide decks and briefings — ready to present, study, or share in the field.",
+        "card.presentations.go": "View presentations →",
         "lessons.kicker": "Interactive",
         "lessons.title": "Lessons",
         "lessons.sub": "Click a lesson to launch it in your browser.",
@@ -397,6 +499,11 @@
         "articles.title": "Articles",
         "articles.sub": "Field-tested write-ups and case reviews.",
         "articles.soon": "The first articles are being prepared — check back shortly.",
+        "articles.empty": "No articles yet — check back soon.",
+        "presentations.kicker": "Briefings",
+        "presentations.title": "Presentations",
+        "presentations.sub": "Slide decks and briefings, ready to present or study.",
+        "presentations.empty": "No presentations yet — check back soon.",
         "protocols.kicker": "Reference",
         "protocols.title": "Protocols",
         "protocols.sub": "Browse by source. Tap a category, then open a document.",
@@ -419,9 +526,80 @@
         "kind.lesson": "Lesson",
         "kind.protocol": "Protocol",
         "kind.tool": "Tool",
+        "kind.article": "Article",
+        "kind.presentation": "Presentation",
         "common.soon": "Coming Soon",
         "foot.by": "· by Dan Drory, EMT-P",
-        "foot.rights": "© 2026 · All rights reserved"
+        "foot.rights": "© 2026 · All rights reserved",
+        "admin.login": "Admin",
+        "admin.mode": "Admin ✓",
+        "admin.dz": "Drag PDFs here, or click to choose — admins only",
+        "admin.loginTitle": "Admin Login",
+        "admin.loginSub": "Enter your credentials to request an access code.",
+        "admin.username": "Username",
+        "admin.password": "Password",
+        "admin.sendCode": "Send Code",
+        "admin.cancel": "Cancel",
+        "admin.codeTitle": "Enter Confirmation Code",
+        "admin.codeSub": "A 6-digit code was emailed to the administrator. Enter it below.",
+        "admin.code": "Confirmation Code",
+        "admin.verify": "Verify",
+        "admin.menuTitle": "Admin Panel",
+        "admin.menuSub": "You are signed in as an administrator.",
+        "admin.changePw": "Change Password",
+        "admin.addAdmin": "Add Admin User",
+        "admin.logout": "Log Out",
+        "admin.pwTitle": "Change Password",
+        "admin.pwSub": "Choose a new password for your account.",
+        "admin.newPw": "New Password",
+        "admin.newPw2": "Confirm New Password",
+        "admin.save": "Save",
+        "admin.addTitle": "Add Admin User",
+        "admin.addSub": "New admins can upload files but cannot manage other admins.",
+        "admin.newUser": "New Username",
+        "admin.newEmail": "Email (for their login codes)",
+        "admin.add": "Add Admin",
+        "admin.upTitle": "File Details",
+        "admin.upSub": "Add the text shown on the site for this file.",
+        "admin.textEn": "English text",
+        "admin.textHe": "Hebrew text",
+        "admin.category": "Category",
+        "admin.folder": "Folder",
+        "admin.noFolder": "No folder",
+        "admin.newFolder": "+ New folder…",
+        "admin.folderEn": "Folder name (English)",
+        "admin.folderHe": "Folder name (Hebrew)",
+        "admin.folderNameReq": "Enter a folder name.",
+        "admin.fileOf": "File %1 of %2",
+        "admin.upload": "Upload",
+        "admin.sending": "Sending…",
+        "admin.uploading": "Uploading…",
+        "admin.working": "Working…",
+        "admin.onlyPdf": "Only PDF files are allowed.",
+        "admin.notConfigured": "Backend is not configured yet. Set APPS_SCRIPT_URL in the page.",
+        "admin.codeSent": "Code sent — check the administrator email.",
+        "admin.uploadOk": "Uploaded. It may take ~1 min to appear for everyone.",
+        "admin.saved": "Saved successfully.",
+        "admin.pwMismatch": "Passwords do not match.",
+        "admin.genericErr": "Something went wrong. Try again.",
+        "err.bad_credentials": "Invalid username or password.",
+        "err.no_admin_email": "Admin email is not set in the backend (ADMIN_EMAIL).",
+        "err.email_failed": "Could not send the email. Try again.",
+        "err.code_expired": "The code expired — sign in again.",
+        "err.bad_code": "Incorrect code.",
+        "err.session_expired": "Your session expired — sign in again.",
+        "err.pw_short": "Password must be at least 6 characters.",
+        "err.user_not_found": "User not found.",
+        "err.not_root": "Only the owner can add admins.",
+        "err.add_invalid": "Enter a username and a 6+ character password.",
+        "err.user_exists": "That username already exists.",
+        "err.bad_email": "Enter a valid email address.",
+        "err.bad_section": "Invalid section.",
+        "err.no_file": "No file content received.",
+        "err.no_text": "Add English or Hebrew text.",
+        "err.no_cat": "Choose a category.",
+        "err.server_error": "Server error. Try again.",
+        "err.unknown_action": "Unknown request."
       },
       he: {
         "doc.title": "Paramedic-iL — רפואה טקטית",
@@ -429,6 +607,7 @@
         "nav.lessons": "לומדות",
         "nav.articles": "מאמרים",
         "nav.protocols": "פרוטוקולים",
+        "nav.presentations": "מצגות",
         "nav.tools": "כלים",
         "search.ph": "חיפוש לומדות, פרוטוקולים, כלים…",
         "search.pdf": "חיפוש בתוך קובצי PDF",
@@ -441,7 +620,7 @@
         "hero.btnStart": "התחלת לומדה",
         "hero.btnProtocols": "צפייה בפרוטוקולים",
         "explore.kicker": "מה בפנים",
-        "explore.title": "שלוש דרכים להתאמן",
+        "explore.title": "דרכים להתאמן",
         "explore.sub": "המרכז הזה גדל עם הזמן. כל מקטע הוא כלי אחר לחידוד מיומנויות רפואה טקטית.",
         "card.lessons.title": "לומדות",
         "card.lessons.desc": "אימון אינטראקטיבי בדפדפן שרץ בכל מקום — בלי התקנה ובלי התחברות.",
@@ -455,6 +634,9 @@
         "card.tools.title": "כלים",
         "card.tools.desc": "כלי שטח מהירים — כמו המרה בין רשת מפה לקואורדינטות GPS.",
         "card.tools.go": "← פתיחת כלים",
+        "card.presentations.title": "מצגות",
+        "card.presentations.desc": "מצגות ותדריכים — מוכנים להצגה, ללמידה ולשיתוף בשטח.",
+        "card.presentations.go": "← צפייה במצגות",
         "lessons.kicker": "אינטראקטיבי",
         "lessons.title": "לומדות",
         "lessons.sub": "לחצו על לומדה כדי להפעיל אותה בדפדפן.",
@@ -463,6 +645,11 @@
         "articles.title": "מאמרים",
         "articles.sub": "כתבות מהשטח וניתוחי אירועים.",
         "articles.soon": "המאמרים הראשונים בהכנה — חזרו בקרוב.",
+        "articles.empty": "אין עדיין מאמרים — חזרו בקרוב.",
+        "presentations.kicker": "תדריכים",
+        "presentations.title": "מצגות",
+        "presentations.sub": "מצגות ותדריכים, מוכנים להצגה או ללמידה.",
+        "presentations.empty": "אין עדיין מצגות — חזרו בקרוב.",
         "protocols.kicker": "עיון",
         "protocols.title": "פרוטוקולים",
         "protocols.sub": "עיון לפי מקור. בחרו קטגוריה ואז פתחו מסמך.",
@@ -485,14 +672,90 @@
         "kind.lesson": "לומדה",
         "kind.protocol": "פרוטוקול",
         "kind.tool": "כלי",
+        "kind.article": "מאמר",
+        "kind.presentation": "מצגת",
         "common.soon": "בקרוב",
         "foot.by": "· מאת דן דרורי, פרמדיק",
-        "foot.rights": "© 2026 · כל הזכויות שמורות"
+        "foot.rights": "© 2026 · כל הזכויות שמורות",
+        "admin.login": "ניהול",
+        "admin.mode": "ניהול ✓",
+        "admin.dz": "גררו קובצי PDF לכאן, או לחצו לבחירה — למנהלים בלבד",
+        "admin.loginTitle": "כניסת מנהל",
+        "admin.loginSub": "הזינו את פרטי ההתחברות כדי לקבל קוד גישה.",
+        "admin.username": "שם משתמש",
+        "admin.password": "סיסמה",
+        "admin.sendCode": "שליחת קוד",
+        "admin.cancel": "ביטול",
+        "admin.codeTitle": "הזנת קוד אימות",
+        "admin.codeSub": "קוד בן 6 ספרות נשלח לאימייל של המנהל. הזינו אותו למטה.",
+        "admin.code": "קוד אימות",
+        "admin.verify": "אימות",
+        "admin.menuTitle": "לוח ניהול",
+        "admin.menuSub": "אתם מחוברים כמנהלים.",
+        "admin.changePw": "שינוי סיסמה",
+        "admin.addAdmin": "הוספת מנהל",
+        "admin.logout": "התנתקות",
+        "admin.pwTitle": "שינוי סיסמה",
+        "admin.pwSub": "בחרו סיסמה חדשה לחשבון שלכם.",
+        "admin.newPw": "סיסמה חדשה",
+        "admin.newPw2": "אישור סיסמה חדשה",
+        "admin.save": "שמירה",
+        "admin.addTitle": "הוספת מנהל",
+        "admin.addSub": "מנהלים חדשים יכולים להעלות קבצים אך לא לנהל מנהלים אחרים.",
+        "admin.newUser": "שם משתמש חדש",
+        "admin.newEmail": "אימייל (לקבלת קודי התחברות)",
+        "admin.add": "הוספת מנהל",
+        "admin.upTitle": "פרטי הקובץ",
+        "admin.upSub": "הוסיפו את הטקסט שיוצג באתר עבור הקובץ.",
+        "admin.textEn": "טקסט באנגלית",
+        "admin.textHe": "טקסט בעברית",
+        "admin.category": "קטגוריה",
+        "admin.folder": "תיקייה",
+        "admin.noFolder": "ללא תיקייה",
+        "admin.newFolder": "+ תיקייה חדשה…",
+        "admin.folderEn": "שם התיקייה (אנגלית)",
+        "admin.folderHe": "שם התיקייה (עברית)",
+        "admin.folderNameReq": "הזינו שם תיקייה.",
+        "admin.fileOf": "קובץ %1 מתוך %2",
+        "admin.upload": "העלאה",
+        "admin.sending": "שולח…",
+        "admin.uploading": "מעלה…",
+        "admin.working": "מעבד…",
+        "admin.onlyPdf": "ניתן להעלות קובצי PDF בלבד.",
+        "admin.notConfigured": "השרת עדיין לא הוגדר. הזינו APPS_SCRIPT_URL בדף.",
+        "admin.codeSent": "הקוד נשלח — בדקו את אימייל המנהל.",
+        "admin.uploadOk": "הועלה. ייתכן שיחלוף כדקה עד שיופיע לכולם.",
+        "admin.saved": "נשמר בהצלחה.",
+        "admin.pwMismatch": "הסיסמאות אינן תואמות.",
+        "admin.genericErr": "משהו השתבש. נסו שוב.",
+        "err.bad_credentials": "שם משתמש או סיסמה שגויים.",
+        "err.no_admin_email": "כתובת אימייל המנהל לא הוגדרה בשרת (ADMIN_EMAIL).",
+        "err.email_failed": "שליחת האימייל נכשלה. נסו שוב.",
+        "err.code_expired": "תוקף הקוד פג — התחברו מחדש.",
+        "err.bad_code": "קוד שגוי.",
+        "err.session_expired": "ההתחברות פגה — התחברו מחדש.",
+        "err.pw_short": "הסיסמה חייבת להיות באורך 6 תווים לפחות.",
+        "err.user_not_found": "המשתמש לא נמצא.",
+        "err.not_root": "רק הבעלים יכול להוסיף מנהלים.",
+        "err.add_invalid": "הזינו שם משתמש וסיסמה באורך 6 תווים לפחות.",
+        "err.user_exists": "שם המשתמש כבר קיים.",
+        "err.bad_email": "הזינו כתובת אימייל תקינה.",
+        "err.bad_section": "מקטע לא תקין.",
+        "err.no_file": "לא התקבל תוכן הקובץ.",
+        "err.no_text": "הוסיפו טקסט באנגלית או בעברית.",
+        "err.no_cat": "בחרו קטגוריה.",
+        "err.server_error": "שגיאת שרת. נסו שוב.",
+        "err.unknown_action": "בקשה לא מוכרת."
       }
     };
 
+    /* ---------------- config ---------------- */
+    // Paste the deployed Google Apps Script Web App URL between the quotes below.
+    // Until you do, the Admin login button is hidden and uploads are disabled.
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyxupc2Nmll6NOoIXmegBI0rn5Ia0TOLbLbkcP-QbOydrP8aUdWFxrwWbKdHEHEf6nN/exec";
+
     /* ---------------- data ---------------- */
-    // Protocol categories shown as buttons (kept alphabetical).
+    // Known protocol categories (used for chip ordering + Hebrew labels).
     const PCATS = ["AHA", "IDF", "MDA", "TCCC"];
     const CAT_LABEL = {
       AHA: { en: "AHA", he: "AHA" },
@@ -500,20 +763,46 @@
       MDA: { en: "MDA", he: "מד\u05f4א" },
       TCCC: { en: "TCCC", he: "TCCC" }
     };
-    // Protocol documents. Add new ones here under the right "cat".
-    const PROTOCOLS = [
-      { cat: "TCCC", href: "protocols/tccc-guidelines-1.5.26.pdf",
-        en: "TCCC Guidelines 1.5.26",
-        he: "קווים מנחים לטיפול בפצוע במתאר לחימה של ה\u2011TCCC" },
-      { cat: "MDA", href: "protocols/mda-protocols-04-2024.pdf",
-        en: "MDA Protocols 04.2024",
-        he: "פרוטוקולים מד\u05f4א 04.2024" },
-      { cat: "IDF", href: "protocols/idf-chapter-1-unified-single-patient.pdf",
-        en: "IDF - Chapter 1 - Unified protocol for a single patient",
-        he: "צה\u05f4ל - פרק 1 - סכמה אחודה לטיפול בפצוע בודד" }
-    ];
-    // Searchable items that are NOT protocols (lessons + tools).
-    const EXTRA = [
+    function catLabel(cat, lang) {
+      const c = CAT_LABEL[cat];
+      if (c) return c[lang] || c.en;
+      return cat; // unknown / newly added category: show as-is
+    }
+    function catList() {
+      // base categories + any extra ones found in the data, de-duplicated
+      const set = PCATS.slice();
+      (CONTENT.protocols || []).forEach(function (p) {
+        if (p.cat && set.indexOf(p.cat) < 0) set.push(p.cat);
+      });
+      return set;
+    }
+
+    // Built-in defaults (used until data/content.json loads, or if it fails).
+    const DEFAULT_CONTENT = {
+      protocols: [
+        { cat: "TCCC", href: "protocols/tccc-guidelines-1.5.26.pdf",
+          en: "TCCC Guidelines 1.5.26",
+          he: "קווים מנחים לטיפול בפצוע במתאר לחימה של ה\u2011TCCC" },
+        { cat: "MDA", href: "protocols/mda-protocols-04-2024.pdf",
+          en: "MDA Protocols 04.2024",
+          he: "פרוטוקולים מד\u05f4א 04.2024" },
+        { cat: "IDF", href: "protocols/idf-chapter-1-unified-single-patient.pdf",
+          en: "IDF - Chapter 1 - Unified protocol for a single patient",
+          he: "צה\u05f4ל - פרק 1 - סכמה אחודה לטיפול בפצוע בודד" }
+      ],
+      articles: [],
+      presentations: [],
+      folders: { articles: [], protocols: [], presentations: [] }
+    };
+    // Live content (replaced once data/content.json is fetched).
+    let CONTENT = JSON.parse(JSON.stringify(DEFAULT_CONTENT));
+
+    function getFolders(section) {
+      return (CONTENT.folders && CONTENT.folders[section]) || [];
+    }
+
+    // Searchable items that are NOT documents (lessons + tools).
+    const LESSONS_TOOLS = [
       { kind: "lesson", href: "lessons/explanation/index.html", en: "לומדה - הסבר", he: "לומדה - הסבר" },
       { kind: "tool", href: "tools/pediatric-calc/index.html", en: "Pediatric Calculator", he: "מחשבון פדיאטרי" },
       { kind: "tool", href: "tools/coordinates/index.html", en: "Coordinate Converter", he: "ממיר קואורדינטות" },
@@ -528,6 +817,56 @@
     function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     function nm(item, lang) { return (lang === 'he' ? item.he : item.en) || item.en || item.he; }
 
+    /* ---------------- shared list rendering (with folders + sorting) ---------------- */
+    function byName(lang) {
+      return function (a, b) { return nm(a, lang).localeCompare(nm(b, lang), lang); };
+    }
+
+    // Split rows into ungrouped items + folder groups (both sorted by current language).
+    function groupByFolder(section, rows, lang) {
+      const folders = getFolders(section);
+      const byId = {};
+      folders.forEach(function (f) { byId[f.id] = f; });
+      const ungrouped = [];
+      const map = {};
+      rows.forEach(function (p) {
+        const fid = (p.folder && byId[p.folder]) ? p.folder : '';
+        if (!fid) ungrouped.push(p);
+        else (map[fid] = map[fid] || []).push(p);
+      });
+      const groups = Object.keys(map).map(function (id) { return { folder: byId[id], items: map[id] }; });
+      groups.sort(function (a, b) { return nm(a.folder, lang).localeCompare(nm(b.folder, lang), lang); });
+      ungrouped.sort(byName(lang));
+      groups.forEach(function (g) { g.items.sort(byName(lang)); });
+      return { ungrouped: ungrouped, groups: groups };
+    }
+
+    function itemsHtml(rows, lang, iconFor, subFor) {
+      return '<div class="items">' + rows.map(function (p) {
+        return '<a class="item doc" href="' + esc(p.href) + '" target="_blank" rel="noopener">' +
+          iconFor(p) +
+          '<span class="meta"><strong>' + esc(nm(p, lang)) + '</strong><span>' + esc(subFor(p)) + '</span></span>' +
+          '</a>';
+      }).join('') + '</div>';
+    }
+
+    function folderBlock(title, innerHtml, count) {
+      return '<details class="folder" open><summary><span class="fname">' + esc(title) + '</span>' +
+        '<span class="fcount">' + count + '</span></summary>' + innerHtml + '</details>';
+    }
+
+    // Renders a section's rows (already filtered) into the target element with folder grouping.
+    function renderSection(section, listEl, rows, lang, iconFor, subFor, emptyHtml) {
+      if (!rows.length) { listEl.innerHTML = emptyHtml; return; }
+      const grp = groupByFolder(section, rows, lang);
+      let html = '';
+      if (grp.ungrouped.length) html += itemsHtml(grp.ungrouped, lang, iconFor, subFor);
+      html += grp.groups.map(function (g) {
+        return folderBlock(nm(g.folder, lang), itemsHtml(g.items, lang, iconFor, subFor), g.items.length);
+      }).join('');
+      listEl.innerHTML = html;
+    }
+
     /* ---------------- protocols rendering ---------------- */
     let activeCat = "ALL";
     function renderProtocols() {
@@ -536,36 +875,52 @@
       const list = document.getElementById('protoList');
       if (!cats || !list) return;
 
-      const chips = ["ALL"].concat(PCATS);
+      const chips = ["ALL"].concat(catList());
       cats.innerHTML = chips.map(function (c) {
-        const label = c === "ALL" ? L("proto.all", lang) : CAT_LABEL[c][lang] || CAT_LABEL[c].en;
+        const label = c === "ALL" ? L("proto.all", lang) : catLabel(c, lang);
         return '<button type="button" class="chip' + (c === activeCat ? ' active' : '') +
           '" onclick="__setCat(\'' + c + '\')">' + esc(label) + '</button>';
       }).join('');
 
-      let rows = PROTOCOLS.filter(function (p) { return activeCat === "ALL" || p.cat === activeCat; });
-      rows.sort(function (a, b) { return nm(a, lang).localeCompare(nm(b, lang), lang); });
-
-      if (!rows.length) {
-        list.innerHTML = '<div class="empty">' + esc(L("proto.empty", lang)) + '</div>';
-        return;
-      }
-      list.innerHTML = rows.map(function (p) {
-        const sub = (CAT_LABEL[p.cat][lang] || CAT_LABEL[p.cat].en) + " · " + L("proto.pdf", lang);
-        return '<a class="item doc" href="' + esc(p.href) + '" target="_blank" rel="noopener">' +
-          '<span class="ic code">' + esc(p.cat) + '</span>' +
-          '<span class="meta"><strong>' + esc(nm(p, lang)) + '</strong><span>' + esc(sub) + '</span></span>' +
-          '</a>';
-      }).join('');
+      const rows = (CONTENT.protocols || []).filter(function (p) { return activeCat === "ALL" || p.cat === activeCat; });
+      const iconFor = function (p) { return '<span class="ic code">' + esc(p.cat) + '</span>'; };
+      const subFor = function (p) { return catLabel(p.cat, lang) + " · " + L("proto.pdf", lang); };
+      renderSection('protocols', list, rows, lang, iconFor, subFor,
+        '<div class="empty">' + esc(L("proto.empty", lang)) + '</div>');
     }
     window.__setCat = function (c) { activeCat = c; renderProtocols(); };
 
+    // Generic renderer for the flat document sections (articles, presentations).
+    function renderDocList(section, elId, icon, emptyKey) {
+      const lang = getLang();
+      const list = document.getElementById(elId);
+      if (!list) return;
+      const rows = (CONTENT[section] || []).slice();
+      const iconFor = function () { return '<span class="ic">' + icon + '</span>'; };
+      const subFor = function () { return L("proto.pdf", lang); };
+      renderSection(section, list, rows, lang, iconFor, subFor,
+        '<div class="empty"><div class="tag">' + esc(L("common.soon", lang)) + '</div>' +
+        '<div>' + esc(L(emptyKey, lang)) + '</div></div>');
+    }
+
+    function renderAll() {
+      renderProtocols();
+      renderDocList('articles', 'articleList', '✎', 'articles.empty');
+      renderDocList('presentations', 'presoList', '▤', 'presentations.empty');
+    }
+
     /* ---------------- search ---------------- */
     function registry() {
-      const protos = PROTOCOLS.map(function (p) {
+      const protos = (CONTENT.protocols || []).map(function (p) {
         return { kind: "protocol", cat: p.cat, href: p.href, en: p.en, he: p.he, pdf: true };
       });
-      return EXTRA.concat(protos);
+      const arts = (CONTENT.articles || []).map(function (p) {
+        return { kind: "article", href: p.href, en: p.en, he: p.he, pdf: true };
+      });
+      const pres = (CONTENT.presentations || []).map(function (p) {
+        return { kind: "presentation", href: p.href, en: p.en, he: p.he, pdf: true };
+      });
+      return LESSONS_TOOLS.concat(protos, arts, pres);
     }
 
     const pdfCache = {};
@@ -600,7 +955,7 @@
     }
 
     function resultRow(item, lang, snippet) {
-      const tag = item.kind === "protocol" ? (CAT_LABEL[item.cat][lang] || CAT_LABEL[item.cat].en)
+      const tag = item.kind === "protocol" ? catLabel(item.cat, lang)
         : L("kind." + item.kind, lang);
       const tgt = (item.kind === "protocol" || item.pdf || item.newtab) ? ' target="_blank" rel="noopener"' : '';
       const sub = snippet ? '<small>' + esc(snippet) + '</small>' : '';
@@ -676,7 +1031,8 @@
       document.querySelectorAll('.lang button').forEach(function (b) {
         b.classList.toggle('active', b.getAttribute('data-lang') === lang);
       });
-      renderProtocols();
+      renderAll();
+      if (window.__admin) window.__admin.refresh();
       runSearch();
     }
     window.__setLang = function (l) { localStorage.setItem('site_lang', l); apply(l); };
@@ -695,7 +1051,393 @@
       if (this.value.trim()) document.getElementById('searchResults').classList.add('show');
     });
 
+    /* ---------------- content loading ---------------- */
+    function loadContent() {
+      fetch('data/content.json?v=' + Date.now())
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          if (j && typeof j === 'object') {
+            const f = (j.folders && typeof j.folders === 'object') ? j.folders : {};
+            CONTENT = {
+              protocols: Array.isArray(j.protocols) ? j.protocols : [],
+              articles: Array.isArray(j.articles) ? j.articles : [],
+              presentations: Array.isArray(j.presentations) ? j.presentations : [],
+              folders: {
+                articles: Array.isArray(f.articles) ? f.articles : [],
+                protocols: Array.isArray(f.protocols) ? f.protocols : [],
+                presentations: Array.isArray(f.presentations) ? f.presentations : []
+              }
+            };
+            renderAll();
+            runSearch();
+          }
+        })
+        .catch(function () { /* keep defaults */ });
+    }
+
+    /* ---------------- admin ---------------- */
+    const ADMIN = (function () {
+      const LS = { token: 'pmil_admin_token', role: 'pmil_admin_role', user: 'pmil_admin_user' };
+      let pendingUser = '';      // username awaiting code verification
+      let pendingSection = '';   // section files are being added to
+      let uploadQueue = [];      // PDF files awaiting metadata
+      let queueIndex = 0;        // which file in the queue we're on
+      let lastCat = '';          // remember category across a batch
+      let lastFolder = '';       // remember folder across a batch
+
+      function token() { return localStorage.getItem(LS.token) || ''; }
+      function role() { return localStorage.getItem(LS.role) || ''; }
+      function loggedIn() { return !!token(); }
+
+      function api(action, data) {
+        if (!APPS_SCRIPT_URL) return Promise.reject(new Error('not_configured'));
+        return fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(Object.assign({ action: action }, data || {}))
+        }).then(function (r) { return r.json(); });
+      }
+
+      // Map a backend error response to a message in the current site language.
+      function errMsg(res) {
+        const lang = getLang();
+        if (res && res.code) {
+          // For unexpected server errors, surface the real backend detail (helps debugging).
+          if (res.code === 'server_error') return L('err.server_error', lang) + (res.error ? ' — ' + res.error : '');
+          const k = 'err.' + res.code;
+          const d = DICT[lang] || DICT.en;
+          if (d[k] != null || DICT.en[k] != null) return L(k, lang);
+        }
+        if (res && res.error) return res.error;
+        return L('admin.genericErr', lang);
+      }
+
+      function fileToBase64(file) {
+        return new Promise(function (res, rej) {
+          const r = new FileReader();
+          r.onload = function () { res(String(r.result).split(',')[1]); };
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+      }
+
+      function slugify(name) {
+        const dot = name.lastIndexOf('.');
+        const base = (dot > 0 ? name.slice(0, dot) : name);
+        const clean = base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+        return (clean || 'file') + '.pdf';
+      }
+
+      /* ----- modal plumbing ----- */
+      const back = document.getElementById('modalBack');
+      const content = document.getElementById('modalContent');
+      function open(html) { content.innerHTML = html; back.classList.add('show'); back.setAttribute('aria-hidden', 'false'); }
+      function close() { back.classList.remove('show'); back.setAttribute('aria-hidden', 'true'); content.innerHTML = ''; }
+      back.addEventListener('click', function (e) { if (e.target === back) close(); });
+
+      function head(titleKey, subKey, lang) {
+        return '<div class="modal-head"><h3>' + esc(L(titleKey, lang)) + '</h3>' +
+          '<p>' + esc(L(subKey, lang)) + '</p></div>';
+      }
+      function field(id, labelKey, type, lang, extra) {
+        return '<div class="field"><label for="' + id + '">' + esc(L(labelKey, lang)) + '</label>' +
+          '<input id="' + id + '" type="' + (type || 'text') + '" autocomplete="off" ' + (extra || '') + ' /></div>';
+      }
+      function msgBox() { return '<div class="modal-msg" id="mMsg"></div>'; }
+      function setMsg(text, kind) {
+        const m = document.getElementById('mMsg');
+        if (m) { m.textContent = text; m.className = 'modal-msg ' + (kind || ''); }
+      }
+
+      /* ----- screens ----- */
+      function openMenu() { if (loggedIn()) showPanel(); else showLogin(); }
+
+      function showLogin() {
+        const lang = getLang();
+        open(head('admin.loginTitle', 'admin.loginSub', lang) +
+          '<div class="modal-body">' +
+          field('aUser', 'admin.username', 'text', lang) +
+          field('aPass', 'admin.password', 'password', lang) +
+          msgBox() +
+          '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
+          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.sendCode', lang)) + '</button></div>' +
+          '</div>');
+        document.getElementById('aCancel').onclick = close;
+        document.getElementById('aGo').onclick = doLogin;
+        document.getElementById('aPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+      }
+
+      function doLogin() {
+        const lang = getLang();
+        const u = document.getElementById('aUser').value.trim();
+        const p = document.getElementById('aPass').value;
+        if (!u || !p) return;
+        setMsg(L('admin.sending', lang), '');
+        api('login', { username: u, password: p }).then(function (res) {
+          if (res && res.ok) { pendingUser = u; showCode(); }
+          else setMsg(errMsg(res), 'err');
+        }).catch(function (e) {
+          setMsg(e.message === 'not_configured' ? L('admin.notConfigured', lang) : L('admin.genericErr', lang), 'err');
+        });
+      }
+
+      function showCode() {
+        const lang = getLang();
+        open(head('admin.codeTitle', 'admin.codeSub', lang) +
+          '<div class="modal-body">' +
+          field('aCode', 'admin.code', 'text', lang, 'inputmode="numeric" maxlength="6"') +
+          '<div class="modal-msg ok" id="mMsg2">' + esc(L('admin.codeSent', lang)) + '</div>' +
+          '<div class="modal-msg" id="mMsg"></div>' +
+          '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
+          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.verify', lang)) + '</button></div>' +
+          '</div>');
+        document.getElementById('aCancel').onclick = close;
+        document.getElementById('aGo').onclick = doVerify;
+        document.getElementById('aCode').addEventListener('keydown', function (e) { if (e.key === 'Enter') doVerify(); });
+      }
+
+      function doVerify() {
+        const lang = getLang();
+        const code = document.getElementById('aCode').value.trim();
+        if (!code) return;
+        setMsg(L('admin.working', lang), '');
+        api('verify', { username: pendingUser, code: code }).then(function (res) {
+          if (res && res.ok && res.token) {
+            localStorage.setItem(LS.token, res.token);
+            localStorage.setItem(LS.role, res.role || 'admin');
+            localStorage.setItem(LS.user, pendingUser);
+            close();
+            refresh();
+          } else setMsg(errMsg(res), 'err');
+        }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+      }
+
+      function showPanel() {
+        const lang = getLang();
+        const isRoot = role() === 'root';
+        open(head('admin.menuTitle', 'admin.menuSub', lang) +
+          '<div class="modal-body admin-menu">' +
+          '<button class="mi" type="button" id="miPw">🔑 ' + esc(L('admin.changePw', lang)) + '</button>' +
+          (isRoot ? '<button class="mi" type="button" id="miAdd">＋ ' + esc(L('admin.addAdmin', lang)) + '</button>' : '') +
+          '<button class="mi danger" type="button" id="miOut">⎋ ' + esc(L('admin.logout', lang)) + '</button>' +
+          '</div>');
+        document.getElementById('miPw').onclick = showChangePw;
+        const add = document.getElementById('miAdd'); if (add) add.onclick = showAddAdmin;
+        document.getElementById('miOut').onclick = logout;
+      }
+
+      function showChangePw() {
+        const lang = getLang();
+        open(head('admin.pwTitle', 'admin.pwSub', lang) +
+          '<div class="modal-body">' +
+          field('pw1', 'admin.newPw', 'password', lang) +
+          field('pw2', 'admin.newPw2', 'password', lang) +
+          msgBox() +
+          '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
+          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.save', lang)) + '</button></div>' +
+          '</div>');
+        document.getElementById('aCancel').onclick = showPanel;
+        document.getElementById('aGo').onclick = function () {
+          const a = document.getElementById('pw1').value, b = document.getElementById('pw2').value;
+          if (!a) return;
+          if (a !== b) { setMsg(L('admin.pwMismatch', lang), 'err'); return; }
+          setMsg(L('admin.working', lang), '');
+          api('changePassword', { token: token(), newPassword: a }).then(function (res) {
+            if (res && res.ok) setMsg(L('admin.saved', lang), 'ok');
+            else setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        };
+      }
+
+      function showAddAdmin() {
+        const lang = getLang();
+        open(head('admin.addTitle', 'admin.addSub', lang) +
+          '<div class="modal-body">' +
+          field('nUser', 'admin.newUser', 'text', lang) +
+          field('nEmail', 'admin.newEmail', 'email', lang) +
+          field('nPass', 'admin.password', 'password', lang) +
+          msgBox() +
+          '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
+          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.add', lang)) + '</button></div>' +
+          '</div>');
+        document.getElementById('aCancel').onclick = showPanel;
+        document.getElementById('aGo').onclick = function () {
+          const u = document.getElementById('nUser').value.trim(),
+                em = document.getElementById('nEmail').value.trim(),
+                p = document.getElementById('nPass').value;
+          if (!u || !em || !p) return;
+          setMsg(L('admin.working', lang), '');
+          api('addAdmin', { token: token(), newUsername: u, newPassword: p, newEmail: em }).then(function (res) {
+            if (res && res.ok) {
+              setMsg(L('admin.saved', lang), 'ok');
+              document.getElementById('nUser').value = '';
+              document.getElementById('nEmail').value = '';
+              document.getElementById('nPass').value = '';
+            } else setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        };
+      }
+
+      function logout() {
+        localStorage.removeItem(LS.token);
+        localStorage.removeItem(LS.role);
+        localStorage.removeItem(LS.user);
+        close();
+        refresh();
+      }
+
+      /* ----- upload flow (multi-file + folders) ----- */
+      function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+      function startUploadBatch(section, fileList) {
+        const lang = getLang();
+        const pdfs = Array.prototype.slice.call(fileList || []).filter(function (f) { return f.type === 'application/pdf'; });
+        if (!pdfs.length) { alert(L('admin.onlyPdf', lang)); return; }
+        pendingSection = section;
+        uploadQueue = pdfs;
+        queueIndex = 0;
+        lastCat = '';
+        lastFolder = '';
+        showUploadForm();
+      }
+
+      function folderFieldHtml(section, lang) {
+        const opts = getFolders(section).map(function (f) {
+          return '<option value="' + esc(f.id) + '"' + (f.id === lastFolder ? ' selected' : '') + '>' + esc(nm(f, lang)) + '</option>';
+        }).join('');
+        return '<div class="field"><label for="uFolder">' + esc(L('admin.folder', lang)) + '</label>' +
+          '<select id="uFolder">' +
+          '<option value="">' + esc(L('admin.noFolder', lang)) + '</option>' +
+          opts +
+          '<option value="__new__">' + esc(L('admin.newFolder', lang)) + '</option>' +
+          '</select></div>' +
+          '<div id="newFolderWrap" hidden>' +
+          '<div class="field"><label for="uFolderEn">' + esc(L('admin.folderEn', lang)) + '</label>' +
+          '<input id="uFolderEn" type="text" autocomplete="off" /></div>' +
+          '<div class="field"><label for="uFolderHe">' + esc(L('admin.folderHe', lang)) + '</label>' +
+          '<input id="uFolderHe" type="text" dir="rtl" autocomplete="off" /></div>' +
+          '</div>';
+      }
+
+      function showUploadForm() {
+        const lang = getLang();
+        const file = uploadQueue[queueIndex];
+        const total = uploadQueue.length;
+        const progress = total > 1
+          ? '<div class="modal-msg ok">' + esc(L('admin.fileOf', lang).replace('%1', queueIndex + 1).replace('%2', total)) + '</div>'
+          : '';
+        const catField = pendingSection === 'protocols'
+          ? '<div class="field"><label for="uCat">' + esc(L('admin.category', lang)) + '</label>' +
+            '<input id="uCat" list="uCatOpts" autocomplete="off" value="' + esc(lastCat) + '" />' +
+            '<datalist id="uCatOpts">' + catList().map(function (c) { return '<option value="' + esc(c) + '"></option>'; }).join('') + '</datalist></div>'
+          : '';
+        open(head('admin.upTitle', 'admin.upSub', lang) +
+          '<div class="modal-body">' +
+          progress +
+          '<div class="file-pill">📄 ' + esc(file.name) + '</div>' +
+          field('uEn', 'admin.textEn', 'text', lang) +
+          '<div class="field"><label for="uHe">' + esc(L('admin.textHe', lang)) + '</label><input id="uHe" type="text" dir="rtl" autocomplete="off" /></div>' +
+          catField +
+          folderFieldHtml(pendingSection, lang) +
+          msgBox() +
+          '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
+          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.upload', lang)) + '</button></div>' +
+          '</div>');
+        const sel = document.getElementById('uFolder');
+        sel.onchange = function () { document.getElementById('newFolderWrap').hidden = (this.value !== '__new__'); };
+        document.getElementById('aCancel').onclick = function () { uploadQueue = []; close(); };
+        document.getElementById('aGo').onclick = doUpload;
+      }
+
+      function doUpload() {
+        const lang = getLang();
+        const file = uploadQueue[queueIndex];
+        const en = val('uEn'), he = val('uHe');
+        const catEl = document.getElementById('uCat');
+        const cat = catEl ? catEl.value.trim() : '';
+        let folder = val('uFolder'), folderNewEn = '', folderNewHe = '';
+        if (folder === '__new__') {
+          folderNewEn = val('uFolderEn'); folderNewHe = val('uFolderHe');
+          if (!folderNewEn && !folderNewHe) { setMsg(L('admin.folderNameReq', lang), 'err'); return; }
+          folder = '';
+        }
+        if (!en && !he) { setMsg(L('err.no_text', lang), 'err'); return; }
+        if (pendingSection === 'protocols' && !cat) { setMsg(L('err.no_cat', lang), 'err'); return; }
+        lastCat = cat;
+        setMsg(L('admin.uploading', lang), '');
+        fileToBase64(file).then(function (b64) {
+          return api('upload', {
+            token: token(),
+            section: pendingSection,
+            filename: slugify(en || file.name),
+            contentBase64: b64,
+            en: en, he: he, cat: cat,
+            folder: folder, folderNewEn: folderNewEn, folderNewHe: folderNewHe
+          });
+        }).then(function (res) {
+          if (res && res.ok && res.item) {
+            CONTENT[pendingSection] = CONTENT[pendingSection] || [];
+            CONTENT[pendingSection].push(res.item);
+            if (res.folders) {
+              CONTENT.folders = CONTENT.folders || {};
+              CONTENT.folders[pendingSection] = res.folders;
+            }
+            lastFolder = res.item.folder || '';
+            renderAll();
+            queueIndex++;
+            if (queueIndex < uploadQueue.length) { showUploadForm(); }
+            else { uploadQueue = []; setMsg(L('admin.uploadOk', lang), 'ok'); setTimeout(close, 1400); }
+          } else setMsg(errMsg(res), 'err');
+        }).catch(function (e) {
+          setMsg(e.message === 'not_configured' ? L('admin.notConfigured', lang) : L('admin.genericErr', lang), 'err');
+        });
+      }
+
+      /* ----- dropzones + button ----- */
+      const fileInput = document.getElementById('adminFileInput');
+      let clickSection = '';
+      fileInput.addEventListener('change', function () {
+        if (this.files && this.files.length) startUploadBatch(clickSection, this.files);
+        this.value = '';
+      });
+
+      function wireDropzones() {
+        document.querySelectorAll('.dropzone').forEach(function (dz) {
+          const section = dz.getAttribute('data-section');
+          dz.addEventListener('click', function () { clickSection = section; fileInput.click(); });
+          dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.classList.add('drag'); });
+          dz.addEventListener('dragleave', function () { dz.classList.remove('drag'); });
+          dz.addEventListener('drop', function (e) {
+            e.preventDefault(); dz.classList.remove('drag');
+            const files = e.dataTransfer && e.dataTransfer.files;
+            if (files && files.length) startUploadBatch(section, files);
+          });
+        });
+      }
+
+      function refresh() {
+        const lang = getLang();
+        const btn = document.getElementById('adminBtn');
+        if (btn) {
+          btn.textContent = loggedIn() ? L('admin.mode', lang) : L('admin.login', lang);
+          btn.classList.toggle('on', loggedIn());
+        }
+        document.querySelectorAll('.dropzone').forEach(function (dz) {
+          dz.hidden = !loggedIn();
+          dz.innerHTML = '<span class="dz-ic">⬆</span>' + esc(L('admin.dz', lang));
+        });
+      }
+
+      function init() { wireDropzones(); refresh(); }
+
+      return { openMenu: openMenu, close: close, refresh: refresh, init: init };
+    })();
+    window.__admin = ADMIN;
+
+    /* ---------------- boot ---------------- */
     apply(getLang());
+    ADMIN.init();
+    loadContent();
   })();
   </script>
 
