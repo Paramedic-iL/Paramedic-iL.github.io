@@ -203,6 +203,24 @@
       font-size:24px;cursor:pointer;line-height:1}
     .modal-x:hover{color:var(--text)}
     [dir="rtl"] .modal-x{right:auto;left:16px}
+    /* themed confirm dialog (replaces the browser's native confirm) */
+    .confirm-layer{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+      background:rgba(5,8,13,.6);backdrop-filter:blur(2px);border-radius:16px;padding:18px}
+    .confirm-card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;width:100%;max-width:320px;
+      box-shadow:0 24px 60px rgba(0,0,0,.55);padding:20px}
+    .confirm-card p{font-size:15px;font-weight:600;line-height:1.45;margin-bottom:16px}
+    .confirm-card .row{display:flex;gap:10px}
+    .confirm-card .row .btn{flex:1 1 auto;justify-content:center;cursor:pointer}
+    /* admin right-click context menu */
+    .ctx-menu{position:fixed;z-index:300;background:var(--panel2);border:1px solid var(--line);border-radius:11px;
+      box-shadow:0 18px 44px rgba(0,0,0,.55);padding:6px;min-width:168px}
+    .ctx-menu button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);
+      cursor:pointer;font-family:"Inter",sans-serif;font-size:14px;font-weight:600;padding:9px 11px;border-radius:7px;text-align:left}
+    .ctx-menu button:hover{background:var(--panel)}
+    .ctx-menu button.danger{color:var(--red-bright)}
+    .ctx-menu button.danger:hover{background:rgba(179,36,43,.14)}
+    .ctx-menu .material-symbols-outlined{font-size:18px;color:inherit}
+    [dir="rtl"] .ctx-menu button{text-align:right}
 
     /* Google Material Symbols (used in the admin menu) */
     .material-symbols-outlined{
@@ -382,12 +400,7 @@
         <h2 data-i18n="lessons.title">Lessons</h2>
         <p data-i18n="lessons.sub">Click a lesson to launch it in your browser.</p>
       </div>
-      <div class="items">
-        <a class="item" href="lessons/explanation/index.html">
-          <span class="ic">▶</span>
-          <span class="meta" dir="rtl"><strong>לומדה - הסבר</strong><span data-i18n="lessons.item1">Interactive lesson</span></span>
-        </a>
-      </div>
+      <div class="listwrap" id="lessonList"></div>
     </div>
   </section>
 
@@ -439,28 +452,7 @@
         <h2 data-i18n="tools.title">Tools</h2>
         <p data-i18n="tools.sub">Quick utilities for the field. More coming over time.</p>
       </div>
-      <div class="items">
-        <a class="item" href="tools/pediatric-calc/index.html">
-          <span class="ic">⚕</span>
-          <span class="meta"><strong data-i18n="tools.peds.name">Pediatric Calculator</strong><span data-i18n="tools.peds.desc">Weight, vitals &amp; drug doses by age</span></span>
-        </a>
-        <a class="item" href="tools/coordinates/index.html">
-          <span class="ic">⊕</span>
-          <span class="meta"><strong data-i18n="tools.coord.name">Coordinate Converter</strong><span data-i18n="tools.coord.desc">UTM 36N ↔ Google Maps</span></span>
-        </a>
-        <a class="item" href="tools/medics-test/index.html">
-          <span class="ic">✓</span>
-          <span class="meta"><strong data-i18n="tools.medtest.name">Medics Test</strong><span data-i18n="tools.medtest.desc">Medics knowledge test</span></span>
-        </a>
-        <a class="item" href="tools/test-results/index.html">
-          <span class="ic">▦</span>
-          <span class="meta"><strong data-i18n="tools.results.name">Test Statistics</strong><span data-i18n="tools.results.desc">Test results dashboard</span></span>
-        </a>
-        <a class="item" id="tool-ai" href="#" target="_blank" rel="noopener">
-          <span class="ic">↗</span>
-          <span class="meta"><strong data-i18n="tools.ai.name">Trauma Scenario AI</strong><span data-i18n="tools.ai.desc">ChatGPT — link coming soon</span></span>
-        </a>
-      </div>
+      <div class="listwrap" id="toolList"></div>
     </div>
   </section>
 
@@ -605,6 +597,18 @@
         "admin.confirmRemove": "Remove user \"%1\"?",
         "admin.confirmEnd": "End this session?",
         "admin.confirmSuper": "Make \"%1\" a Super Admin?",
+        "admin.confirmTitle": "Please confirm",
+        "admin.yes": "Confirm",
+        "admin.ctxRename": "Rename",
+        "admin.ctxRemove": "Remove",
+        "admin.renameTitle": "Rename",
+        "admin.renameSub": "Edit the English and Hebrew name shown on the site.",
+        "admin.renameFolderTitle": "Rename folder",
+        "admin.renameFolderSub": "Edit the folder name shown on the site.",
+        "admin.nameEn": "English name",
+        "admin.nameHe": "Hebrew name",
+        "admin.confirmRemoveItem": "Remove \"%1\" from the site?",
+        "admin.confirmRemoveFolder": "Remove the folder \"%1\" and ALL files inside it? This cannot be undone.",
         "admin.back": "← Back",
         "role.root": "Super Admin",
         "role.admin": "Admin",
@@ -673,7 +677,9 @@
         "err.no_text": "Add English or Hebrew text.",
         "err.no_cat": "Choose a category.",
         "err.server_error": "Server error. Try again.",
-        "err.unknown_action": "Unknown request."
+        "err.unknown_action": "Unknown request.",
+        "err.item_not_found": "That item was not found.",
+        "err.folder_not_found": "That folder was not found."
       },
       he: {
         "doc.title": "Paramedic-iL — רפואה טקטית",
@@ -795,6 +801,18 @@
         "admin.confirmRemove": "להסיר את המשתמש \"%1\"?",
         "admin.confirmEnd": "לנתק התחברות זו?",
         "admin.confirmSuper": "להפוך את \"%1\" למנהל-על?",
+        "admin.confirmTitle": "אישור פעולה",
+        "admin.yes": "אישור",
+        "admin.ctxRename": "שינוי שם",
+        "admin.ctxRemove": "הסרה",
+        "admin.renameTitle": "שינוי שם",
+        "admin.renameSub": "ערכו את השם באנגלית ובעברית שמוצג באתר.",
+        "admin.renameFolderTitle": "שינוי שם תיקייה",
+        "admin.renameFolderSub": "ערכו את שם התיקייה שמוצג באתר.",
+        "admin.nameEn": "שם באנגלית",
+        "admin.nameHe": "שם בעברית",
+        "admin.confirmRemoveItem": "להסיר את \"%1\" מהאתר?",
+        "admin.confirmRemoveFolder": "להסיר את התיקייה \"%1\" ואת כל הקבצים שבתוכה? לא ניתן לבטל פעולה זו.",
         "admin.back": "→ חזרה",
         "role.root": "מנהל-על",
         "role.admin": "מנהל",
@@ -863,7 +881,9 @@
         "err.no_text": "הוסיפו טקסט באנגלית או בעברית.",
         "err.no_cat": "בחרו קטגוריה.",
         "err.server_error": "שגיאת שרת. נסו שוב.",
-        "err.unknown_action": "בקשה לא מוכרת."
+        "err.unknown_action": "בקשה לא מוכרת.",
+        "err.item_not_found": "הפריט לא נמצא.",
+        "err.folder_not_found": "התיקייה לא נמצאה."
       }
     };
 
@@ -896,7 +916,31 @@
     }
 
     // Built-in defaults (used until data/content.json loads, or if it fails).
+    const DEFAULT_LESSONS = [
+      { id: "l_explanation", href: "lessons/explanation/index.html", icon: "▶",
+        en: "לומדה - הסבר", he: "לומדה - הסבר",
+        descEn: "Interactive lesson", descHe: "לומדה אינטראקטיבית" }
+    ];
+    const DEFAULT_TOOLS = [
+      { id: "t_peds", href: "tools/pediatric-calc/index.html", icon: "⚕",
+        en: "Pediatric Calculator", he: "מחשבון פדיאטרי",
+        descEn: "Weight, vitals & drug doses by age", descHe: "משקל, מדדים ומינוני תרופות לפי גיל" },
+      { id: "t_coord", href: "tools/coordinates/index.html", icon: "⊕",
+        en: "Coordinate Converter", he: "ממיר קואורדינטות",
+        descEn: "UTM 36N ↔ Google Maps", descHe: "UTM 36N ↔ גוגל מפות" },
+      { id: "t_medtest", href: "tools/medics-test/index.html", icon: "✓",
+        en: "Medics Test", he: "מבחן חובשים",
+        descEn: "Medics knowledge test", descHe: "מבחן ידע לחובשים" },
+      { id: "t_results", href: "tools/test-results/index.html", icon: "▦",
+        en: "Test Statistics", he: "סטטיסטיקות מבחן",
+        descEn: "Test results dashboard", descHe: "לוח תוצאות המבחן" },
+      { id: "t_ai", href: "#", icon: "↗", newtab: true,
+        en: "Trauma Scenario AI", he: "תרחישי טראומה בבינה מלאכותית",
+        descEn: "ChatGPT — link coming soon", descHe: "ChatGPT — קישור יתווסף בקרוב" }
+    ];
     const DEFAULT_CONTENT = {
+      lessons: JSON.parse(JSON.stringify(DEFAULT_LESSONS)),
+      tools: JSON.parse(JSON.stringify(DEFAULT_TOOLS)),
       protocols: [
         { cat: "TCCC", href: "protocols/tccc-guidelines-1.5.26.pdf",
           en: "TCCC Guidelines 1.5.26",
@@ -910,7 +954,7 @@
       ],
       articles: [],
       presentations: [],
-      folders: { articles: [], protocols: [], presentations: [] }
+      folders: { lessons: [], tools: [], articles: [], protocols: [], presentations: [] }
     };
     // Live content (replaced once data/content.json is fetched).
     let CONTENT = JSON.parse(JSON.stringify(DEFAULT_CONTENT));
@@ -918,16 +962,6 @@
     function getFolders(section) {
       return (CONTENT.folders && CONTENT.folders[section]) || [];
     }
-
-    // Searchable items that are NOT documents (lessons + tools).
-    const LESSONS_TOOLS = [
-      { kind: "lesson", href: "lessons/explanation/index.html", en: "לומדה - הסבר", he: "לומדה - הסבר" },
-      { kind: "tool", href: "tools/pediatric-calc/index.html", en: "Pediatric Calculator", he: "מחשבון פדיאטרי" },
-      { kind: "tool", href: "tools/coordinates/index.html", en: "Coordinate Converter", he: "ממיר קואורדינטות" },
-      { kind: "tool", href: "tools/medics-test/index.html", en: "Medics Test", he: "מבחן חובשים" },
-      { kind: "tool", href: "tools/test-results/index.html", en: "Test Statistics", he: "סטטיסטיקות מבחן" },
-      { kind: "tool", href: "#", newtab: true, en: "Trauma Scenario AI", he: "תרחישי טראומה בבינה מלאכותית" }
-    ];
 
     /* ---------------- helpers ---------------- */
     function getLang() { return localStorage.getItem('site_lang') || 'en'; }
@@ -959,28 +993,35 @@
       return { ungrouped: ungrouped, groups: groups };
     }
 
-    function itemsHtml(rows, lang, iconFor, subFor) {
+    function itemsHtml(section, rows, lang, iconFor, subFor, opts) {
+      opts = opts || {};
       return '<div class="items">' + rows.map(function (p) {
-        return '<a class="item doc" href="' + esc(p.href) + '" target="_blank" rel="noopener">' +
-          iconFor(p) +
-          '<span class="meta"><strong>' + esc(nm(p, lang)) + '</strong><span>' + esc(subFor(p)) + '</span></span>' +
-          '</a>';
+        const tgt = opts.targetFor
+          ? (opts.targetFor(p) ? ' target="_blank" rel="noopener"' : '')
+          : ' target="_blank" rel="noopener"';
+        const cls = 'item' + (opts.docClass === false ? '' : ' doc');
+        const meta = '<span class="meta" dir="auto"><strong>' + esc(nm(p, lang)) + '</strong>' +
+          '<span>' + esc(subFor(p)) + '</span></span>';
+        return '<a class="' + cls + '" href="' + esc(p.href) + '"' + tgt +
+          ' data-msection="' + esc(section) + '" data-mhref="' + esc(p.href) + '">' +
+          iconFor(p) + meta + '</a>';
       }).join('') + '</div>';
     }
 
-    function folderBlock(title, innerHtml, count) {
-      return '<details class="folder" open><summary><span class="fname">' + esc(title) + '</span>' +
+    function folderBlock(section, folder, innerHtml, count, lang) {
+      return '<details class="folder" open data-mfsection="' + esc(section) + '" data-mfid="' + esc(folder.id) + '">' +
+        '<summary><span class="fname">' + esc(nm(folder, lang)) + '</span>' +
         '<span class="fcount">' + count + '</span></summary>' + innerHtml + '</details>';
     }
 
     // Renders a section's rows (already filtered) into the target element with folder grouping.
-    function renderSection(section, listEl, rows, lang, iconFor, subFor, emptyHtml) {
+    function renderSection(section, listEl, rows, lang, iconFor, subFor, emptyHtml, opts) {
       if (!rows.length) { listEl.innerHTML = emptyHtml; return; }
       const grp = groupByFolder(section, rows, lang);
       let html = '';
-      if (grp.ungrouped.length) html += itemsHtml(grp.ungrouped, lang, iconFor, subFor);
+      if (grp.ungrouped.length) html += itemsHtml(section, grp.ungrouped, lang, iconFor, subFor, opts);
       html += grp.groups.map(function (g) {
-        return folderBlock(nm(g.folder, lang), itemsHtml(g.items, lang, iconFor, subFor), g.items.length);
+        return folderBlock(section, g.folder, itemsHtml(section, g.items, lang, iconFor, subFor, opts), g.items.length, lang);
       }).join('');
       listEl.innerHTML = html;
     }
@@ -1021,14 +1062,35 @@
         '<div>' + esc(L(emptyKey, lang)) + '</div></div>');
     }
 
+    // Renderer for the app/link sections (lessons, tools): icon + name + description, no PDF/_blank by default.
+    function renderLinkList(section, elId) {
+      const lang = getLang();
+      const list = document.getElementById(elId);
+      if (!list) return;
+      const rows = (CONTENT[section] || []).slice();
+      const iconFor = function (p) { return '<span class="ic">' + esc(p.icon || '▸') + '</span>'; };
+      const subFor = function (p) { return (lang === 'he' ? p.descHe : p.descEn) || p.descEn || p.descHe || ''; };
+      renderSection(section, list, rows, lang, iconFor, subFor,
+        '<div class="empty">' + esc(L('common.soon', lang)) + '</div>',
+        { docClass: false, targetFor: function (p) { return !!p.newtab; } });
+    }
+
     function renderAll() {
+      renderLinkList('lessons', 'lessonList');
       renderProtocols();
       renderDocList('articles', 'articleList', '✎', 'articles.empty');
       renderDocList('presentations', 'presoList', '▤', 'presentations.empty');
+      renderLinkList('tools', 'toolList');
     }
 
     /* ---------------- search ---------------- */
     function registry() {
+      const lessons = (CONTENT.lessons || []).map(function (p) {
+        return { kind: "lesson", href: p.href, en: p.en, he: p.he };
+      });
+      const tools = (CONTENT.tools || []).map(function (p) {
+        return { kind: "tool", href: p.href, en: p.en, he: p.he, newtab: !!p.newtab };
+      });
       const protos = (CONTENT.protocols || []).map(function (p) {
         return { kind: "protocol", cat: p.cat, href: p.href, en: p.en, he: p.he, pdf: true };
       });
@@ -1038,7 +1100,7 @@
       const pres = (CONTENT.presentations || []).map(function (p) {
         return { kind: "presentation", href: p.href, en: p.en, he: p.he, pdf: true };
       });
-      return LESSONS_TOOLS.concat(protos, arts, pres);
+      return lessons.concat(tools, protos, arts, pres);
     }
 
     const pdfCache = {};
@@ -1177,10 +1239,15 @@
           if (j && typeof j === 'object') {
             const f = (j.folders && typeof j.folders === 'object') ? j.folders : {};
             CONTENT = {
+              // lessons/tools fall back to the built-in defaults if the file omits them
+              lessons: Array.isArray(j.lessons) ? j.lessons : JSON.parse(JSON.stringify(DEFAULT_LESSONS)),
+              tools: Array.isArray(j.tools) ? j.tools : JSON.parse(JSON.stringify(DEFAULT_TOOLS)),
               protocols: Array.isArray(j.protocols) ? j.protocols : [],
               articles: Array.isArray(j.articles) ? j.articles : [],
               presentations: Array.isArray(j.presentations) ? j.presentations : [],
               folders: {
+                lessons: Array.isArray(f.lessons) ? f.lessons : [],
+                tools: Array.isArray(f.tools) ? f.tools : [],
                 articles: Array.isArray(f.articles) ? f.articles : [],
                 protocols: Array.isArray(f.protocols) ? f.protocols : [],
                 presentations: Array.isArray(f.presentations) ? f.presentations : []
@@ -1252,6 +1319,25 @@
       function open(html) { content.innerHTML = html; back.classList.add('show'); back.setAttribute('aria-hidden', 'false'); }
       function close() { back.classList.remove('show'); back.setAttribute('aria-hidden', 'true'); content.innerHTML = ''; }
       back.addEventListener('click', function (e) { if (e.target === back) close(); });
+
+      // Themed yes/no dialog (replaces window.confirm). Returns a Promise<boolean>.
+      function confirmDialog(message) {
+        const lang = getLang();
+        return new Promise(function (resolve) {
+          const modal = content.parentElement;
+          const layer = document.createElement('div');
+          layer.className = 'confirm-layer';
+          layer.innerHTML = '<div class="confirm-card"><p>' + esc(message) + '</p>' +
+            '<div class="row"><button class="btn btn-ghost" type="button" data-no>' + esc(L('admin.cancel', lang)) + '</button>' +
+            '<button class="btn btn-primary" type="button" data-yes>' + esc(L('admin.yes', lang)) + '</button></div></div>';
+          modal.appendChild(layer);
+          function done(val) { layer.remove(); resolve(val); }
+          layer.querySelector('[data-no]').onclick = function () { done(false); };
+          layer.querySelector('[data-yes]').onclick = function () { done(true); };
+          layer.addEventListener('click', function (e) { if (e.target === layer) done(false); });
+          const y = layer.querySelector('[data-yes]'); if (y) y.focus();
+        });
+      }
 
       function head(titleKey, subKey, lang) {
         return '<div class="modal-head"><h3>' + esc(L(titleKey, lang)) + '</h3>' +
@@ -1475,12 +1561,14 @@
         document.getElementById('uList').addEventListener('click', function (e) {
           const b = e.target.closest('button[data-u]'); if (!b) return;
           const u = b.getAttribute('data-u');
-          if (!confirm(fmt(L('admin.confirmRemove', lang), u))) return;
-          setMsg(L('admin.working', lang), '');
-          api('removeUser', { token: token(), username: u }).then(function (res) {
-            if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showRemoveUser(); }
-            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
-          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+          confirmDialog(fmt(L('admin.confirmRemove', lang), u)).then(function (ok) {
+            if (!ok) return;
+            setMsg(L('admin.working', lang), '');
+            api('removeUser', { token: token(), username: u }).then(function (res) {
+              if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showRemoveUser(); }
+              else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+            }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+          });
         });
       }
 
@@ -1499,12 +1587,14 @@
         document.getElementById('uList').addEventListener('click', function (e) {
           const b = e.target.closest('button[data-u]'); if (!b) return;
           const u = b.getAttribute('data-u');
-          if (!confirm(fmt(L('admin.confirmSuper', lang), u))) return;
-          setMsg(L('admin.working', lang), '');
-          api('setSuperAdmin', { token: token(), username: u, makeSuper: true }).then(function (res) {
-            if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showAssignSuper(); }
-            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
-          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+          confirmDialog(fmt(L('admin.confirmSuper', lang), u)).then(function (ok) {
+            if (!ok) return;
+            setMsg(L('admin.working', lang), '');
+            api('setSuperAdmin', { token: token(), username: u, makeSuper: true }).then(function (res) {
+              if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showAssignSuper(); }
+              else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+            }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+          });
         });
       }
 
@@ -1558,12 +1648,15 @@
         box.addEventListener('click', function (e) {
           const endBtn = e.target.closest('button[data-end]');
           if (endBtn) {
-            if (!confirm(L('admin.confirmEnd', lang))) return;
-            setMsg(L('admin.working', lang), '');
-            api('endSession', { token: token(), id: endBtn.getAttribute('data-end') }).then(function (res) {
-              if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showSessions(); }
-              else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
-            }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+            const endId = endBtn.getAttribute('data-end');
+            confirmDialog(L('admin.confirmEnd', lang)).then(function (ok) {
+              if (!ok) return;
+              setMsg(L('admin.working', lang), '');
+              api('endSession', { token: token(), id: endId }).then(function (res) {
+                if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showSessions(); }
+                else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+              }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+            });
             return;
           }
           const actBtn = e.target.closest('button[data-act]');
@@ -1722,6 +1815,155 @@
         this.value = '';
       });
 
+      /* ----- content management: right-click rename / remove (super admin) ----- */
+      function findItem(section, href) {
+        return (CONTENT[section] || []).filter(function (i) { return i.href === href; })[0] || null;
+      }
+      function findFolder(section, id) {
+        return ((CONTENT.folders && CONTENT.folders[section]) || []).filter(function (f) { return f.id === id; })[0] || null;
+      }
+      function applyRenameLocal(kind, section, key, en, he) {
+        if (kind === 'folder') { const f = findFolder(section, key); if (f) { f.en = en; f.he = he; } }
+        else { const it = findItem(section, key); if (it) { it.en = en; it.he = he; } }
+        renderAll();
+      }
+      function applyRemoveLocal(kind, section, key) {
+        if (kind === 'folder') {
+          CONTENT.folders[section] = (CONTENT.folders[section] || []).filter(function (f) { return f.id !== key; });
+          CONTENT[section] = (CONTENT[section] || []).filter(function (i) { return i.folder !== key; });
+        } else {
+          CONTENT[section] = (CONTENT[section] || []).filter(function (i) { return i.href !== key; });
+        }
+        renderAll();
+      }
+
+      function ctxRename(kind, section, key, curEn, curHe) {
+        const lang = getLang();
+        const titleKey = kind === 'folder' ? 'admin.renameFolderTitle' : 'admin.renameTitle';
+        const subKey = kind === 'folder' ? 'admin.renameFolderSub' : 'admin.renameSub';
+        open(head(titleKey, subKey, lang) +
+          '<div class="modal-body">' +
+          field('rnEn', 'admin.nameEn', 'text', lang) +
+          field('rnHe', 'admin.nameHe', 'text', lang) +
+          msgBox() +
+          '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
+          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.save', lang)) + '</button></div>' +
+          '</div>');
+        document.getElementById('rnEn').value = curEn || '';
+        document.getElementById('rnHe').value = curHe || '';
+        document.getElementById('aCancel').onclick = close;
+        document.getElementById('aGo').onclick = function () {
+          const en = document.getElementById('rnEn').value.trim();
+          const he = document.getElementById('rnHe').value.trim();
+          if (!en && !he) { setMsg(L('err.no_text', lang), 'err'); return; }
+          setMsg(L('admin.working', lang), '');
+          const action = kind === 'folder' ? 'renameFolder' : 'renameItem';
+          const payload = kind === 'folder'
+            ? { token: token(), section: section, id: key, en: en, he: he }
+            : { token: token(), section: section, href: key, en: en, he: he };
+          api(action, payload).then(function (res) {
+            if (res && res.ok) { applyRenameLocal(kind, section, key, en, he); setMsg(L('admin.saved', lang), 'ok'); turnIntoBackToSite(); }
+            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        };
+      }
+
+      function ctxRemove(kind, section, key, name) {
+        const lang = getLang();
+        const msg = kind === 'folder'
+          ? fmt(L('admin.confirmRemoveFolder', lang), name)
+          : fmt(L('admin.confirmRemoveItem', lang), name);
+        open('<div class="modal-head"><h3>' + esc(L('admin.confirmTitle', lang)) + '</h3></div>' +
+          '<div class="modal-body"><div class="modal-msg">' + esc(msg) + '</div>' +
+          msgBox() +
+          '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
+          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.ctxRemove', lang)) + '</button></div>' +
+          '</div>');
+        document.getElementById('aCancel').onclick = close;
+        document.getElementById('aGo').onclick = function () {
+          setMsg(L('admin.working', lang), '');
+          const action = kind === 'folder' ? 'removeFolder' : 'removeItem';
+          const payload = kind === 'folder'
+            ? { token: token(), section: section, id: key }
+            : { token: token(), section: section, href: key };
+          api(action, payload).then(function (res) {
+            if (res && res.ok) { applyRemoveLocal(kind, section, key); setMsg(L('admin.saved', lang), 'ok'); turnIntoBackToSite(); }
+            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        };
+      }
+
+      let ctxEl = null;
+      function closeCtx() {
+        if (!ctxEl) return;
+        ctxEl.remove(); ctxEl = null;
+        document.removeEventListener('click', closeCtx);
+        window.removeEventListener('scroll', closeCtx, true);
+      }
+      function openCtx(x, y, items) {
+        closeCtx();
+        ctxEl = document.createElement('div');
+        ctxEl.className = 'ctx-menu';
+        ctxEl.innerHTML = items.map(function (it) {
+          return '<button type="button" data-act="' + it.act + '"' + (it.danger ? ' class="danger"' : '') + '>' +
+            '<span class="material-symbols-outlined">' + it.icon + '</span><span>' + esc(it.label) + '</span></button>';
+        }).join('');
+        document.body.appendChild(ctxEl);
+        const r = ctxEl.getBoundingClientRect();
+        const px = Math.max(8, Math.min(x, window.innerWidth - r.width - 8));
+        const py = Math.max(8, Math.min(y, window.innerHeight - r.height - 8));
+        ctxEl.style.left = px + 'px';
+        ctxEl.style.top = py + 'px';
+        ctxEl.addEventListener('click', function (e) {
+          const b = e.target.closest('button[data-act]'); if (!b) return;
+          const act = b.getAttribute('data-act');
+          let chosen = null;
+          items.forEach(function (i) { if (i.act === act) chosen = i; });
+          closeCtx();
+          if (chosen && chosen.run) chosen.run();
+        });
+        setTimeout(function () {
+          document.addEventListener('click', closeCtx);
+          window.addEventListener('scroll', closeCtx, true);
+        }, 0);
+      }
+
+      function wireContextMenu() {
+        document.addEventListener('contextmenu', function (e) {
+          if (!loggedIn() || role() !== 'root') return; // super admins only
+          const lang = getLang();
+          const item = e.target.closest('a.item[data-mhref]');
+          if (item) {
+            e.preventDefault();
+            const section = item.getAttribute('data-msection');
+            const href = item.getAttribute('data-mhref');
+            const obj = findItem(section, href) || {};
+            const name = nm(obj, lang) || href;
+            openCtx(e.clientX, e.clientY, [
+              { act: 'rename', icon: 'edit', label: L('admin.ctxRename', lang),
+                run: function () { ctxRename('item', section, href, obj.en || '', obj.he || ''); } },
+              { act: 'remove', icon: 'delete', danger: true, label: L('admin.ctxRemove', lang),
+                run: function () { ctxRemove('item', section, href, name); } }
+            ]);
+            return;
+          }
+          const folder = e.target.closest('details.folder[data-mfid]');
+          if (folder && e.target.closest('summary')) {
+            e.preventDefault();
+            const section = folder.getAttribute('data-mfsection');
+            const id = folder.getAttribute('data-mfid');
+            const fobj = findFolder(section, id) || {};
+            const name = nm(fobj, lang) || id;
+            openCtx(e.clientX, e.clientY, [
+              { act: 'rename', icon: 'edit', label: L('admin.ctxRename', lang),
+                run: function () { ctxRename('folder', section, id, fobj.en || '', fobj.he || ''); } },
+              { act: 'remove', icon: 'delete', danger: true, label: L('admin.ctxRemove', lang),
+                run: function () { ctxRemove('folder', section, id, name); } }
+            ]);
+          }
+        });
+      }
+
       function wireDropzones() {
         document.querySelectorAll('.dropzone').forEach(function (dz) {
           const section = dz.getAttribute('data-section');
@@ -1749,7 +1991,7 @@
         });
       }
 
-      function init() { wireDropzones(); refresh(); }
+      function init() { wireDropzones(); wireContextMenu(); refresh(); }
 
       return { openMenu: openMenu, close: close, refresh: refresh, init: init };
     })();

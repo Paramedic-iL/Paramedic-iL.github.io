@@ -1,4 +1,63 @@
 {
+  "lessons": [
+    {
+      "id": "l_explanation",
+      "href": "lessons/explanation/index.html",
+      "icon": "▶",
+      "en": "לומדה - הסבר",
+      "he": "לומדה - הסבר",
+      "descEn": "Interactive lesson",
+      "descHe": "לומדה אינטראקטיבית"
+    }
+  ],
+  "tools": [
+    {
+      "id": "t_peds",
+      "href": "tools/pediatric-calc/index.html",
+      "icon": "⚕",
+      "en": "Pediatric Calculator",
+      "he": "מחשבון פדיאטרי",
+      "descEn": "Weight, vitals & drug doses by age",
+      "descHe": "משקל, מדדים ומינוני תרופות לפי גיל"
+    },
+    {
+      "id": "t_coord",
+      "href": "tools/coordinates/index.html",
+      "icon": "⊕",
+      "en": "Coordinate Converter",
+      "he": "ממיר קואורדינטות",
+      "descEn": "UTM 36N ↔ Google Maps",
+      "descHe": "UTM 36N ↔ גוגל מפות"
+    },
+    {
+      "id": "t_medtest",
+      "href": "tools/medics-test/index.html",
+      "icon": "✓",
+      "en": "Medics Test",
+      "he": "מבחן חובשים",
+      "descEn": "Medics knowledge test",
+      "descHe": "מבחן ידע לחובשים"
+    },
+    {
+      "id": "t_results",
+      "href": "tools/test-results/index.html",
+      "icon": "▦",
+      "en": "Test Statistics",
+      "he": "סטטיסטיקות מבחן",
+      "descEn": "Test results dashboard",
+      "descHe": "לוח תוצאות המבחן"
+    },
+    {
+      "id": "t_ai",
+      "href": "#",
+      "icon": "↗",
+      "newtab": true,
+      "en": "Trauma Scenario AI",
+      "he": "תרחישי טראומה בבינה מלאכותית",
+      "descEn": "ChatGPT — link coming soon",
+      "descHe": "ChatGPT — קישור יתווסף בקרוב"
+    }
+  ],
   "articles": [],
   "protocols": [
     {
@@ -82,6 +141,8 @@
     }
   ],
   "folders": {
+    "lessons": [],
+    "tools": [],
     "articles": [],
     "protocols": [],
     "presentations": [
