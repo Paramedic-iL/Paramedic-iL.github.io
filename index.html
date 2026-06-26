@@ -330,7 +330,7 @@
       <div class="content">
         <span class="eyebrow" data-i18n="hero.eyebrow">Reference · Training · Response</span>
         <h1><span data-i18n="hero.title1">Tactical Medicine,</span><br><span class="accent" data-i18n="hero.title2">Made Clear</span></h1>
-        <p data-i18n="hero.sub">Interactive lessons, field-tested articles, and ready-to-use protocols — built for medics, first responders, and operators who need it right the first time.</p>
+        <p data-i18n-html="hero.sub">A site built for paramedics, medics, and lay caregivers in Israel — a large, up-to-date library of protocols, position papers, and bulletins from emergency-medicine organizations in Israel and around the world. It also offers interactive lessons, relevant articles, and helper apps that make it easier to respond to a medical event already at the training and planning stage.<br><br>All of it gathered, organized, and validated for the people who are called on to save lives the right way.</p>
         <div class="cta">
           <a class="btn btn-primary" href="#lessons" data-i18n="hero.btnStart">Start a Lesson</a>
           <a class="btn btn-ghost" href="#protocols" data-i18n="hero.btnProtocols">View Protocols</a>
@@ -491,7 +491,7 @@
         "hero.eyebrow": "Reference · Training · Response",
         "hero.title1": "Tactical Medicine,",
         "hero.title2": "Made Clear",
-        "hero.sub": "Interactive lessons, field-tested articles, and ready-to-use protocols — built for medics, first responders, and operators who need it right the first time.",
+        "hero.sub": "A site built for paramedics, medics, and lay caregivers in Israel — a large, up-to-date library of protocols, position papers, and bulletins from emergency-medicine organizations in Israel and around the world. It also offers interactive lessons, relevant articles, and helper apps that make it easier to respond to a medical event already at the training and planning stage.<br><br>All of it gathered, organized, and validated for the people who are called on to save lives the right way.",
         "hero.btnStart": "Start a Lesson",
         "hero.btnProtocols": "View Protocols",
         "explore.kicker": "What's Inside",
@@ -695,7 +695,7 @@
         "hero.eyebrow": "עיון · אימון · תגובה",
         "hero.title1": "רפואה טקטית,",
         "hero.title2": "פשוט וברור",
-        "hero.sub": "לומדות אינטראקטיביות, מאמרים מהשטח ופרוטוקולים מוכנים לשימוש — נבנו עבור חובשים, כוחות חירום ולוחמים שצריכים את זה נכון כבר בפעם הראשונה.",
+        "hero.sub": "אתר בנוי לפרמדיקים, חובשים ומטפלים לא מיומנים בישראל. מאגר גדול ועדכני של פרוטוקולים, דפי עמדה ואגרות של ארגוני רפואת חירום בארץ ובעולם. בנוסף ישנן לומדות אינטראקטיביות, מאמרים רלוונטיים ואפליקציות עזר שיעזרו לתת מענה לאירוע רפואי כבר בשלב האימון והתכנון.<br><br>כל אלו מרוכזים, מסודרים ומתוקפים לטובת האנשים שנדרשים להציל חיים נכון.",
         "hero.btnStart": "התחלת לומדה",
         "hero.btnProtocols": "צפייה בפרוטוקולים",
         "explore.kicker": "מה בפנים",
@@ -1192,6 +1192,11 @@
       document.querySelectorAll('[data-i18n]').forEach(function (el) {
         const k = el.getAttribute('data-i18n');
         if (d[k] != null) el.textContent = d[k];
+      });
+      // opt-in HTML translations (allows simple markup like <br> in the value)
+      document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+        const k = el.getAttribute('data-i18n-html');
+        if (d[k] != null) el.innerHTML = d[k];
       });
       document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
         const k = el.getAttribute('data-i18n-ph');
