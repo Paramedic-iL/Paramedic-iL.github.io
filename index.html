@@ -1928,40 +1928,85 @@
         }, 0);
       }
 
+      // Opens the rename/remove menu for whatever item/folder is under `target`.
+      // Returns true if a menu was shown (so callers can preventDefault).
+      function openCtxForTarget(target, x, y) {
+        if (!loggedIn() || role() !== 'root') return false; // super admins only
+        const lang = getLang();
+        const item = target.closest('a.item[data-mhref]');
+        if (item) {
+          const section = item.getAttribute('data-msection');
+          const href = item.getAttribute('data-mhref');
+          const obj = findItem(section, href) || {};
+          const name = nm(obj, lang) || href;
+          openCtx(x, y, [
+            { act: 'rename', icon: 'edit', label: L('admin.ctxRename', lang),
+              run: function () { ctxRename('item', section, href, obj.en || '', obj.he || ''); } },
+            { act: 'remove', icon: 'delete', danger: true, label: L('admin.ctxRemove', lang),
+              run: function () { ctxRemove('item', section, href, name); } }
+          ]);
+          return true;
+        }
+        const folder = target.closest('details.folder[data-mfid]');
+        if (folder && target.closest('summary')) {
+          const section = folder.getAttribute('data-mfsection');
+          const id = folder.getAttribute('data-mfid');
+          const fobj = findFolder(section, id) || {};
+          const name = nm(fobj, lang) || id;
+          openCtx(x, y, [
+            { act: 'rename', icon: 'edit', label: L('admin.ctxRename', lang),
+              run: function () { ctxRename('folder', section, id, fobj.en || '', fobj.he || ''); } },
+            { act: 'remove', icon: 'delete', danger: true, label: L('admin.ctxRemove', lang),
+              run: function () { ctxRemove('folder', section, id, name); } }
+          ]);
+          return true;
+        }
+        return false;
+      }
+
       function wireContextMenu() {
+        // Desktop: right-click.
         document.addEventListener('contextmenu', function (e) {
-          if (!loggedIn() || role() !== 'root') return; // super admins only
-          const lang = getLang();
-          const item = e.target.closest('a.item[data-mhref]');
-          if (item) {
-            e.preventDefault();
-            const section = item.getAttribute('data-msection');
-            const href = item.getAttribute('data-mhref');
-            const obj = findItem(section, href) || {};
-            const name = nm(obj, lang) || href;
-            openCtx(e.clientX, e.clientY, [
-              { act: 'rename', icon: 'edit', label: L('admin.ctxRename', lang),
-                run: function () { ctxRename('item', section, href, obj.en || '', obj.he || ''); } },
-              { act: 'remove', icon: 'delete', danger: true, label: L('admin.ctxRemove', lang),
-                run: function () { ctxRemove('item', section, href, name); } }
-            ]);
-            return;
-          }
-          const folder = e.target.closest('details.folder[data-mfid]');
-          if (folder && e.target.closest('summary')) {
-            e.preventDefault();
-            const section = folder.getAttribute('data-mfsection');
-            const id = folder.getAttribute('data-mfid');
-            const fobj = findFolder(section, id) || {};
-            const name = nm(fobj, lang) || id;
-            openCtx(e.clientX, e.clientY, [
-              { act: 'rename', icon: 'edit', label: L('admin.ctxRename', lang),
-                run: function () { ctxRename('folder', section, id, fobj.en || '', fobj.he || ''); } },
-              { act: 'remove', icon: 'delete', danger: true, label: L('admin.ctxRemove', lang),
-                run: function () { ctxRemove('folder', section, id, name); } }
-            ]);
-          }
+          if (openCtxForTarget(e.target, e.clientX, e.clientY)) e.preventDefault();
         });
+
+        // Touch: long-press (~500ms) opens the same menu. Suppress the click that
+        // would otherwise follow, so the link doesn't navigate.
+        let suppressNextClick = false;
+        document.addEventListener('click', function (e) {
+          if (suppressNextClick) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+            suppressNextClick = false;
+          }
+        }, true);
+
+        let timer = null, sx = 0, sy = 0, pressTarget = null;
+        function cancel() { if (timer) { clearTimeout(timer); timer = null; } pressTarget = null; }
+        document.addEventListener('touchstart', function (e) {
+          if (!loggedIn() || role() !== 'root') return;
+          if (e.touches.length !== 1) return;
+          const isItem = e.target.closest('a.item[data-mhref]');
+          const fol = e.target.closest('details.folder[data-mfid]');
+          if (!isItem && !(fol && e.target.closest('summary'))) return;
+          const t = e.touches[0];
+          sx = t.clientX; sy = t.clientY; pressTarget = e.target;
+          timer = setTimeout(function () {
+            timer = null;
+            if (openCtxForTarget(pressTarget, sx, sy)) {
+              suppressNextClick = true;
+              setTimeout(function () { suppressNextClick = false; }, 900);
+            }
+          }, 500);
+        }, { passive: true });
+        document.addEventListener('touchmove', function (e) {
+          if (!timer) return;
+          const t = e.touches[0];
+          if (Math.abs(t.clientX - sx) > 10 || Math.abs(t.clientY - sy) > 10) cancel();
+        }, { passive: true });
+        document.addEventListener('touchend', cancel);
+        document.addEventListener('touchcancel', cancel);
       }
 
       function wireDropzones() {
