@@ -955,6 +955,12 @@
       "en": "Routine - Blood exposure",
       "he": "שגרה - חשיפה לדם",
       "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/mci.pdf",
+      "en": "MCI",
+      "he": "אר\"ן",
+      "folder": "f_7fb796be"
     }
   ],
   "folders": {
@@ -989,6 +995,11 @@
         "id": "f_bc97c27b",
         "en": "MDA Medics course",
         "he": "קורס חובשים מד\"א"
+      },
+      {
+        "id": "f_7fb796be",
+        "en": "ABIR",
+        "he": "אביר"
       }
     ]
   }
