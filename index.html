@@ -207,6 +207,26 @@
       font-family:"Inter",sans-serif;font-size:14.5px;font-weight:600;transition:.15s}
     .admin-menu .mi:hover{border-color:var(--olive);background:var(--panel2)}
     .admin-menu .mi.danger:hover{border-color:var(--red);color:var(--red-bright)}
+    .admin-back{background:none;border:none;color:var(--muted);cursor:pointer;font-family:"Inter",sans-serif;
+      font-weight:600;font-size:13px;padding:0;margin-bottom:2px;align-self:flex-start}
+    .admin-back:hover{color:var(--text)}
+    .urow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+    .urow .uinfo{min-width:0;flex:1 1 auto}
+    .urow .uinfo strong{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .urow .uinfo span{color:var(--muted);font-size:12.5px}
+    .urow .ubadge{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+      padding:3px 8px;border-radius:999px;background:rgba(125,138,79,.18);color:var(--olive)}
+    .urow .ubadge.sa{background:rgba(179,36,43,.16);color:var(--red-bright)}
+    .urow .ubtn{flex:0 0 auto;background:none;border:1px solid var(--line);color:var(--muted);cursor:pointer;
+      border-radius:8px;padding:7px 11px;font-family:"Inter",sans-serif;font-weight:700;font-size:12px;transition:.15s;white-space:nowrap}
+    .urow .ubtn:hover{color:var(--text);border-color:var(--olive)}
+    .urow .ubtn.danger:hover{color:var(--red-bright);border-color:var(--red)}
+    .uactions{border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px;margin-top:-8px;
+      padding:10px 13px;background:var(--bg);font-size:12.5px;color:var(--muted)}
+    .uactions .arow{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid var(--line)}
+    .uactions .arow:last-child{border-bottom:none}
+    .uactions .arow .at{color:var(--muted);white-space:nowrap;font-size:11.5px}
+    .mlist{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto}
     .file-pill{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);
       border-radius:9px;padding:10px 13px;font-size:13.5px;color:var(--muted);word-break:break-all}
 
@@ -546,9 +566,48 @@
         "admin.verify": "Verify",
         "admin.menuTitle": "Admin Panel",
         "admin.menuSub": "You are signed in as an administrator.",
+        "admin.menuSubSuper": "You are signed in as a Super Admin.",
         "admin.changePw": "Change Password",
         "admin.addAdmin": "Add Admin User",
         "admin.logout": "Log Out",
+        "admin.endMySession": "End my session",
+        "admin.addUser": "Add user",
+        "admin.addUserSub": "New users are normal admins (upload only).",
+        "admin.removeUser": "Remove user",
+        "admin.removeUserSub": "Remove an admin account.",
+        "admin.assignSuper": "Assign Super Admin",
+        "admin.assignSuperSub": "Choose who becomes a Super Admin.",
+        "admin.autoSignout": "Auto sign-out period",
+        "admin.autoSignoutSub": "How long admins stay signed in.",
+        "admin.endUserSession": "End user session",
+        "admin.endUserSessionSub": "See who is signed in and sign them out.",
+        "admin.hours": "Hours (1–8760)",
+        "admin.currentTtl": "Currently: %1 hours",
+        "admin.remove": "Remove",
+        "admin.makeSuper": "Make Super Admin",
+        "admin.isSuper": "Super Admin",
+        "admin.endSession": "End session",
+        "admin.noUsers": "No users.",
+        "admin.noSessions": "No one is signed in.",
+        "admin.noActions": "No recorded actions.",
+        "admin.you": "(you)",
+        "admin.loggedFor": "Signed in for %1",
+        "admin.confirmRemove": "Remove user \"%1\"?",
+        "admin.confirmEnd": "End this session?",
+        "admin.confirmSuper": "Make \"%1\" a Super Admin?",
+        "admin.back": "← Back",
+        "role.root": "Super Admin",
+        "role.admin": "Admin",
+        "dur.d": "d", "dur.h": "h", "dur.m": "m", "dur.lt1m": "<1m",
+        "act.login": "Signed in",
+        "act.upload": "Uploaded",
+        "act.changePassword": "Changed password",
+        "act.addUser": "Added user",
+        "act.removeUser": "Removed user",
+        "act.setSuperAdmin": "Granted Super Admin",
+        "act.revokeSuperAdmin": "Revoked Super Admin",
+        "act.setSettings": "Changed settings",
+        "act.endSession": "Ended a session",
         "admin.pwTitle": "Change Password",
         "admin.pwSub": "Choose a new password for your account.",
         "admin.newPw": "New Password",
@@ -594,6 +653,10 @@
         "err.add_invalid": "Enter a username and a 6+ character password.",
         "err.user_exists": "That username already exists.",
         "err.bad_email": "Enter a valid email address.",
+        "err.cant_remove_root": "The owner account cannot be removed.",
+        "err.cant_remove_self": "You cannot remove yourself.",
+        "err.cant_demote_root": "The owner stays a Super Admin.",
+        "err.bad_ttl": "Enter a number of hours between 1 and 8760.",
         "err.bad_section": "Invalid section.",
         "err.no_file": "No file content received.",
         "err.no_text": "Add English or Hebrew text.",
@@ -692,9 +755,48 @@
         "admin.verify": "אימות",
         "admin.menuTitle": "לוח ניהול",
         "admin.menuSub": "אתם מחוברים כמנהלים.",
+        "admin.menuSubSuper": "אתם מחוברים כמנהל-על.",
         "admin.changePw": "שינוי סיסמה",
         "admin.addAdmin": "הוספת מנהל",
         "admin.logout": "התנתקות",
+        "admin.endMySession": "ניתוק ההתחברות שלי",
+        "admin.addUser": "הוספת משתמש",
+        "admin.addUserSub": "משתמשים חדשים הם מנהלים רגילים (העלאה בלבד).",
+        "admin.removeUser": "הסרת משתמש",
+        "admin.removeUserSub": "הסרת חשבון מנהל.",
+        "admin.assignSuper": "הענקת מנהל-על",
+        "admin.assignSuperSub": "בחרו מי יהפוך למנהל-על.",
+        "admin.autoSignout": "משך התנתקות אוטומטית",
+        "admin.autoSignoutSub": "כמה זמן מנהלים נשארים מחוברים.",
+        "admin.endUserSession": "ניתוק משתמש מחובר",
+        "admin.endUserSessionSub": "צפו במי שמחובר ונתקו אותו.",
+        "admin.hours": "שעות (1–8760)",
+        "admin.currentTtl": "כעת: %1 שעות",
+        "admin.remove": "הסרה",
+        "admin.makeSuper": "הפיכה למנהל-על",
+        "admin.isSuper": "מנהל-על",
+        "admin.endSession": "ניתוק",
+        "admin.noUsers": "אין משתמשים.",
+        "admin.noSessions": "אף אחד לא מחובר.",
+        "admin.noActions": "אין פעולות מתועדות.",
+        "admin.you": "(אתה)",
+        "admin.loggedFor": "מחובר כבר %1",
+        "admin.confirmRemove": "להסיר את המשתמש \"%1\"?",
+        "admin.confirmEnd": "לנתק התחברות זו?",
+        "admin.confirmSuper": "להפוך את \"%1\" למנהל-על?",
+        "admin.back": "→ חזרה",
+        "role.root": "מנהל-על",
+        "role.admin": "מנהל",
+        "dur.d": "ימ׳", "dur.h": "שע׳", "dur.m": "דק׳", "dur.lt1m": "פחות מדקה",
+        "act.login": "התחבר",
+        "act.upload": "העלה קובץ",
+        "act.changePassword": "שינה סיסמה",
+        "act.addUser": "הוסיף משתמש",
+        "act.removeUser": "הסיר משתמש",
+        "act.setSuperAdmin": "העניק מנהל-על",
+        "act.revokeSuperAdmin": "ביטל מנהל-על",
+        "act.setSettings": "שינה הגדרות",
+        "act.endSession": "ניתק התחברות",
         "admin.pwTitle": "שינוי סיסמה",
         "admin.pwSub": "בחרו סיסמה חדשה לחשבון שלכם.",
         "admin.newPw": "סיסמה חדשה",
@@ -740,6 +842,10 @@
         "err.add_invalid": "הזינו שם משתמש וסיסמה באורך 6 תווים לפחות.",
         "err.user_exists": "שם המשתמש כבר קיים.",
         "err.bad_email": "הזינו כתובת אימייל תקינה.",
+        "err.cant_remove_root": "לא ניתן להסיר את חשבון הבעלים.",
+        "err.cant_remove_self": "אי אפשר להסיר את עצמך.",
+        "err.cant_demote_root": "הבעלים נשאר מנהל-על.",
+        "err.bad_ttl": "הזינו מספר שעות בין 1 ל-8760.",
         "err.bad_section": "מקטע לא תקין.",
         "err.no_file": "לא התקבל תוכן הקובץ.",
         "err.no_text": "הוסיפו טקסט באנגלית או בעברית.",
@@ -1212,18 +1318,60 @@
         }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
       }
 
+      /* ----- shared helpers for management screens ----- */
+      function backHead(titleKey, subKey, lang) {
+        return '<div class="modal-head">' +
+          '<button type="button" class="admin-back" id="aBack">' + esc(L('admin.back', lang)) + '</button>' +
+          '<h3>' + esc(L(titleKey, lang)) + '</h3><p>' + esc(L(subKey, lang)) + '</p></div>';
+      }
+      function wireBack() { const b = document.getElementById('aBack'); if (b) b.onclick = showPanel; }
+      function fmt(tpl, a, b) { return String(tpl).replace('%1', a).replace('%2', b); }
+
+      function formatDuration(ms, lang) {
+        if (ms == null) return '';
+        const m = Math.floor(ms / 60000);
+        if (m < 1) return L('dur.lt1m', lang);
+        const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+        const parts = [];
+        if (d) parts.push(d + ' ' + L('dur.d', lang));
+        if (h) parts.push(h + ' ' + L('dur.h', lang));
+        if (!d && mm) parts.push(mm + ' ' + L('dur.m', lang));
+        return parts.join(' ');
+      }
+      function actionLabel(a, lang) {
+        const k = 'act.' + a.action;
+        const d = DICT[lang] || DICT.en;
+        const base = (d[k] != null || DICT.en[k] != null) ? L(k, lang) : a.action;
+        return a.detail ? base + ' — ' + a.detail : base;
+      }
+      function roleLabel(r, lang) { return L(r === 'root' ? 'role.root' : 'role.admin', lang); }
+
       function showPanel() {
         const lang = getLang();
         const isRoot = role() === 'root';
-        open(head('admin.menuTitle', 'admin.menuSub', lang) +
-          '<div class="modal-body admin-menu">' +
-          '<button class="mi" type="button" id="miPw">🔑 ' + esc(L('admin.changePw', lang)) + '</button>' +
-          (isRoot ? '<button class="mi" type="button" id="miAdd">＋ ' + esc(L('admin.addAdmin', lang)) + '</button>' : '') +
-          '<button class="mi danger" type="button" id="miOut">⎋ ' + esc(L('admin.logout', lang)) + '</button>' +
-          '</div>');
-        document.getElementById('miPw').onclick = showChangePw;
-        const add = document.getElementById('miAdd'); if (add) add.onclick = showAddAdmin;
-        document.getElementById('miOut').onclick = logout;
+        const mi = function (id, icon, key) {
+          return '<button class="mi" type="button" id="' + id + '">' + icon + ' ' + esc(L(key, lang)) + '</button>';
+        };
+        let body = '';
+        if (isRoot) {
+          body += mi('miAddUser', '👤', 'admin.addUser');
+          body += mi('miRemoveUser', '🗑', 'admin.removeUser');
+          body += mi('miSuper', '★', 'admin.assignSuper');
+          body += mi('miTimeout', '⏲', 'admin.autoSignout');
+          body += mi('miSessions', '👥', 'admin.endUserSession');
+          body += mi('miPw', '🔑', 'admin.changePw');
+        }
+        body += '<button class="mi danger" type="button" id="miOut">⎋ ' + esc(L('admin.endMySession', lang)) + '</button>';
+        open(head('admin.menuTitle', isRoot ? 'admin.menuSubSuper' : 'admin.menuSub', lang) +
+          '<div class="modal-body admin-menu">' + body + '</div>');
+        const on = function (id, fn) { const el = document.getElementById(id); if (el) el.onclick = fn; };
+        on('miAddUser', showAddUser);
+        on('miRemoveUser', showRemoveUser);
+        on('miSuper', showAssignSuper);
+        on('miTimeout', showTimeout);
+        on('miSessions', showSessions);
+        on('miPw', showChangePw);
+        on('miOut', endMySession);
       }
 
       function showChangePw() {
@@ -1249,25 +1397,22 @@
         };
       }
 
-      function showAddAdmin() {
+      function showAddUser() {
         const lang = getLang();
-        open(head('admin.addTitle', 'admin.addSub', lang) +
+        open(backHead('admin.addUser', 'admin.addUserSub', lang) +
           '<div class="modal-body">' +
           field('nUser', 'admin.newUser', 'text', lang) +
           field('nEmail', 'admin.newEmail', 'email', lang) +
           field('nPass', 'admin.password', 'password', lang) +
           msgBox() +
-          '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
-          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.add', lang)) + '</button></div>' +
+          '<div class="row"><button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.add', lang)) + '</button></div>' +
           '</div>');
-        document.getElementById('aCancel').onclick = showPanel;
+        wireBack();
         document.getElementById('aGo').onclick = function () {
-          const u = document.getElementById('nUser').value.trim(),
-                em = document.getElementById('nEmail').value.trim(),
-                p = document.getElementById('nPass').value;
+          const u = val('nUser'), em = val('nEmail'), p = document.getElementById('nPass').value;
           if (!u || !em || !p) return;
           setMsg(L('admin.working', lang), '');
-          api('addAdmin', { token: token(), newUsername: u, newPassword: p, newEmail: em }).then(function (res) {
+          api('addUser', { token: token(), newUsername: u, newPassword: p, newEmail: em }).then(function (res) {
             if (res && res.ok) {
               setMsg(L('admin.saved', lang), 'ok');
               document.getElementById('nUser').value = '';
@@ -1276,6 +1421,158 @@
             } else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
           }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
         };
+      }
+
+      // Generic user-list loader used by Remove + Assign-Super screens.
+      function loadUsers(containerId, rowFor) {
+        const lang = getLang();
+        const box = document.getElementById(containerId);
+        box.innerHTML = '<div class="modal-msg">' + esc(L('admin.working', lang)) + '</div>';
+        api('listUsers', { token: token() }).then(function (res) {
+          if (!res || !res.ok) { if (!handleAuthFail(res)) box.innerHTML = '<div class="modal-msg err">' + esc(errMsg(res)) + '</div>'; return; }
+          if (!res.users.length) { box.innerHTML = '<div class="modal-msg">' + esc(L('admin.noUsers', lang)) + '</div>'; return; }
+          res.users.sort(function (a, b) { return a.username.localeCompare(b.username); });
+          box.innerHTML = res.users.map(function (u) { return rowFor(u, res.me, lang); }).join('');
+          box.__users = res; box.__rowFor = rowFor;
+        }).catch(function () { box.innerHTML = '<div class="modal-msg err">' + esc(L('admin.genericErr', lang)) + '</div>'; });
+      }
+      function userMeta(u, me, lang) {
+        const badge = '<span class="ubadge' + (u.role === 'root' ? ' sa' : '') + '">' + esc(roleLabel(u.role, lang)) + '</span>';
+        const youTag = u.username === me ? ' ' + L('admin.you', lang) : '';
+        return '<div class="uinfo"><strong>' + esc(u.username) + esc(youTag) + '</strong><span>' + esc(u.email || '') + '</span></div>' + badge;
+      }
+
+      function showRemoveUser() {
+        const lang = getLang();
+        open(backHead('admin.removeUser', 'admin.removeUserSub', lang) +
+          '<div class="modal-body"><div class="mlist" id="uList"></div><div class="modal-msg" id="mMsg"></div></div>');
+        wireBack();
+        loadUsers('uList', function (u, me, lang) {
+          const canRemove = !u.isRoot && u.username !== me;
+          const btn = canRemove
+            ? '<button class="ubtn danger" type="button" data-u="' + esc(u.username) + '">' + esc(L('admin.remove', lang)) + '</button>'
+            : '';
+          return '<div class="urow">' + userMeta(u, me, lang) + btn + '</div>';
+        });
+        document.getElementById('uList').addEventListener('click', function (e) {
+          const b = e.target.closest('button[data-u]'); if (!b) return;
+          const u = b.getAttribute('data-u');
+          if (!confirm(fmt(L('admin.confirmRemove', lang), u))) return;
+          setMsg(L('admin.working', lang), '');
+          api('removeUser', { token: token(), username: u }).then(function (res) {
+            if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showRemoveUser(); }
+            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        });
+      }
+
+      function showAssignSuper() {
+        const lang = getLang();
+        open(backHead('admin.assignSuper', 'admin.assignSuperSub', lang) +
+          '<div class="modal-body"><div class="mlist" id="uList"></div><div class="modal-msg" id="mMsg"></div></div>');
+        wireBack();
+        loadUsers('uList', function (u, me, lang) {
+          const btn = u.role === 'root'
+            ? '<span class="ubadge sa">' + esc(L('admin.isSuper', lang)) + '</span>'
+            : '<button class="ubtn" type="button" data-u="' + esc(u.username) + '">' + esc(L('admin.makeSuper', lang)) + '</button>';
+          const meta = '<div class="uinfo"><strong>' + esc(u.username) + (u.username === me ? ' ' + esc(L('admin.you', lang)) : '') + '</strong><span>' + esc(u.email || '') + '</span></div>';
+          return '<div class="urow">' + meta + btn + '</div>';
+        });
+        document.getElementById('uList').addEventListener('click', function (e) {
+          const b = e.target.closest('button[data-u]'); if (!b) return;
+          const u = b.getAttribute('data-u');
+          if (!confirm(fmt(L('admin.confirmSuper', lang), u))) return;
+          setMsg(L('admin.working', lang), '');
+          api('setSuperAdmin', { token: token(), username: u, makeSuper: true }).then(function (res) {
+            if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showAssignSuper(); }
+            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        });
+      }
+
+      function showTimeout() {
+        const lang = getLang();
+        open(backHead('admin.autoSignout', 'admin.autoSignoutSub', lang) +
+          '<div class="modal-body">' +
+          '<div class="modal-msg" id="curTtl">' + esc(L('admin.working', lang)) + '</div>' +
+          field('ttl', 'admin.hours', 'number', lang, 'min="1" max="8760"') +
+          '<div class="modal-msg" id="mMsg"></div>' +
+          '<div class="row"><button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.save', lang)) + '</button></div>' +
+          '</div>');
+        wireBack();
+        api('getSettings', { token: token() }).then(function (res) {
+          if (res && res.ok) {
+            document.getElementById('curTtl').textContent = fmt(L('admin.currentTtl', lang), res.sessionTtlHours);
+            document.getElementById('ttl').value = res.sessionTtlHours;
+          } else if (!handleAuthFail(res)) document.getElementById('curTtl').textContent = errMsg(res);
+        }).catch(function () {});
+        document.getElementById('aGo').onclick = function () {
+          const h = document.getElementById('ttl').value;
+          setMsg(L('admin.working', lang), '');
+          api('setSettings', { token: token(), sessionTtlHours: Number(h) }).then(function (res) {
+            if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); document.getElementById('curTtl').textContent = fmt(L('admin.currentTtl', lang), res.sessionTtlHours); }
+            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        };
+      }
+
+      function showSessions() {
+        const lang = getLang();
+        open(backHead('admin.endUserSession', 'admin.endUserSessionSub', lang) +
+          '<div class="modal-body"><div class="mlist" id="sList"><div class="modal-msg">' + esc(L('admin.working', lang)) + '</div></div><div class="modal-msg" id="mMsg"></div></div>');
+        wireBack();
+        const box = document.getElementById('sList');
+        api('listSessions', { token: token() }).then(function (res) {
+          if (!res || !res.ok) { if (!handleAuthFail(res)) box.innerHTML = '<div class="modal-msg err">' + esc(errMsg(res)) + '</div>'; return; }
+          if (!res.sessions.length) { box.innerHTML = '<div class="modal-msg">' + esc(L('admin.noSessions', lang)) + '</div>'; return; }
+          res.sessions.sort(function (a, b) { return (a.created || 0) - (b.created || 0); });
+          box.innerHTML = res.sessions.map(function (s) {
+            const meta = '<div class="uinfo"><strong>' + esc(s.username) + (s.isMe ? ' ' + esc(L('admin.you', lang)) : '') +
+              ' <span class="ubadge' + (s.role === 'root' ? ' sa' : '') + '">' + esc(roleLabel(s.role, lang)) + '</span></strong>' +
+              '<span>' + esc(fmt(L('admin.loggedFor', lang), formatDuration(s.durationMs, lang))) + '</span></div>';
+            return '<div class="urow" data-row="' + esc(s.id) + '">' + meta +
+              '<button class="ubtn" type="button" data-act="' + esc(s.username) + '" data-id="' + esc(s.id) + '">…</button>' +
+              '<button class="ubtn danger" type="button" data-end="' + esc(s.id) + '">' + esc(L('admin.endSession', lang)) + '</button>' +
+              '</div>';
+          }).join('');
+        }).catch(function () { box.innerHTML = '<div class="modal-msg err">' + esc(L('admin.genericErr', lang)) + '</div>'; });
+
+        box.addEventListener('click', function (e) {
+          const endBtn = e.target.closest('button[data-end]');
+          if (endBtn) {
+            if (!confirm(L('admin.confirmEnd', lang))) return;
+            setMsg(L('admin.working', lang), '');
+            api('endSession', { token: token(), id: endBtn.getAttribute('data-end') }).then(function (res) {
+              if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); showSessions(); }
+              else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+            }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+            return;
+          }
+          const actBtn = e.target.closest('button[data-act]');
+          if (actBtn) {
+            const row = actBtn.closest('.urow');
+            const existing = row.nextElementSibling;
+            if (existing && existing.classList.contains('uactions')) { existing.remove(); return; }
+            const holder = document.createElement('div');
+            holder.className = 'uactions';
+            holder.innerHTML = L('admin.working', lang);
+            row.parentNode.insertBefore(holder, row.nextSibling);
+            api('userActions', { token: token(), username: actBtn.getAttribute('data-act') }).then(function (res) {
+              if (!res || !res.ok) { holder.textContent = errMsg(res); return; }
+              if (!res.actions.length) { holder.textContent = L('admin.noActions', lang); return; }
+              holder.innerHTML = res.actions.map(function (a) {
+                const when = new Date(a.ts).toLocaleString(lang === 'he' ? 'he-IL' : 'en-GB');
+                return '<div class="arow"><span>' + esc(actionLabel(a, lang)) + '</span><span class="at">' + esc(when) + '</span></div>';
+              }).join('');
+            }).catch(function () { holder.textContent = L('admin.genericErr', lang); });
+          }
+        });
+      }
+
+      function endMySession() {
+        const lang = getLang();
+        api('endMySession', { token: token() }).catch(function () {});
+        logout();
       }
 
       function clearSession() {
