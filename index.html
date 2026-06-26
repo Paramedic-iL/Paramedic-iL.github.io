@@ -623,6 +623,7 @@
         "admin.newPw": "New Password",
         "admin.newPw2": "Confirm New Password",
         "admin.save": "Save",
+        "admin.backToSite": "Back to site",
         "admin.addTitle": "Add Admin User",
         "admin.addSub": "New admins can upload files but cannot manage other admins.",
         "admin.newUser": "New Username",
@@ -812,6 +813,7 @@
         "admin.newPw": "סיסמה חדשה",
         "admin.newPw2": "אישור סיסמה חדשה",
         "admin.save": "שמירה",
+        "admin.backToSite": "חזרה לאתר",
         "admin.addTitle": "הוספת מנהל",
         "admin.addSub": "מנהלים חדשים יכולים להעלות קבצים אך לא לנהל מנהלים אחרים.",
         "admin.newUser": "שם משתמש חדש",
@@ -1336,6 +1338,11 @@
       }
       function wireBack() { const b = document.getElementById('aBack'); if (b) b.onclick = showPanel; }
       function fmt(tpl, a, b) { return String(tpl).replace('%1', a).replace('%2', b); }
+      // After a successful save, turn the primary button into a "Back to site" close button.
+      function turnIntoBackToSite() {
+        const go = document.getElementById('aGo');
+        if (go) { go.textContent = L('admin.backToSite', getLang()); go.onclick = close; }
+      }
 
       function formatDuration(ms, lang) {
         if (ms == null) return '';
@@ -1402,7 +1409,7 @@
           if (a !== b) { setMsg(L('admin.pwMismatch', lang), 'err'); return; }
           setMsg(L('admin.working', lang), '');
           api('changePassword', { token: token(), newPassword: a }).then(function (res) {
-            if (res && res.ok) setMsg(L('admin.saved', lang), 'ok');
+            if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); turnIntoBackToSite(); }
             else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
           }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
         };
@@ -1521,7 +1528,7 @@
           const h = document.getElementById('ttl').value;
           setMsg(L('admin.working', lang), '');
           api('setSettings', { token: token(), sessionTtlHours: Number(h) }).then(function (res) {
-            if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); document.getElementById('curTtl').textContent = fmt(L('admin.currentTtl', lang), res.sessionTtlHours); }
+            if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); document.getElementById('curTtl').textContent = fmt(L('admin.currentTtl', lang), res.sessionTtlHours); turnIntoBackToSite(); }
             else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
           }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
         };
