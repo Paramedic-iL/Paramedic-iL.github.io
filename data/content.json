@@ -82,6 +82,12 @@
       "en": "Medical training orders",
       "he": "הוראות רפואה באימונים",
       "folder": "f_ecebb47a"
+    },
+    {
+      "href": "articles/cat-training-order.pdf",
+      "en": "CAT Training order",
+      "he": "הוראת תרגול חסם עורקים",
+      "folder": "f_ecebb47a"
     }
   ],
   "protocols": [
