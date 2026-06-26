@@ -126,6 +126,12 @@
       "href": "articles/smoke-inhalation.pdf",
       "en": "Smoke inhalation",
       "he": "שאיפת עשן"
+    },
+    {
+      "href": "articles/mci-1-7-form.pdf",
+      "en": "MCI 1-7 Form",
+      "he": "טבלת שליטה אר\"ן (פצועים 1-7)",
+      "folder": "f_73aa0cab"
     }
   ],
   "protocols": [
@@ -946,6 +952,11 @@
         "id": "f_ecebb47a",
         "en": "IDF",
         "he": "צה\"ל"
+      },
+      {
+        "id": "f_73aa0cab",
+        "en": "Forms for print",
+        "he": "טפסים להדפסה"
       }
     ],
     "protocols": [
