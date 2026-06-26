@@ -426,7 +426,6 @@
         <p data-i18n="protocols.sub">Quick-reference algorithms and checklists for the field.</p>
       </div>
       <div class="dropzone" data-section="protocols" hidden></div>
-      <div class="cats" id="protoCats"></div>
       <div class="listwrap" id="protoList"></div>
     </div>
   </section>
@@ -971,7 +970,7 @@
 
     /* ---------------- shared list rendering (with folders + sorting) ---------------- */
     function byName(lang) {
-      return function (a, b) { return nm(a, lang).localeCompare(nm(b, lang), lang); };
+      return function (a, b) { return nm(a, lang).localeCompare(nm(b, lang), lang, { numeric: true }); };
     }
 
     // Split rows into ungrouped items + folder groups (both sorted by current language).
@@ -987,7 +986,7 @@
         else (map[fid] = map[fid] || []).push(p);
       });
       const groups = Object.keys(map).map(function (id) { return { folder: byId[id], items: map[id] }; });
-      groups.sort(function (a, b) { return nm(a.folder, lang).localeCompare(nm(b.folder, lang), lang); });
+      groups.sort(function (a, b) { return nm(a.folder, lang).localeCompare(nm(b.folder, lang), lang, { numeric: true }); });
       ungrouped.sort(byName(lang));
       groups.forEach(function (g) { g.items.sort(byName(lang)); });
       return { ungrouped: ungrouped, groups: groups };
@@ -1027,27 +1026,17 @@
     }
 
     /* ---------------- protocols rendering ---------------- */
-    let activeCat = "ALL";
+    // Protocols render like the other document sections: folder grouping, no category filter.
     function renderProtocols() {
       const lang = getLang();
-      const cats = document.getElementById('protoCats');
       const list = document.getElementById('protoList');
-      if (!cats || !list) return;
-
-      const chips = ["ALL"].concat(catList());
-      cats.innerHTML = chips.map(function (c) {
-        const label = c === "ALL" ? L("proto.all", lang) : catLabel(c, lang);
-        return '<button type="button" class="chip' + (c === activeCat ? ' active' : '') +
-          '" onclick="__setCat(\'' + c + '\')">' + esc(label) + '</button>';
-      }).join('');
-
-      const rows = (CONTENT.protocols || []).filter(function (p) { return activeCat === "ALL" || p.cat === activeCat; });
-      const iconFor = function (p) { return '<span class="ic code">' + esc(p.cat) + '</span>'; };
-      const subFor = function (p) { return catLabel(p.cat, lang) + " · " + L("proto.pdf", lang); };
+      if (!list) return;
+      const rows = (CONTENT.protocols || []).slice();
+      const iconFor = function () { return '<span class="ic">☰</span>'; };
+      const subFor = function () { return L("proto.pdf", lang); };
       renderSection('protocols', list, rows, lang, iconFor, subFor,
         '<div class="empty">' + esc(L("proto.empty", lang)) + '</div>');
     }
-    window.__setCat = function (c) { activeCat = c; renderProtocols(); };
 
     // Generic renderer for the flat document sections (articles, presentations).
     function renderDocList(section, elId, icon, emptyKey) {
@@ -1740,18 +1729,12 @@
         const progress = total > 1
           ? '<div class="modal-msg ok">' + esc(L('admin.fileOf', lang).replace('%1', queueIndex + 1).replace('%2', total)) + '</div>'
           : '';
-        const catField = pendingSection === 'protocols'
-          ? '<div class="field"><label for="uCat">' + esc(L('admin.category', lang)) + '</label>' +
-            '<input id="uCat" list="uCatOpts" autocomplete="off" value="' + esc(lastCat) + '" />' +
-            '<datalist id="uCatOpts">' + catList().map(function (c) { return '<option value="' + esc(c) + '"></option>'; }).join('') + '</datalist></div>'
-          : '';
         open(head('admin.upTitle', 'admin.upSub', lang) +
           '<div class="modal-body">' +
           progress +
           '<div class="file-pill">📄 ' + esc(file.name) + '</div>' +
           field('uEn', 'admin.textEn', 'text', lang) +
           '<div class="field"><label for="uHe">' + esc(L('admin.textHe', lang)) + '</label><input id="uHe" type="text" dir="rtl" autocomplete="off" /></div>' +
-          catField +
           folderFieldHtml(pendingSection, lang) +
           msgBox() +
           '<div class="row"><button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
@@ -1767,8 +1750,6 @@
         const lang = getLang();
         const file = uploadQueue[queueIndex];
         const en = val('uEn'), he = val('uHe');
-        const catEl = document.getElementById('uCat');
-        const cat = catEl ? catEl.value.trim() : '';
         let folder = val('uFolder'), folderNewEn = '', folderNewHe = '';
         if (folder === '__new__') {
           folderNewEn = val('uFolderEn'); folderNewHe = val('uFolderHe');
@@ -1776,8 +1757,6 @@
           folder = '';
         }
         if (!en && !he) { setMsg(L('err.no_text', lang), 'err'); return; }
-        if (pendingSection === 'protocols' && !cat) { setMsg(L('err.no_cat', lang), 'err'); return; }
-        lastCat = cat;
         setMsg(L('admin.uploading', lang), '');
         fileToBase64(file).then(function (b64) {
           return api('upload', {
@@ -1785,7 +1764,7 @@
             section: pendingSection,
             filename: slugify(en || file.name),
             contentBase64: b64,
-            en: en, he: he, cat: cat,
+            en: en, he: he,
             folder: folder, folderNewEn: folderNewEn, folderNewHe: folderNewHe
           });
         }).then(function (res) {
