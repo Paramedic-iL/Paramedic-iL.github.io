@@ -144,6 +144,12 @@
       "en": "Injury data form - K9",
       "he": "פתק 101 לכלב",
       "folder": "f_73aa0cab"
+    },
+    {
+      "href": "articles/injury-form-human.pdf",
+      "en": "Injury Form - Human",
+      "he": "פתק 101 - לוחם",
+      "folder": "f_73aa0cab"
     }
   ],
   "protocols": [
