@@ -1359,8 +1359,8 @@
           body += mi('miSuper', '★', 'admin.assignSuper');
           body += mi('miTimeout', '⏲', 'admin.autoSignout');
           body += mi('miSessions', '👥', 'admin.endUserSession');
-          body += mi('miPw', '🔑', 'admin.changePw');
         }
+        body += mi('miPw', '🔑', 'admin.changePw');
         body += '<button class="mi danger" type="button" id="miOut">⎋ ' + esc(L('admin.endMySession', lang)) + '</button>';
         open(head('admin.menuTitle', isRoot ? 'admin.menuSubSuper' : 'admin.menuSub', lang) +
           '<div class="modal-body admin-menu">' + body + '</div>');
