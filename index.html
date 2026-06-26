@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Heebo:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..0" rel="stylesheet" />
   <style>
     :root{
       --bg:#0b1018; --bg2:#0f1622; --panel:#141d2b; --panel2:#18222f;
@@ -201,6 +202,15 @@
     .modal-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);
       font-size:24px;cursor:pointer;line-height:1}
     .modal-x:hover{color:var(--text)}
+    [dir="rtl"] .modal-x{right:auto;left:16px}
+
+    /* Google Material Symbols (used in the admin menu) */
+    .material-symbols-outlined{
+      font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;font-size:21px;
+      line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;
+      direction:ltr;-webkit-font-feature-settings:'liga';font-feature-settings:'liga';
+      -webkit-font-smoothing:antialiased;flex:0 0 auto;color:var(--olive)}
+    .admin-menu .mi.danger .material-symbols-outlined{color:var(--red-bright)}
     .modal-wrap{position:relative}
     .admin-menu .mi{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;
       border:1px solid var(--line);border-radius:10px;padding:13px 15px;color:var(--text);cursor:pointer;
@@ -1349,19 +1359,20 @@
       function showPanel() {
         const lang = getLang();
         const isRoot = role() === 'root';
+        const ic = function (name) { return '<span class="material-symbols-outlined">' + name + '</span>'; };
         const mi = function (id, icon, key) {
-          return '<button class="mi" type="button" id="' + id + '">' + icon + ' ' + esc(L(key, lang)) + '</button>';
+          return '<button class="mi" type="button" id="' + id + '">' + ic(icon) + '<span>' + esc(L(key, lang)) + '</span></button>';
         };
         let body = '';
         if (isRoot) {
-          body += mi('miAddUser', '👤', 'admin.addUser');
-          body += mi('miRemoveUser', '🗑', 'admin.removeUser');
-          body += mi('miSuper', '★', 'admin.assignSuper');
-          body += mi('miTimeout', '⏲', 'admin.autoSignout');
-          body += mi('miSessions', '👥', 'admin.endUserSession');
+          body += mi('miAddUser', 'person_add', 'admin.addUser');
+          body += mi('miRemoveUser', 'person_remove', 'admin.removeUser');
+          body += mi('miSuper', 'shield_person', 'admin.assignSuper');
+          body += mi('miTimeout', 'timer', 'admin.autoSignout');
+          body += mi('miSessions', 'group', 'admin.endUserSession');
         }
-        body += mi('miPw', '🔑', 'admin.changePw');
-        body += '<button class="mi danger" type="button" id="miOut">⎋ ' + esc(L('admin.endMySession', lang)) + '</button>';
+        body += mi('miPw', 'key', 'admin.changePw');
+        body += '<button class="mi danger" type="button" id="miOut">' + ic('logout') + '<span>' + esc(L('admin.endMySession', lang)) + '</span></button>';
         open(head('admin.menuTitle', isRoot ? 'admin.menuSubSuper' : 'admin.menuSub', lang) +
           '<div class="modal-body admin-menu">' + body + '</div>');
         const on = function (id, fn) { const el = document.getElementById(id); if (el) el.onclick = fn; };
