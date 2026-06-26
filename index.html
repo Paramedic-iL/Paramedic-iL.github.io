@@ -1008,7 +1008,7 @@
     }
 
     function folderBlock(section, folder, innerHtml, count, lang) {
-      return '<details class="folder" open data-mfsection="' + esc(section) + '" data-mfid="' + esc(folder.id) + '">' +
+      return '<details class="folder" data-mfsection="' + esc(section) + '" data-mfid="' + esc(folder.id) + '">' +
         '<summary><span class="fname">' + esc(nm(folder, lang)) + '</span>' +
         '<span class="fcount">' + count + '</span></summary>' + innerHtml + '</details>';
     }
