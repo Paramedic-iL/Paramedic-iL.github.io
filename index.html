@@ -1244,7 +1244,7 @@
           setMsg(L('admin.working', lang), '');
           api('changePassword', { token: token(), newPassword: a }).then(function (res) {
             if (res && res.ok) setMsg(L('admin.saved', lang), 'ok');
-            else setMsg(errMsg(res), 'err');
+            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
           }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
         };
       }
@@ -1273,17 +1273,23 @@
               document.getElementById('nUser').value = '';
               document.getElementById('nEmail').value = '';
               document.getElementById('nPass').value = '';
-            } else setMsg(errMsg(res), 'err');
+            } else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
           }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
         };
       }
 
-      function logout() {
+      function clearSession() {
         localStorage.removeItem(LS.token);
         localStorage.removeItem(LS.role);
         localStorage.removeItem(LS.user);
-        close();
         refresh();
+      }
+      function logout() { clearSession(); close(); }
+
+      // If the backend says the session expired, drop it and re-open the login screen.
+      function handleAuthFail(res) {
+        if (res && res.code === 'session_expired') { uploadQueue = []; clearSession(); showLogin(); return true; }
+        return false;
       }
 
       /* ----- upload flow (multi-file + folders) ----- */
@@ -1387,7 +1393,7 @@
             queueIndex++;
             if (queueIndex < uploadQueue.length) { showUploadForm(); }
             else { uploadQueue = []; setMsg(L('admin.uploadOk', lang), 'ok'); setTimeout(close, 1400); }
-          } else setMsg(errMsg(res), 'err');
+          } else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
         }).catch(function (e) {
           setMsg(e.message === 'not_configured' ? L('admin.notConfigured', lang) : L('admin.genericErr', lang), 'err');
         });
