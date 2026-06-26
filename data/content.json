@@ -58,7 +58,14 @@
       "descHe": "ChatGPT — קישור יתווסף בקרוב"
     }
   ],
-  "articles": [],
+  "articles": [
+    {
+      "href": "articles/eyes-protection.pdf",
+      "en": "Eyes protection",
+      "he": "מיגון עיניים",
+      "folder": "f_ecebb47a"
+    }
+  ],
   "protocols": [
     {
       "cat": "TCCC",
@@ -857,7 +864,13 @@
   "folders": {
     "lessons": [],
     "tools": [],
-    "articles": [],
+    "articles": [
+      {
+        "id": "f_ecebb47a",
+        "en": "IDF",
+        "he": "צה\"ל"
+      }
+    ],
     "protocols": [
       {
         "id": "f_cea86241",
