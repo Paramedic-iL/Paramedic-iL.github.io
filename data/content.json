@@ -534,6 +534,144 @@
       "en": "Thoracic trauma",
       "he": "חבלת חזה",
       "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/trauma-damage-control-resuscitation-in-the-field.pdf",
+      "en": "Trauma - Damage control resuscitation in the field",
+      "he": "טראומה - החייאת בקרת נזקים בשדה",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-airway-assessment-and-management.pdf",
+      "en": "Trauma - Airway assessment and management",
+      "he": "טראומה - הערכה וניהול נתיב אוויר",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-dressings-and-immobilization.pdf",
+      "en": "Trauma - Dressings and immobilization",
+      "he": "טראומה - חבישות וקיבועים",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-pain-management.pdf",
+      "en": "Trauma - Pain management",
+      "he": "טראומה - טיפול בכאב",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-introduction-to-trauma.pdf",
+      "en": "Trauma - Introduction to trauma",
+      "he": "טראומה - מבוא לטראומה",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-secondary-survey-and-ongoing-care.pdf",
+      "en": "Trauma - Secondary survey and ongoing care",
+      "he": "טראומה - סקר שניוני וטיפול מתמשך",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-hemorrhage-control.pdf",
+      "en": "Trauma - Hemorrhage control",
+      "he": "טראומה - עצירת דימומים",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-hot-climate-injuries.pdf",
+      "en": "Trauma - Hot climate injuries",
+      "he": "טראומה - פגיעות אקלים חם",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-cold-climate-injuries.pdf",
+      "en": "Trauma - Cold climate injuries",
+      "he": "טראומה - פגיעות אקלים קר",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-shock-injuries.pdf",
+      "en": "Trauma - Shock injuries",
+      "he": "טראומה - פגיעות הלם",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-various-injuries.pdf",
+      "en": "Trauma - Various injuries",
+      "he": "טראומה - פגיעות שונות",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-ar-stage-injuries.pdf",
+      "en": "Trauma - AR stage injuries",
+      "he": "טראומה - פגיעות שלבים AR",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-procedures.pdf",
+      "en": "Trauma - Procedures",
+      "he": "טראומה - פרוצדורות",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-trauma-kinematics.pdf",
+      "en": "Trauma - Trauma kinematics",
+      "he": "טראומה - קינמטיקה בטראומה",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-are-stages.pdf",
+      "en": "Trauma - ARE stages",
+      "he": "טראומה - שלבי ARE",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-xc-stages.pdf",
+      "en": "Trauma - XC stages",
+      "he": "טראומה - שלבים XC",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-cervical-spine-protection.pdf",
+      "en": "Trauma - Cervical spine protection",
+      "he": "טראומה - שמירה על עמוד שדרה צווארי",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-stress-response.pdf",
+      "en": "Trauma - Stress response",
+      "he": "טראומה - תגובת דחק",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-special-populations.pdf",
+      "en": "Trauma - Special populations",
+      "he": "טראומה - אוכלוסיות מיוחדות",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-mass-casualty-incident.pdf",
+      "en": "Trauma - Mass casualty incident",
+      "he": "טראומה - אירוע רב נפגעים",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/trauma-iv-access.pdf",
+      "en": "Trauma - IV access",
+      "he": "טראומה - גישה ורידית",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/routine-iv-access-and-venous-blood-draw.pdf",
+      "en": "Routine - IV access and venous blood draw",
+      "he": "שגרה - גישה ורידית ושאיבת דם מוריד",
+      "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/routine-blood-exposure.pdf",
+      "en": "Routine - Blood exposure",
+      "he": "שגרה - חשיפה לדם",
+      "folder": "f_1cd15361"
     }
   ],
   "folders": {
