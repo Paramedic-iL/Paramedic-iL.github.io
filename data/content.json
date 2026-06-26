@@ -138,6 +138,402 @@
       "en": "Anatomy - Transport systems",
       "he": "אנטומיה - מערכת ההובלה",
       "folder": "f_1cd15361"
+    },
+    {
+      "href": "presentations/abdominal-anatomy.pdf",
+      "en": "Abdominal anatomy",
+      "he": "אנטומיה של הבטן",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/abdominal-trauma.pdf",
+      "en": "Abdominal trauma",
+      "he": "חבלת בטן",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/anamnesis.pdf",
+      "en": "Anamnesis",
+      "he": "אנמנזה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/anaphylaxis-and-allergy.pdf",
+      "en": "Anaphylaxis and allergy",
+      "he": "אנפילקסיס ואלרגיה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/animal-injuries.pdf",
+      "en": "Animal injuries",
+      "he": "פגיעות מבעלי חיים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/airway-management.pdf",
+      "en": "Airway management",
+      "he": "ניהול נתיב אוויר",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/behavioral-and-psychiatric-disorders.pdf",
+      "en": "Behavioral and psychiatric disorders",
+      "he": "הפרעות התנהגותיות ופסיכיאטריות",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/birth-and-gynecology.pdf",
+      "en": "Birth and gynecology",
+      "he": "לידה וגינקולוגיה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/bleeding.pdf",
+      "en": "Bleeding",
+      "he": "דימום",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/breathing-system-anatomy.pdf",
+      "en": "Breathing system anatomy",
+      "he": "אנטומיה של מערכת הנשימה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/breathing-system-diseases.pdf",
+      "en": "Breathing system diseases",
+      "he": "מחלות מערכת הנשימה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/burns.pdf",
+      "en": "Burns",
+      "he": "כוויות",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/cardiovascular-diseases.pdf",
+      "en": "Cardiovascular diseases",
+      "he": "מחלות לב וכלי דם",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/cardiovascular-system-anatomy.pdf",
+      "en": "Cardiovascular system anatomy",
+      "he": "אנטומיה של מערכת הלב וכלי הדם",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/child-abuse.pdf",
+      "en": "Child abuse",
+      "he": "התעללות בילדים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/climate-injuries.pdf",
+      "en": "Climate injuries",
+      "he": "פגיעות אקלים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/60-hours-course-cpr.pdf",
+      "en": "60 hours course CPR",
+      "he": "החייאה ברמת קורס 60",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/cpr.pdf",
+      "en": "CPR",
+      "he": "החייאה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/60-hours-course-cpr-equipment.pdf",
+      "en": "60 hours course CPR equipment",
+      "he": "ציוד החייאה ברמת קורס 60",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/cpr-equipment.pdf",
+      "en": "CPR equipment",
+      "he": "ציוד החייאה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/crush-injuries.pdf",
+      "en": "Crush injuries",
+      "he": "פגיעות מעיכה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/decision-making.pdf",
+      "en": "Decision making",
+      "he": "קבלת החלטות",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/diving-accident.pdf",
+      "en": "Diving accident",
+      "he": "תאונת צלילה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/dm.pdf",
+      "en": "DM",
+      "he": "סוכרת",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/drowning.pdf",
+      "en": "Drowning",
+      "he": "טביעה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/drugs-in-the-patients-house.pdf",
+      "en": "Drugs in the patient's house",
+      "he": "תרופות בבית המטופל",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/earthquake.pdf",
+      "en": "Earthquake",
+      "he": "רעידת אדמה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/electricity-injuries.pdf",
+      "en": "Electricity injuries",
+      "he": "פגיעות חשמל",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/ems-at-crime-scenes.pdf",
+      "en": "EMS at crime scenes",
+      "he": "צוות רפואי בזירות פשע",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/first-aid-principles.pdf",
+      "en": "First aid principles",
+      "he": "עקרונות עזרה ראשונה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/60-hours-course-foreign-body-airway-obstruction.pdf",
+      "en": "60 hours course foreign body airway obstruction",
+      "he": "חסימת נתיב אוויר מגוף זר ברמת קורס 60",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/foreign-body-airway-obstruction.pdf",
+      "en": "Foreign body airway obstruction",
+      "he": "חסימת נתיב אוויר מגוף זר",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/forms.pdf",
+      "en": "Forms",
+      "he": "טפסים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/geriatrics.pdf",
+      "en": "Geriatrics",
+      "he": "גריאטריה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/geriatric-trauma.pdf",
+      "en": "Geriatric trauma",
+      "he": "חבלה בקשיש",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/guidelines-for-communicative-behavior.pdf",
+      "en": "Guidelines for communicative behavior",
+      "he": "הנחיות להתנהגות תקשורתית",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/hanging.pdf",
+      "en": "Hanging",
+      "he": "תלייה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/head-trauma.pdf",
+      "en": "Head trauma",
+      "he": "חבלת ראש",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/humanitarian-law.pdf",
+      "en": "Humanitarian law",
+      "he": "משפט הומניטרי",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/infectious-diseases.pdf",
+      "en": "Infectious diseases",
+      "he": "מחלות זיהומיות",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/injuries.pdf",
+      "en": "Injuries",
+      "he": "פציעות",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/introduction-to-anatomy.pdf",
+      "en": "Introduction to anatomy",
+      "he": "מבוא לאנטומיה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/introduction-to-mda.pdf",
+      "en": "Introduction to MDA",
+      "he": "מבוא למד\"א",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/iv-access.pdf",
+      "en": "IV access",
+      "he": "גישה ורידית",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/kinematics-of-trauma.pdf",
+      "en": "Kinematics of trauma",
+      "he": "קינמטיקה של חבלה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/legal-aspects.pdf",
+      "en": "Legal aspects",
+      "he": "היבטים משפטיים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/medical-terminology.pdf",
+      "en": "Medical terminology",
+      "he": "טרמינולוגיה רפואית",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/musculoskeletal-trauma.pdf",
+      "en": "Musculoskeletal trauma",
+      "he": "חבלות במערכת התנועה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/musculoskeletal-system-anatomy.pdf",
+      "en": "Musculoskeletal system anatomy",
+      "he": "אנטומיה של מערכת השלד והשרירים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/natan.pdf",
+      "en": "Natan",
+      "he": "נתן",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/nervous-system-anatomy.pdf",
+      "en": "Nervous system anatomy",
+      "he": "אנטומיה של מערכת העצבים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/patient-treatment.pdf",
+      "en": "Patient treatment",
+      "he": "טיפול בחולה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/pediatric-trauma.pdf",
+      "en": "Pediatric trauma",
+      "he": "חבלה בילדים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/phtls.pdf",
+      "en": "PHTLS",
+      "he": "PHTLS",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/poison.pdf",
+      "en": "Poison",
+      "he": "הרעלות",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/pregnancy-trauma.pdf",
+      "en": "Pregnancy trauma",
+      "he": "חבלה בהריון",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/safety-at-work.pdf",
+      "en": "Safety at work",
+      "he": "בטיחות בעבודה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/seizures.pdf",
+      "en": "Seizures",
+      "he": "פרכוסים",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/shock.pdf",
+      "en": "Shock",
+      "he": "הלם",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/spinal-trauma.pdf",
+      "en": "Spinal trauma",
+      "he": "חבלת עמוד שדרה",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/stroke.pdf",
+      "en": "Stroke",
+      "he": "שבץ מוחי",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/syncope.pdf",
+      "en": "Syncope",
+      "he": "התעלפות",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/tablet.pdf",
+      "en": "Tablet",
+      "he": "טאבלט",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/teamwork.pdf",
+      "en": "Teamwork",
+      "he": "עבודת צוות",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/the-oncology-patient.pdf",
+      "en": "The oncology patient",
+      "he": "החולה האונקולוגי",
+      "folder": "f_bc97c27b"
+    },
+    {
+      "href": "presentations/thoracic-trauma.pdf",
+      "en": "Thoracic trauma",
+      "he": "חבלת חזה",
+      "folder": "f_bc97c27b"
     }
   ],
   "folders": {
@@ -150,6 +546,11 @@
         "id": "f_1cd15361",
         "en": "IDF - Combat Medics Course",
         "he": "צה\"ל - קורס חובשים קרביים"
+      },
+      {
+        "id": "f_bc97c27b",
+        "en": "MDA Medics course",
+        "he": "קורס חובשים מד\"א"
       }
     ]
   }
