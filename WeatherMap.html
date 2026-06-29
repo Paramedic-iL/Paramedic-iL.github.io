@@ -23,6 +23,7 @@
     }
     .panel h1{font-size:17px;margin:0 0 2px}
     .panel .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+    .panel .sub:empty{display:none}
     .seg{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
     .seg button{flex:1 1 auto;background:var(--panel2);border:1px solid var(--line);color:var(--text);
       border-radius:9px;padding:7px 8px;font-size:12.5px;cursor:pointer;white-space:nowrap}
@@ -157,7 +158,7 @@
     .saved{margin-top:10px}
     .saved-tg{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--muted);
       border-radius:9px;padding:7px;font-size:12px;font-weight:600;text-align:center}
-    .saved-list{margin-top:6px;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto}
+    .saved-list{margin-top:6px;display:flex;flex-direction:column;gap:4px;max-height:min(470px,56vh);overflow:auto}
     .saved-row{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
       border-radius:8px;padding:6px 8px;font-size:12.5px}
     .saved-row .nm{flex:1;cursor:pointer;color:#cfe6ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -206,7 +207,7 @@
       </div>
 
       <div class="opts">
-        <label><input type="checkbox" id="showPoints" /> הצגת נקודות</label>
+        <label><input type="checkbox" id="showPoints" /> הצג תחנות מדידה ארציות</label>
         <label><input type="checkbox" id="showNames" /> הצגת שמות</label>
       </div>
 
@@ -217,11 +218,6 @@
         <div class="saved-list" id="savedList"></div>
       </div>
 
-      <div class="btns">
-        <button id="reloadBtn">טעינת נתונים חיים</button>
-        <button class="ghost" id="fileBtn">פתיחת קובץ XML</button>
-        <input type="file" id="fileInput" accept=".xml,text/xml" hidden />
-      </div>
       <div class="status" id="status">טוען נתונים…</div>
       <div class="note" id="note"></div>
       <div class="hint">לחצו על כל נקודה במפה לקבלת תחזית עומס שעתית ל-3 ימים לאותה נקודה.</div>
@@ -641,7 +637,7 @@
       document.querySelectorAll('#modeRow button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-mode') === m); });
       updateControls();
       $('sub').textContent = (m === 'forecast')
-        ? 'תחזית 6 שעות ל-80 ערים · עומס חום IMS'
+        ? ''
         : 'תצפיות שעתיות · WBGT/לחה מחושבים מהמדידות';
       setNote(m === 'obs'
         ? 'WBGT בצל ≈ 0.7·טמפ\' לחה + 0.3·טמפ\' יבשה. הערכה — בשמש מלאה העומס גבוה יותר.'
@@ -1091,12 +1087,6 @@
     $('prevBtn').onclick = function () { if (tIdx > 0) { tIdx--; render(); } };
     $('nextBtn').onclick = function () { if (tIdx < TIMES.length - 1) { tIdx++; render(); } };
     $('showNames').onchange = function () { showNames = this.checked; render(); };
-    $('reloadBtn').onclick = loadCurrent;
-    $('fileBtn').onclick = function () { $('fileInput').click(); };
-    $('fileInput').onchange = function () {
-      const f = this.files && this.files[0]; if (!f) return;
-      const fr = new FileReader(); fr.onload = function () { setStatus('נטען קובץ מקומי'); applyText(String(fr.result)); }; fr.readAsText(f, 'utf-8');
-    };
     const hint = $('dropHint');
     window.addEventListener('dragover', function (e) { e.preventDefault(); hint.classList.add('show'); });
     window.addEventListener('dragleave', function (e) { if (e.target === hint) hint.classList.remove('show'); });
