@@ -89,7 +89,8 @@
     .pt-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
     .pt-head h2{font-size:16px;margin:0 0 3px}
     .pt-head .meta{font-size:11.5px;color:var(--muted);line-height:1.5}
-    .pt-logo{margin-inline-start:auto;width:50px;height:50px;flex:0 0 auto;object-fit:contain}
+    .pt-logos{margin-inline-start:auto;display:flex;align-items:center;gap:8px;flex:0 0 auto}
+    .pt-logo{width:75px;height:75px;object-fit:contain}
     .pt-body{display:flex;gap:12px;align-items:flex-start}
     .pt-side{flex:0 0 140px;display:flex;flex-direction:column;gap:7px}
     .pt-main{flex:1 1 auto;min-width:0}
@@ -251,7 +252,10 @@
           <h2 id="ptTitle"><span id="ptLoc">מיקום נבחר</span><span class="pt-conf" id="ptConf"></span></h2>
           <div class="meta" id="ptMeta"></div>
         </div>
-        <img class="pt-logo" src="assets/medic-logo.png" alt="רפואה אביר" />
+        <div class="pt-logos">
+          <img class="pt-logo" src="assets/medic-logo.png" alt="רפואה אביר" />
+          <img class="pt-logo" src="assets/ims-logo.png" alt="IMS" />
+        </div>
       </div>
       <div class="pt-body">
         <div class="pt-side">
@@ -962,7 +966,8 @@
             '<div style="font-size:20px;font-weight:800;margin-bottom:2px">' + esc(name) + '</div>' +
             '<div style="font-size:13px;font-weight:600;color:#9fb0c4">' + loadTxt + '</div>' +
           '</div>' +
-          '<img src="assets/medic-logo.png" style="width:64px;height:64px;flex:0 0 auto;object-fit:contain" />' +
+          '<img src="assets/medic-logo.png" style="width:96px;height:96px;flex:0 0 auto;object-fit:contain" />' +
+          '<img src="assets/ims-logo.png" style="width:96px;height:96px;flex:0 0 auto;object-fit:contain" />' +
         '</div>' +
         '<div style="font-size:11.5px;color:#9aa9bc;line-height:1.6;margin-bottom:6px">' + $('ptMeta').innerHTML + '</div>' +
         (checkTxt ? '<div style="font-size:11px;color:#9fd0ee;margin-bottom:8px">' + esc(checkTxt) + '</div>' : '') +
