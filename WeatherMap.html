@@ -105,6 +105,10 @@
     table.pt thead th{background:#0e1622;color:#cfe0f2;font-size:11.5px;padding:6px 2px;line-height:1.3}
     table.pt td.hr{background:#0e1622;color:#9aa9bc;font-weight:600;width:52px;font-size:11.5px}
     table.pt td.cell{font-weight:700}
+    table.pt thead th.now-col{color:#bae6fd;background:#13283a;box-shadow:inset 0 0 0 1px #38bdf8}
+    table.pt td.hr.now-row{color:#bae6fd;background:#13283a;box-shadow:inset 0 0 0 1px #38bdf8}
+    table.pt td.cell.now{position:relative;z-index:2;animation:ptNow 1.3s ease-in-out infinite}
+    @keyframes ptNow{0%,100%{box-shadow:0 0 0 2px #38bdf8,0 0 6px 1px rgba(56,189,248,.55)}50%{box-shadow:0 0 0 2px #7dd3fc,0 0 16px 4px rgba(56,189,248,1)}}
     .pt-legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:10px;font-size:11px;color:var(--muted)}
     .pt-legend .it{display:flex;align-items:center;gap:5px}
     .pt-legend .sw{width:13px;height:13px;border-radius:3px;border:1px solid rgba(255,255,255,.25)}
@@ -847,19 +851,25 @@
       const days = [];
       for (let k = 0; k < PT_DAYS; k++) days.push(new Date(d0.getTime() + k * 86400000));
 
+      const now = new Date();
+      const nowHr = now.getHours();
+      const todayMs = d0.getTime();
+
       let head = '<tr><th>שעה</th>';
-      days.forEach(function (d) { head += '<th>' + HEB_DAYS_SH[d.getDay()] + '<br>' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '</th>'; });
+      days.forEach(function (d) { head += '<th' + (d.getTime() === todayMs ? ' class="now-col"' : '') + '>' + HEB_DAYS_SH[d.getDay()] + '<br>' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '</th>'; });
       $('ptHead').innerHTML = head + '</tr>';
 
       let rows = '';
       for (let hr = 0; hr < 24; hr++) {
-        rows += '<tr><td class="hr">' + String(hr).padStart(2, '0') + ':00</td>';
+        const isNowHr = hr === nowHr;
+        rows += '<tr><td class="hr' + (isNowHr ? ' now-row' : '') + '">' + String(hr).padStart(2, '0') + ':00</td>';
         days.forEach(function (d) {
+          const isNow = isNowHr && d.getTime() === todayMs;
           let v = interpAt(anchors, d.getTime() + hr * 3600000);
-          if (v == null) { rows += '<td class="cell" style="background:#0b121c;color:#3c485a">·</td>'; return; }
+          if (v == null) { rows += '<td class="cell' + (isNow ? ' now' : '') + '" style="background:#0b121c;color:#3c485a">·</td>'; return; }
           v += biasOffset;
           const b = band(v);
-          rows += '<td class="cell" style="background:' + b.c + ';color:' + (b.dark ? '#fff' : '#10151c') + '">' + v.toFixed(1) + '</td>';
+          rows += '<td class="cell' + (isNow ? ' now' : '') + '" style="background:' + b.c + ';color:' + (b.dark ? '#fff' : '#10151c') + '">' + v.toFixed(1) + '</td>';
         });
         rows += '</tr>';
       }
