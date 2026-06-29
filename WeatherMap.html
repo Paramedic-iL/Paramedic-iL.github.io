@@ -127,7 +127,11 @@
     .guide-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
     .guide-grade{font-size:16px;font-weight:700}
     .guide-meta{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+    .guide-special{display:flex;align-items:center;gap:7px;font-size:12px;color:#fcd9a1;cursor:pointer;
+      background:rgba(245,158,11,.12);border:1px solid #f59e0b55;border-radius:8px;padding:7px 9px;margin:8px 0 4px}
+    .guide-special input{accent-color:#f59e0b;flex:0 0 auto}
     .guide-hint{font-size:12px;color:var(--muted);margin:8px 0}
+    .guide-bumped{color:#f59e0b;font-weight:700}
     .guide-efforts{display:flex;flex-direction:column;gap:6px}
     .ge{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel2)}
     .ge-head{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer}
@@ -339,6 +343,7 @@
         </div>
         <button class="img-x" id="guideClose">סגור</button>
       </div>
+      <label class="guide-special"><input type="checkbox" id="guideSpecial" /> אוכלוסייה מיוחדת (הכשרת יסוד / עד חודשיים בשירות / מילואים / מלש"ב / גדנ"ע / קד"צ)</label>
       <div class="guide-hint">בחרו סוג מאמץ/אימון כדי לראות את ההנחיות לעומס זה:</div>
       <div class="guide-efforts" id="guideEfforts"></div>
       <div class="guide-notes" id="guideNotes"></div>
@@ -851,7 +856,7 @@
           okCell, okCell, okCell,
           { s: 'limited', t: 'לאחר 45 דקות עבודה — 15 דקות הפסקה בצל.' },
           { s: 'cond', t: 'לאחר 45 דקות עבודה — 15 דקות הפסקה בצל. באישור אל"מ (סמכות פיקודית על היחידה המתאמנת) ובהתייעצות רופא.' },
-          { s: 'cond', t: 'לאחר 45 דקות עבודה — 15 דקות הפסקה בצל. באישור אל"מ (סמכות פיקודית על היחידה המתאמנת) ובהתייעצות רופא.', verify: true }
+          { s: 'cond', t: 'לאחר 45 דקות עבודה — 15 דקות הפסקה בצל. באישור אל"מ (סמכות פיקודית על היחידה המתאמנת) ובהתייעצות רופא.' }
         ]
       },
       {
@@ -870,10 +875,10 @@
         cells: [
           { s: 'limited', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל.' },
           { s: 'limited', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל.' },
-          { s: 'limited', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל.', verify: true },
-          { s: 'limited', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל.', verify: true },
-          { s: 'no', t: 'אין לבצע מאמץ עצים. נדרש אישור סא"ל בהתייעצות רופא וקא"ג.' },
-          { s: 'no', t: 'אין לבצע מאמץ עצים. נדרש אישור סא"ל בהתייעצות רופא וקא"ג.' }
+          { s: 'cond', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל. נדרש אישור סא"ל בהתייעצות רופא וקא"ג.' },
+          { s: 'no', t: 'אין לבצע מאמץ עצים.' },
+          { s: 'no', t: 'אין לבצע מאמץ עצים.' },
+          { s: 'no', t: 'אין לבצע מאמץ עצים.' }
         ]
       }
     ];
@@ -887,11 +892,24 @@
     ];
     const HEAT_NOTES = '<b>הערות כלליות:</b> בדיקת קסטרל בשטח כל 3 שעות (מעל 23.0 יא"נ — כל שעה). · בלילה/יום מעונן להפחית 250 מ"ל לשעה. · מינימום 50 מ"ל במנוחה ו-100 מ"ל בפעילות, ולא יותר מ-1,500 מ"ל לשעה. · הערכים לחייל 70 ק"ג (±10% לכל 10 ק"ג). · אוכלוסיות מיוחדות (הכשרות יסוד, עד חודשיים בשירות, מילואים, מלש"בים, גדנ"ע, קד"צ): מעל 26.0 יא"נ נחשב "כבד". · הטבלה היא תמצית הוראות קחצ"ר ואינה מחליפה אותן.';
 
+    let guideCtx = null;
     function openGuide(g, label, val) {
-      const gb = HEAT_BANDS[g];
+      guideCtx = { g: g, label: label, val: val, num: parseFloat(val) };
+      $('guideSpecial').checked = false;
+      renderGuide();
+      $('guideOverlay').classList.add('show');
+    }
+    function renderGuide() {
+      if (!guideCtx) return;
+      const special = $('guideSpecial').checked;
+      let g = guideCtx.g, bumped = false;
+      if (special && guideCtx.num > 26.0 && g < 4) { g = 4; bumped = true; }
+      const gb = HEAT_BANDS[g], g0 = HEAT_BANDS[guideCtx.g];
       const swatch = (gb.lvl === 5) ? '#cfd6e0' : gb.c;
-      $('guideGrade').innerHTML = 'עומס חום: <span style="color:' + swatch + '">' + gb.name + ' (' + g + ')</span>';
-      $('guideMeta').textContent = (label ? label + ' · ' : '') + 'ערך משוער ' + val + '° (יא"נ) · טווח הדרגה ' + HEAT_RANGES[g];
+      $('guideGrade').innerHTML = 'עומס חום: <span style="color:' + swatch + '">' + gb.name + ' (' + g + ')</span>' +
+        (bumped ? ' <span class="guide-bumped">⟵ ' + g0.name + ' (אוכלוסייה מיוחדת)</span>' : '');
+      $('guideMeta').textContent = (guideCtx.label ? guideCtx.label + ' · ' : '') + 'ערך משוער ' + guideCtx.val + '° (יא"נ) · טווח הדרגה ' + HEAT_RANGES[g] +
+        (bumped ? ' · מעל 26.0 נחשב "כבד" לאוכלוסייה מיוחדת' : '');
       $('guideEfforts').innerHTML = HEAT_EFFORTS.map(function (ef, i) {
         const c = ef.cells[g], st = GSTAT[c.s], w = HEAT_WATER[i][g];
         return '<div class="ge" data-e="' + i + '">' +
@@ -912,7 +930,6 @@
         h.onclick = function () { h.parentNode.classList.toggle('open'); };
       });
       $('guideNotes').innerHTML = HEAT_NOTES;
-      $('guideOverlay').classList.add('show');
     }
 
     function distKm(la, lo, lb, lob) {
@@ -1398,6 +1415,7 @@
     };
     $('guideClose').onclick = function () { $('guideOverlay').classList.remove('show'); };
     $('guideOverlay').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
+    $('guideSpecial').onchange = renderGuide;
     $('guideFull').onclick = function () { $('effortOverlay').classList.add('show'); };
     $('ptPanel').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
 
