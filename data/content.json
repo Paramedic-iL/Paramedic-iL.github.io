@@ -36,7 +36,10 @@
       "en": "Heat Stress Map",
       "he": "מפת עומס חום",
       "descEn": "IMS heat-load forecast by location",
-      "descHe": "תחזית עומס חום לפי מיקום (IMS)"
+      "descHe": "תחזית עומס חום לפי מיקום (IMS)",
+      "promoted": true,
+      "promoEn": "An application that allows you to check heat load forecasts in Israel. Updates with the Israeli Meteorological Service, and uses a formula for calculating heat load that the IDF uses.\n\nIn addition, you can check instructions and restrictions every hour, even without opening a table of heat load and cold load - directly from the application.",
+      "promoHe": "אפליקציה שמאפשרת לבדוק צפי עומס חום בארץ. מתעדכנת מול השירות המטראולוגי הישראלי, ומשתמשת בנוסחה לחישוב עומס חום שצה\"ל משתמש בה.\n\nבנוסף, ניתן לבדוק הנחיות והגבלות לכל שעה, גם בלי לפתוח טבלת עומס חום ועומס קור - ישירות מתוך האפליקציה."
     },
     {
       "id": "t_medtest",
