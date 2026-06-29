@@ -94,6 +94,12 @@
     .pt-toggle button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--text);
       border-radius:9px;padding:8px;font-size:13.5px;font-weight:600;cursor:pointer}
     .pt-toggle button.active{border-color:var(--accent);background:rgba(74,163,255,.16);color:#cfe6ff}
+    .pt-conf{display:inline-block;margin-inline-start:8px;font-size:11px;font-weight:700;padding:2px 9px;
+      border-radius:999px;border:1px solid rgba(255,255,255,.18);vertical-align:middle}
+    .pt-bias{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:0 0 6px;cursor:pointer}
+    .pt-bias input{accent-color:var(--accent)}
+    .pt-bias input:disabled{opacity:.4}
+    .pt-check{font-size:11.5px;color:#9fd0ee;margin-bottom:8px;min-height:14px;line-height:1.45}
     table.pt{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
     table.pt th,table.pt td{border:1px solid #0a0e15;padding:4px 2px;text-align:center}
     table.pt thead th{background:#0e1622;color:#cfe0f2;font-size:11.5px;padding:6px 2px;line-height:1.3}
@@ -149,7 +155,7 @@
     <div class="pt-card">
       <div class="pt-head">
         <div>
-          <h2 id="ptTitle">תחזית עומס לפי שעה</h2>
+          <h2 id="ptTitle">תחזית עומס לפי שעה<span class="pt-conf" id="ptConf"></span></h2>
           <div class="meta" id="ptMeta"></div>
         </div>
         <button class="pt-x" id="ptClose" title="סגירה">✕</button>
@@ -158,6 +164,8 @@
         <button data-load="heat" class="active">עומס חום</button>
         <button data-load="cold">עומס קור</button>
       </div>
+      <label class="pt-bias"><input type="checkbox" id="ptBias" /> החל תיקון לפי תחנת מדידה סמוכה (מדידה חיה)</label>
+      <div class="pt-check" id="ptCheck"></div>
       <table class="pt"><thead id="ptHead"></thead><tbody id="ptBody"></tbody></table>
       <div class="pt-legend" id="ptLegend"></div>
       <div class="pt-note">תחזית זו היא כלי תכנון בלבד. הערך מחושב מנתוני התחזית של IMS לנקודות הסמוכות (אינטרפולציה מרחבית) ומוחלק לרזולוציה שעתית. בכל מקרה מדידת העומס בשטח (קסטרל) היא הקובעת.</div>
@@ -581,7 +589,7 @@
         if (den <= 0) return;
         let v = num / den;
         // elevation correction: shift by local lapse rate × (target − reference height)
-        if (targetH != null && hden > 0) {
+        if (targetH != null && isFinite(targetH) && hden > 0) {
           const Href = hnum / hden;
           const pts = [];
           reg.forEach(function (r) {
@@ -604,6 +612,55 @@
       return { series: series, nearest: ranked[0] };
     }
 
+    // Per-point confidence from distance to nearest point, elevation mismatch, neighbor spread.
+    function pointConfidence(lat, lon, targetH) {
+      const ranked = FC.locs.map(function (l) { return { l: l, d: distKm(lat, lon, l.lat, l.lon) }; })
+        .sort(function (a, b) { return a.d - b.d; });
+      const near = ranked[0];
+      const dn = near.d;
+      const dh = (targetH != null && isFinite(targetH) && near.l.height != null) ? Math.abs(targetH - near.l.height) : null;
+      // neighbor spread: stdev of nearest 5 points' heat at the hottest shared time
+      const five = ranked.slice(0, 5);
+      const times = {};
+      five.forEach(function (r) { r.l.forecasts.forEach(function (f) { if (f.time && f.heat != null) times[f.time] = 1; }); });
+      let spread = null, bestMean = -1;
+      Object.keys(times).forEach(function (t) {
+        const vals = [];
+        five.forEach(function (r) { for (let i = 0; i < r.l.forecasts.length; i++) if (r.l.forecasts[i].time === t && r.l.forecasts[i].heat != null) { vals.push(r.l.forecasts[i].heat); break; } });
+        if (vals.length >= 3) { const mean = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length; if (mean > bestMean) { bestMean = mean; spread = Math.sqrt(vals.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / vals.length); } }
+      });
+      const sD = dn <= 4 ? 1 : dn <= 10 ? 1 - (dn - 4) / 6 * 0.4 : dn <= 20 ? 0.6 - (dn - 10) / 10 * 0.3 : 0.2;
+      const sH = dh == null ? 0.7 : dh <= 50 ? 1 : dh <= 150 ? 1 - (dh - 50) / 100 * 0.4 : dh <= 300 ? 0.6 - (dh - 150) / 150 * 0.3 : 0.2;
+      const sS = spread == null ? 0.7 : spread <= 0.7 ? 1 : spread <= 1.5 ? 1 - (spread - 0.7) / 0.8 * 0.4 : spread <= 3 ? 0.6 - (spread - 1.5) / 1.5 * 0.3 : 0.2;
+      const score = 0.5 * sD + 0.3 * sH + 0.2 * sS;
+      const lvl = score >= 0.8 ? { t: 'גבוהה', c: '#3aa856' } : score >= 0.55 ? { t: 'בינונית', c: '#f1c40f' } : { t: 'נמוכה', c: '#e74c3c' };
+      return { dn: dn, dh: dh, spread: spread, score: score, lvl: lvl };
+    }
+
+    // Compare forecast temperature vs nearest live observation station.
+    function stationCheck(lat, lon) {
+      if (!OBS || !OBS.stations || !OBS.stations.length) return null;
+      const ranked = OBS.stations.filter(function (s) { return s.ta != null; })
+        .map(function (s) { return { s: s, d: distKm(lat, lon, s.lat, s.lon) }; })
+        .sort(function (a, b) { return a.d - b.d; });
+      if (!ranked.length) return null;
+      const st = ranked[0];
+      const sh = parseFloat(st.s.height);
+      const res = idwSeries(st.s.lat, st.s.lon, 'temp', isFinite(sh) ? sh : null);
+      const anchors = Object.keys(res.series).map(function (t) { return { ms: parseTime(t).getTime(), v: res.series[t] }; })
+        .sort(function (a, b) { return a.ms - b.ms; });
+      const obsMs = new Date(st.s.time.replace(' ', 'T') + 'Z').getTime();
+      const fcT = isNaN(obsMs) ? null : interpAt(anchors, obsMs);
+      return { st: st.s, d: st.d, measT: st.s.ta, measRH: st.s.rh, fcT: fcT, dT: (fcT == null ? null : st.s.ta - fcT), time: st.s.time };
+    }
+
+    async function ensureObs(cb) {
+      if (OBS) { cb && cb(); return; }
+      const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml'));
+      if (t) { try { OBS = parseObs(t); } catch (e) { } }
+      cb && cb();
+    }
+
     // Catmull-Rom spline → smooth 6h→hourly curve (matches GO's diurnal shape).
     function catmull(p0, p1, p2, p3, u) {
       return 0.5 * ((2 * p1) + (-p0 + p2) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u * u + (-p0 + 3 * p1 - 3 * p2 + p3) * u * u * u);
@@ -618,7 +675,7 @@
     }
 
     const HEB_DAYS_SH = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
-    let lastClick = null, ptLoad = 'heat';
+    let lastClick = null, ptLoad = 'heat', ptBias = false;
     const PT_DAYS = 3;
 
     function renderPtTable() {
@@ -630,7 +687,32 @@
       const anchors = Object.keys(res.series).map(function (t) { return { ms: parseTime(t).getTime(), v: res.series[t] }; })
         .sort(function (a, b) { return a.ms - b.ms; });
 
-      $('ptTitle').textContent = (ptLoad === 'heat') ? 'תחזית עומס חום · לפי שעה' : 'תחזית עומס קור · לפי שעה';
+      // confidence badge
+      const conf = pointConfidence(lat, lon, lastClick.h);
+      const cb = $('ptConf');
+      cb.textContent = 'ודאות: ' + conf.lvl.t;
+      cb.style.background = conf.lvl.c + '22';
+      cb.style.color = conf.lvl.c;
+      cb.style.borderColor = conf.lvl.c + '66';
+      cb.title = 'מרחק לנקודת ייחוס ' + conf.dn.toFixed(1) + ' ק"מ' +
+        (conf.dh != null ? ' · הפרש גובה ' + Math.round(conf.dh) + ' מ\'' : '') +
+        (conf.spread != null ? ' · פיזור שכנים ' + conf.spread.toFixed(1) + '°' : '');
+
+      // live station validation + optional bias correction
+      const chk = stationCheck(lat, lon);
+      const canBias = !!(chk && chk.dT != null && chk.d <= 30);
+      $('ptBias').disabled = !canBias;
+      if (!canBias && $('ptBias').checked) { $('ptBias').checked = false; ptBias = false; }
+      let biasOffset = 0;
+      if (ptBias && canBias) { biasOffset = Math.max(-3, Math.min(3, chk.dT * (ptLoad === 'heat' ? 0.7 : 0.8))); }
+      if (chk) {
+        let s = 'בדיקה מול תחנת ' + esc(chk.st.name) + ' (' + chk.d.toFixed(1) + ' ק"מ): נמדד ' + chk.measT.toFixed(1) + '°';
+        if (chk.fcT != null) s += ' · תחזית ' + chk.fcT.toFixed(1) + '° · הפרש ' + (chk.dT >= 0 ? '+' : '') + chk.dT.toFixed(1) + '°';
+        if (biasOffset) s += ' · הוחל תיקון ' + (biasOffset >= 0 ? '+' : '') + biasOffset.toFixed(1) + '°';
+        $('ptCheck').textContent = s;
+      } else { $('ptCheck').textContent = OBS ? 'אין תחנת מדידה סמוכה לאימות' : 'טוען מדידות חיות לאימות…'; }
+
+      $('ptTitle').firstChild.textContent = (ptLoad === 'heat') ? 'תחזית עומס חום · לפי שעה' : 'תחזית עומס קור · לפי שעה';
       $('ptMeta').innerHTML = 'נ.צ ' + lat.toFixed(4) + ', ' + lon.toFixed(4) +
         (lastClick.h != null ? ' · גובה ' + Math.round(lastClick.h) + ' מ\'' : '') +
         ' · נקודת ייחוס: ' + esc(res.nearest.l.name) + ' (' + res.nearest.d.toFixed(1) + ' ק"מ)' +
@@ -650,8 +732,9 @@
       for (let hr = 0; hr < 24; hr++) {
         rows += '<tr><td class="hr">' + String(hr).padStart(2, '0') + ':00</td>';
         days.forEach(function (d) {
-          const v = interpAt(anchors, d.getTime() + hr * 3600000);
+          let v = interpAt(anchors, d.getTime() + hr * 3600000);
           if (v == null) { rows += '<td class="cell" style="background:#0b121c;color:#3c485a">·</td>'; return; }
+          v += biasOffset;
           const b = band(v);
           rows += '<td class="cell" style="background:' + b.c + ';color:' + (b.dark ? '#fff' : '#10151c') + '">' + v.toFixed(1) + '</td>';
         });
@@ -674,13 +757,14 @@
       lastClick = { lat: lat, lon: lon, h: null };
       clickLayer.clearLayers();
       L.marker([lat, lon], { icon: L.divIcon({ className: 'pt-pin', html: '<div class="pt-pindot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(clickLayer);
+      const same = function () { return lastClick && lastClick.lat === lat && lastClick.lon === lon; };
       const show = function () {
         renderPtTable();
         $('ptPanel').classList.add('show');
         // refine with terrain elevation, then re-render
-        fetchElevation(lat, lon).then(function (h) {
-          if (lastClick && lastClick.lat === lat && lastClick.lon === lon) { lastClick.h = h; renderPtTable(); }
-        });
+        fetchElevation(lat, lon).then(function (h) { if (same()) { lastClick.h = h; renderPtTable(); } });
+        // load live observations for validation, then re-render
+        ensureObs(function () { if (same()) renderPtTable(); });
       };
       if (!FC) { setStatus('טוען תחזית…'); ensureForecast(show); return; }
       show();
@@ -695,6 +779,7 @@
         renderPtTable();
       };
     });
+    $('ptBias').onchange = function () { ptBias = this.checked; renderPtTable(); };
     $('ptClose').onclick = function () { $('ptPanel').classList.remove('show'); };
     $('ptPanel').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
 
