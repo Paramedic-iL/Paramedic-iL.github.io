@@ -113,9 +113,11 @@
       padding:7px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:8px}
 
     /* collapsible panel header */
-    .panel-hd{display:flex;align-items:center;gap:8px}
-    .panel-hd h1{margin:0}
-    .panel-tg{margin-inline-start:auto;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    .panel-hd{display:flex;align-items:center;gap:6px}
+    .panel-hd h1{margin:0;flex:1}
+    .panel-base{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+      border-radius:8px;height:28px;padding:0 10px;font-size:12px;cursor:pointer;flex:0 0 auto;line-height:1}
+    .panel-tg{background:var(--panel2);border:1px solid var(--line);color:var(--text);
       border-radius:8px;width:28px;height:28px;font-size:13px;cursor:pointer;flex:0 0 auto;line-height:1}
     .panel.collapsed{width:auto}
     .panel.collapsed .panel-bd{display:none}
@@ -149,6 +151,7 @@
   <div class="panel" id="panel">
     <div class="panel-hd">
       <h1>מפת עומס חום</h1>
+      <button class="panel-base" id="baseToggle" title="מפת בסיס">לוויין</button>
       <button class="panel-tg" id="panelToggle" title="כיווץ / הרחבה">▾</button>
     </div>
     <div class="panel-bd" id="panelBody">
@@ -281,7 +284,6 @@
       attribution: 'Esri, Maxar, Earthstar Geographics · נתונים: IMS', maxZoom: 19
     });
     darkLayer.addTo(map);
-    L.control.layers({ 'כהה': darkLayer, 'לוויין': satLayer }, null, { position: 'topright' }).addTo(map);
     const layer = L.layerGroup().addTo(map);
     const clickLayer = L.layerGroup().addTo(map);
     const savedLayer = L.layerGroup().addTo(map);
@@ -879,6 +881,10 @@
     /* ---------------- wiring ---------------- */
     map.on('click', function (e) { openPt(e.latlng.lat, e.latlng.lng); });
     $('panelToggle').onclick = function () { $('panel').classList.toggle('collapsed'); };
+    $('baseToggle').onclick = function () {
+      if (map.hasLayer(satLayer)) { map.removeLayer(satLayer); darkLayer.addTo(map); this.textContent = 'לוויין'; }
+      else { map.removeLayer(darkLayer); satLayer.addTo(map); this.textContent = 'כהה'; }
+    };
     $('showPoints').onchange = function () { showPoints = this.checked; updateControls(); render(); };
     $('ptSave').onclick = saveCurrent;
     document.querySelectorAll('#ptToggle button').forEach(function (b) {
