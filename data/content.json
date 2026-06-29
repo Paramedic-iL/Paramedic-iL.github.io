@@ -1148,7 +1148,10 @@
       "href": "presentations/the-x-care-protocol.pdf",
       "en": "The X-CARE protocol",
       "he": "סכמת הטיפול X-CARE",
-      "folder": "f_7fb796be"
+      "folder": "f_7fb796be",
+      "promoted": true,
+      "promoEn": "A presentation to bridge the gap between the PHTLS scheme for the treatment of a single wounded person and the new IDF X-CARE scheme",
+      "promoHe": "מצגת שמטתה לגשר בין סכמת הטיפול בפצוע בודד של PHTLS לסכמה החדשה של צה\"ל X-CARE"
     },
     {
       "href": "presentations/cpr-for-operators.pdf",
