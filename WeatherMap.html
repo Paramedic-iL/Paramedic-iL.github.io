@@ -124,14 +124,23 @@
 
     /* saved locations */
     .saved{margin-top:10px}
-    .saved-tg{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);
-      border-radius:9px;padding:8px;font-size:13px;cursor:pointer;font-weight:600}
+    .saved-tg{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--muted);
+      border-radius:9px;padding:7px;font-size:12px;font-weight:600;text-align:center}
     .saved-list{margin-top:6px;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto}
     .saved-row{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
       border-radius:8px;padding:6px 8px;font-size:12.5px}
     .saved-row .nm{flex:1;cursor:pointer;color:#cfe6ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .saved-row .del{background:none;border:none;color:#ff8a8a;cursor:pointer;font-size:13px;flex:0 0 auto;padding:0 2px}
     .saved-empty{font-size:11.5px;color:var(--muted);padding:4px 2px;line-height:1.5}
+
+    /* saved-location markers on the map */
+    .saved-pin{width:24px;height:24px;border-radius:50%;background:#ffd23f;color:#3a2a00;display:flex;
+      align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid #fff;
+      box-shadow:0 2px 7px rgba(0,0,0,.6);cursor:grab}
+    .saved-pin:active{cursor:grabbing}
+    .leaflet-tooltip.saved-tip{background:rgba(20,29,43,.92);border:1px solid var(--line);color:#ffe9a3;
+      font-size:11px;font-weight:600;border-radius:6px;padding:1px 6px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+    .leaflet-tooltip.saved-tip:before{display:none}
   </style>
 </head>
 <body>
@@ -167,8 +176,8 @@
       </div>
 
       <div class="saved">
-        <button class="saved-tg" id="savedToggle">מיקומים שמורים</button>
-        <div class="saved-list" id="savedList" hidden></div>
+        <div class="saved-tg" id="savedToggle">מיקומים שמורים</div>
+        <div class="saved-list" id="savedList"></div>
       </div>
 
       <div class="btns">
@@ -264,12 +273,18 @@
     }
 
     /* ---------------- map ---------------- */
-    const map = L.map('map', { zoomControl: true }).setView([31.3, 35.0], 7.4);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap, © CARTO · נתונים: IMS', maxZoom: 12
-    }).addTo(map);
+    const map = L.map('map', { zoomControl: true, maxZoom: 19 }).setView([31.3, 35.0], 8);
+    const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap, © CARTO · נתונים: IMS', maxZoom: 19
+    });
+    const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Esri, Maxar, Earthstar Geographics · נתונים: IMS', maxZoom: 19
+    });
+    darkLayer.addTo(map);
+    L.control.layers({ 'כהה': darkLayer, 'לוויין': satLayer }, null, { position: 'topright' }).addTo(map);
     const layer = L.layerGroup().addTo(map);
     const clickLayer = L.layerGroup().addTo(map);
+    const savedLayer = L.layerGroup().addTo(map);
 
     /* ---------------- state ---------------- */
     let mode = 'forecast';
@@ -416,6 +431,13 @@
       });
     }
 
+    // Hide the marker-related controls when points are hidden.
+    function updateControls() {
+      $('modeRow').style.display = showPoints ? '' : 'none';
+      $('metrics').style.display = showPoints ? '' : 'none';
+      $('timeWrap').style.display = (showPoints && mode === 'forecast') ? '' : 'none';
+    }
+
     function render() {
       layer.clearLayers();
       $('legend').style.display = showPoints ? '' : 'none';
@@ -551,7 +573,7 @@
       mode = m;
       metric = DEF_METRIC[m];
       document.querySelectorAll('#modeRow button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-mode') === m); });
-      $('timeWrap').style.display = (m === 'forecast') ? '' : 'none';
+      updateControls();
       $('sub').textContent = (m === 'forecast')
         ? 'תחזית 6 שעות ל-80 ערים · עומס חום IMS'
         : 'תצפיות שעתיות · WBGT/לחה מחושבים מהמדידות';
@@ -813,18 +835,36 @@
     const SAVED_KEY = 'wm_saved_locs';
     function loadSaved() { try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'); } catch (e) { return []; } }
     function storeSaved(a) { try { localStorage.setItem(SAVED_KEY, JSON.stringify(a)); } catch (e) { } }
+    function savedIcon() {
+      return L.divIcon({ className: 'saved-pin-wrap', html: '<div class="saved-pin">★</div>', iconSize: [24, 24], iconAnchor: [12, 12] });
+    }
     function renderSaved() {
       const list = loadSaved(), el = $('savedList');
       $('savedToggle').textContent = 'מיקומים שמורים (' + list.length + ')';
-      if (!list.length) { el.innerHTML = '<div class="saved-empty">אין מיקומים שמורים. פתחו נקודה במפה ולחצו "שמירת מיקום זה".</div>'; return; }
-      el.innerHTML = list.map(function (s, i) {
-        return '<div class="saved-row"><span class="nm" data-i="' + i + '" title="' + esc(s.name) + '">' + esc(s.name) + '</span><button class="del" data-d="' + i + '" title="מחיקה">✕</button></div>';
-      }).join('');
-      el.querySelectorAll('.nm').forEach(function (n) {
-        n.onclick = function () { const s = loadSaved()[+n.getAttribute('data-i')]; if (s) { map.setView([s.lat, s.lon], Math.max(map.getZoom(), 10)); openPt(s.lat, s.lon); } };
-      });
-      el.querySelectorAll('.del').forEach(function (b) {
-        b.onclick = function () { const a = loadSaved(); a.splice(+b.getAttribute('data-d'), 1); storeSaved(a); renderSaved(); };
+      // panel list
+      if (!list.length) { el.innerHTML = '<div class="saved-empty">אין מיקומים שמורים. פתחו נקודה במפה ולחצו "שמירת מיקום זה".</div>'; }
+      else {
+        el.innerHTML = list.map(function (s, i) {
+          return '<div class="saved-row"><span class="nm" data-i="' + i + '" title="' + esc(s.name) + '">' + esc(s.name) + '</span><button class="del" data-d="' + i + '" title="מחיקה">✕</button></div>';
+        }).join('');
+        el.querySelectorAll('.nm').forEach(function (n) {
+          n.onclick = function () { const s = loadSaved()[+n.getAttribute('data-i')]; if (s) { map.setView([s.lat, s.lon], Math.max(map.getZoom(), 12)); openPt(s.lat, s.lon); } };
+        });
+        el.querySelectorAll('.del').forEach(function (b) {
+          b.onclick = function () { const a = loadSaved(); a.splice(+b.getAttribute('data-d'), 1); storeSaved(a); renderSaved(); };
+        });
+      }
+      // map markers (always shown, draggable, with name labels)
+      savedLayer.clearLayers();
+      list.forEach(function (s, i) {
+        const mk = L.marker([s.lat, s.lon], { draggable: true, icon: savedIcon(), zIndexOffset: 1000 });
+        mk.bindTooltip(s.name, { permanent: true, direction: 'right', className: 'saved-tip', offset: [10, 0] });
+        mk.on('click', function () { openPt(s.lat, s.lon); });
+        mk.on('dragend', function (e) {
+          const ll = e.target.getLatLng(); const a = loadSaved();
+          if (a[i]) { a[i].lat = ll.lat; a[i].lon = ll.lng; storeSaved(a); renderSaved(); openPt(ll.lat, ll.lng); }
+        });
+        mk.addTo(savedLayer);
       });
     }
     function saveCurrent() {
@@ -834,14 +874,12 @@
       const name = prompt('שם המיקום:', def);
       if (name == null) return;
       const a = loadSaved(); a.push({ name: (name.trim() || def), lat: lastClick.lat, lon: lastClick.lon }); storeSaved(a); renderSaved();
-      if ($('savedList').hidden) { $('savedList').hidden = false; }
     }
 
     /* ---------------- wiring ---------------- */
     map.on('click', function (e) { openPt(e.latlng.lat, e.latlng.lng); });
     $('panelToggle').onclick = function () { $('panel').classList.toggle('collapsed'); };
-    $('showPoints').onchange = function () { showPoints = this.checked; render(); };
-    $('savedToggle').onclick = function () { $('savedList').hidden = !$('savedList').hidden; };
+    $('showPoints').onchange = function () { showPoints = this.checked; updateControls(); render(); };
     $('ptSave').onclick = saveCurrent;
     document.querySelectorAll('#ptToggle button').forEach(function (b) {
       b.onclick = function () {
