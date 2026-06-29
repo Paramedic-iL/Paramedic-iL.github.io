@@ -255,22 +255,28 @@
     .promo{
       position:fixed;top:138px;left:16px;z-index:54;width:248px;max-width:calc(100vw - 32px);
       background:linear-gradient(180deg,var(--panel2),var(--panel));
-      border:1px solid var(--line);border-left:3px solid var(--red-bright);
+      border:1.6px solid #2a59b8;
       border-radius:12px;padding:12px 14px 11px;box-shadow:0 10px 30px rgba(0,0,0,.45);
+      animation:promoGlow 1.8s ease-in-out infinite;
     }
-    [dir="rtl"] .promo{left:auto;right:16px;border-left:1px solid var(--line);border-right:3px solid var(--red-bright)}
+    [dir="rtl"] .promo{left:auto;right:16px}
+    @keyframes promoGlow{
+      0%,100%{border-color:#15306e;box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 0 0 rgba(74,163,255,0)}
+      50%{border-color:#4aa3ff;box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 16px 2px rgba(74,163,255,.5)}
+    }
+    @media (prefers-reduced-motion:reduce){.promo{animation:none;border-color:#4aa3ff}}
     .promo .promo-x{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--muted);
       font-size:18px;line-height:1;cursor:pointer;padding:2px 4px}
     [dir="rtl"] .promo .promo-x{right:auto;left:8px}
     .promo .promo-x:hover{color:var(--text)}
-    .promo .promo-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red-bright);font-weight:700;margin-bottom:6px}
+    .promo .promo-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#5aa8ff;font-weight:700;margin-bottom:6px}
     .promo .promo-item{display:block;font-family:"Oswald",sans-serif;font-weight:600;font-size:15px;line-height:1.3;
       color:var(--text);padding-right:14px}
     [dir="rtl"] .promo .promo-item{padding-right:0;padding-left:14px}
-    .promo .promo-item:hover{color:var(--red-bright)}
+    .promo .promo-item:hover{color:#5aa8ff}
     .promo .promo-dots{display:flex;gap:5px;margin-top:9px}
     .promo .promo-dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
-    .promo .promo-dots i.on{background:var(--red-bright)}
+    .promo .promo-dots i.on{background:#4aa3ff}
     @media (max-width:760px){
       .promo{top:auto;bottom:14px;left:14px;right:14px;width:auto}
       [dir="rtl"] .promo{left:14px;right:14px}
