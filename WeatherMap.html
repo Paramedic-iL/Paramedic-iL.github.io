@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>מפת עומס חום · IMS</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root{
+      --bg:#0b1018; --panel:#141d2b; --panel2:#18222f; --line:#24303f;
+      --text:#eaf0f6; --muted:#9aa9bc; --accent:#4aa3ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+    #map{position:absolute;inset:0;z-index:1;background:#0b1018}
+
+    .panel{
+      position:absolute;top:12px;inset-inline-start:12px;z-index:1000;width:340px;max-width:calc(100vw - 24px);
+      background:rgba(20,29,43,.96);border:1px solid var(--line);border-radius:14px;
+      box-shadow:0 12px 34px rgba(0,0,0,.5);padding:14px 16px;backdrop-filter:blur(8px);
+      max-height:calc(100vh - 24px);overflow:auto
+    }
+    .panel h1{font-size:17px;margin:0 0 2px}
+    .panel .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+    .seg{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+    .seg button{flex:1 1 auto;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+      border-radius:9px;padding:7px 8px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+    .seg button.active{border-color:var(--accent);background:rgba(74,163,255,.16);color:#cfe6ff}
+    .seg.mode button.active{border-color:#f4d03f;background:rgba(244,208,63,.15);color:#ffe9a3}
+    .time-wrap{margin:8px 0}
+    .time-label{font-size:13.5px;font-weight:600;margin-bottom:6px;text-align:center}
+    .time-label .hot{color:#f4d03f}
+    input[type=range]{width:100%;accent-color:var(--accent)}
+    .time-nav{display:flex;gap:6px;margin-top:6px}
+    .time-nav button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+      border-radius:8px;padding:6px;cursor:pointer;font-size:13px}
+    .opts{display:flex;gap:10px;align-items:center;font-size:12.5px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+    .opts label{display:flex;gap:5px;align-items:center;cursor:pointer}
+    .btns{display:flex;gap:8px;margin-top:10px}
+    .btns button{flex:1;background:var(--accent);border:none;color:#04122a;font-weight:700;
+      border-radius:9px;padding:8px;cursor:pointer;font-size:13px}
+    .btns button.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line);font-weight:600}
+    .status{font-size:12px;color:var(--muted);margin-top:8px;min-height:16px}
+    .status.err{color:#ff8a8a}
+    .status.ok{color:#8fe0a0}
+    .note{font-size:11px;color:#7d8aa0;margin-top:6px;line-height:1.45}
+
+    .legend{
+      position:absolute;bottom:14px;inset-inline-start:12px;z-index:1000;
+      background:rgba(20,29,43,.96);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+      font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.45);max-width:230px
+    }
+    .legend h2{font-size:12px;margin:0 0 7px;color:var(--muted);font-weight:600}
+    .legend .item{display:flex;align-items:center;gap:7px;margin:3px 0}
+    .legend .sw{width:14px;height:14px;border-radius:4px;flex:0 0 auto;border:1px solid rgba(255,255,255,.25)}
+
+    .wm-badge{
+      width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:12px;color:#0a0f16;border:2px solid rgba(255,255,255,.85);
+      box-shadow:0 2px 6px rgba(0,0,0,.5)
+    }
+    .wm-name{
+      position:absolute;top:30px;inset-inline-start:50%;transform:translateX(-50%);
+      white-space:nowrap;font-size:10px;color:#fff;text-shadow:0 1px 3px #000,0 0 4px #000;pointer-events:none
+    }
+    [dir=rtl] .wm-name{transform:translateX(50%)}
+    .leaflet-popup-content{font-size:13px;line-height:1.5;direction:rtl}
+    .leaflet-popup-content b{font-size:14px}
+    .pop-grid{display:grid;grid-template-columns:auto auto;gap:2px 12px;margin-top:6px}
+    .pop-grid span:nth-child(odd){color:#666}
+    .drop-hint{position:absolute;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
+      background:rgba(8,12,20,.7);font-size:20px;color:#cfe6ff;border:3px dashed var(--accent)}
+    .drop-hint.show{display:flex}
+
+    .hint{font-size:11.5px;color:#9fd0ee;margin-top:6px;line-height:1.45}
+
+    /* clicked-point pin */
+    .pt-pindot{width:16px;height:16px;border-radius:50%;background:#4aa3ff;border:2px solid #fff;
+      box-shadow:0 0 0 4px rgba(74,163,255,.35),0 2px 6px rgba(0,0,0,.6)}
+
+    /* point forecast table modal */
+    .pt-overlay{position:absolute;inset:0;z-index:3000;display:none;align-items:flex-start;justify-content:center;
+      background:rgba(4,8,14,.55);overflow:auto;padding:18px}
+    .pt-overlay.show{display:flex}
+    .pt-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+      box-shadow:0 18px 50px rgba(0,0,0,.6);width:min(720px,96vw);margin:auto;padding:14px 16px 16px}
+    .pt-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+    .pt-head h2{font-size:16px;margin:0 0 3px}
+    .pt-head .meta{font-size:11.5px;color:var(--muted);line-height:1.5}
+    .pt-x{margin-inline-start:auto;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+      border-radius:8px;width:30px;height:30px;font-size:15px;cursor:pointer;flex:0 0 auto}
+    .pt-toggle{display:flex;gap:6px;margin:6px 0 10px}
+    .pt-toggle button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+      border-radius:9px;padding:8px;font-size:13.5px;font-weight:600;cursor:pointer}
+    .pt-toggle button.active{border-color:var(--accent);background:rgba(74,163,255,.16);color:#cfe6ff}
+    table.pt{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
+    table.pt th,table.pt td{border:1px solid #0a0e15;padding:4px 2px;text-align:center}
+    table.pt thead th{background:#0e1622;color:#cfe0f2;font-size:11.5px;padding:6px 2px;line-height:1.3}
+    table.pt td.hr{background:#0e1622;color:#9aa9bc;font-weight:600;width:52px;font-size:11.5px}
+    table.pt td.cell{font-weight:700}
+    .pt-legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:10px;font-size:11px;color:var(--muted)}
+    .pt-legend .it{display:flex;align-items:center;gap:5px}
+    .pt-legend .sw{width:13px;height:13px;border-radius:3px;border:1px solid rgba(255,255,255,.25)}
+    .pt-note{font-size:11px;color:#7d8aa0;margin-top:10px;line-height:1.5}
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="panel">
+    <h1>מפת עומס חום</h1>
+    <div class="sub" id="sub">השירות המטאורולוגי הישראלי (IMS)</div>
+
+    <div class="seg mode" id="modeRow">
+      <button data-mode="forecast" class="active">תחזית (שבוע)</button>
+      <button data-mode="obs">תצפית עכשיו</button>
+    </div>
+
+    <div class="seg" id="metrics"></div>
+
+    <div class="time-wrap" id="timeWrap">
+      <div class="time-label" id="timeLabel">—</div>
+      <input type="range" id="timeSlider" min="0" max="0" value="0" />
+      <div class="time-nav">
+        <button id="prevBtn">⟨ קודם</button>
+        <button id="nextBtn">הבא ⟩</button>
+      </div>
+    </div>
+
+    <div class="opts">
+      <label><input type="checkbox" id="showNames" /> הצגת שמות</label>
+    </div>
+
+    <div class="btns">
+      <button id="reloadBtn">טעינת נתונים חיים</button>
+      <button class="ghost" id="fileBtn">פתיחת קובץ XML</button>
+      <input type="file" id="fileInput" accept=".xml,text/xml" hidden />
+    </div>
+    <div class="status" id="status">טוען נתונים…</div>
+    <div class="note" id="note"></div>
+    <div class="hint">לחצו על כל נקודה במפה לקבלת תחזית עומס שעתית ל-3 ימים לאותה נקודה.</div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+  <div class="drop-hint" id="dropHint">שחררו כאן קובץ XML</div>
+
+  <div class="pt-overlay" id="ptPanel">
+    <div class="pt-card">
+      <div class="pt-head">
+        <div>
+          <h2 id="ptTitle">תחזית עומס לפי שעה</h2>
+          <div class="meta" id="ptMeta"></div>
+        </div>
+        <button class="pt-x" id="ptClose" title="סגירה">✕</button>
+      </div>
+      <div class="pt-toggle" id="ptToggle">
+        <button data-load="heat" class="active">עומס חום</button>
+        <button data-load="cold">עומס קור</button>
+      </div>
+      <table class="pt"><thead id="ptHead"></thead><tbody id="ptBody"></tbody></table>
+      <div class="pt-legend" id="ptLegend"></div>
+      <div class="pt-note">תחזית זו היא כלי תכנון בלבד. הערך מחושב מנתוני התחזית של IMS לנקודות הסמוכות (אינטרפולציה מרחבית) ומוחלק לרזולוציה שעתית. בכל מקרה מדידת העומס בשטח (קסטרל) היא הקובעת.</div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+  (function () {
+    const SRC_FC  = 'https://ims.gov.il/sites/default/files/ims_data/xml_files/isr_cities_1week_6hr_forecast.xml';
+    const SRC_OBS = 'https://ims.gov.il/sites/default/files/ims_data/xml_files/observ.xml';
+
+    /* ---------------- color helpers ---------------- */
+    const HEAT = [
+      { c: '#2e9e57', t: 'נוח / ללא עומס' }, { c: '#9acd32', t: 'עומס קל' },
+      { c: '#f4d03f', t: 'עומס מתון' }, { c: '#f39c12', t: 'עומס בינוני' },
+      { c: '#e74c3c', t: 'עומס גבוה' }, { c: '#c0392b', t: 'עומס גבוה מאוד' },
+      { c: '#7b241c', t: 'עומס קיצוני' }
+    ];
+    function heatColor(lvl) { return (HEAT[lvl] || HEAT[HEAT.length - 1]).c; }
+
+    // WBGT estimate bands (°C, acclimatised-worker reference)
+    const WBGT_BANDS = [
+      { max: 23, c: '#2e9e57', t: '< 23° · נמוך' },
+      { max: 25, c: '#9acd32', t: '23–25° · מתון' },
+      { max: 28, c: '#f4d03f', t: '25–28° · גבוה' },
+      { max: 30, c: '#e74c3c', t: '28–30° · גבוה מאוד' },
+      { max: 999, c: '#7b241c', t: '≥ 30° · קיצוני' }
+    ];
+    function wbgtColor(w) { for (const b of WBGT_BANDS) if (w < b.max) return b.c; return '#7b241c'; }
+
+    function tempColor(t) {
+      const stops = [[5, '#4a78d6'], [15, '#46b1c9'], [22, '#2e9e57'], [28, '#f4d03f'], [33, '#f39c12'], [38, '#e74c3c'], [44, '#7b241c']];
+      if (t == null) return '#888';
+      if (t <= stops[0][0]) return stops[0][1];
+      for (let i = 1; i < stops.length; i++) if (t <= stops[i][0]) return lerp(stops[i - 1][1], stops[i][1], (t - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0]));
+      return stops[stops.length - 1][1];
+    }
+    function rhColor(h) { return h == null ? '#888' : lerp('#caa15a', '#2e6fb0', Math.max(0, Math.min(1, h / 100))); }
+    function solarColor(w) { return w == null ? '#888' : lerp('#2b2f3a', '#ffcf33', Math.max(0, Math.min(1, w / 950))); }
+    function lerp(a, b, f) {
+      const pa = hx(a), pb = hx(b);
+      return 'rgb(' + Math.round(pa[0] + (pb[0] - pa[0]) * f) + ',' + Math.round(pa[1] + (pb[1] - pa[1]) * f) + ',' + Math.round(pa[2] + (pb[2] - pa[2]) * f) + ')';
+    }
+    function hx(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+
+    /* ---------------- heat math ---------------- */
+    function wetBulbStull(Ta, RH) {
+      return Ta * Math.atan(0.151977 * Math.sqrt(RH + 8.313659)) + Math.atan(Ta + RH)
+        - Math.atan(RH - 1.676331) + 0.00391838 * Math.pow(RH, 1.5) * Math.atan(0.023101 * RH) - 4.686035;
+    }
+    function heatIndexC(Ta, RH) {
+      const T = Ta * 9 / 5 + 32;
+      if (T < 80) return ((0.5 * (T + 61 + (T - 68) * 1.2 + RH * 0.094)) - 32) * 5 / 9;
+      let HI = -42.379 + 2.04901523 * T + 10.14333127 * RH - 0.22475541 * T * RH
+        - 0.00683783 * T * T - 0.05481717 * RH * RH + 0.00122874 * T * T * RH
+        + 0.00085282 * T * RH * RH - 0.00000199 * T * T * RH * RH;
+      if (RH < 13 && T >= 80 && T <= 112) HI -= ((13 - RH) / 4) * Math.sqrt((17 - Math.abs(T - 95)) / 17);
+      if (RH > 85 && T >= 80 && T <= 87) HI += ((RH - 85) / 10) * ((87 - T) / 5);
+      return (HI - 32) * 5 / 9;
+    }
+
+    /* ---------------- map ---------------- */
+    const map = L.map('map', { zoomControl: true }).setView([31.3, 35.0], 7.4);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap, © CARTO · נתונים: IMS', maxZoom: 12
+    }).addTo(map);
+    const layer = L.layerGroup().addTo(map);
+    const clickLayer = L.layerGroup().addTo(map);
+
+    /* ---------------- state ---------------- */
+    let mode = 'forecast';
+    let metric = 'heat';
+    let showNames = false;
+    let FC = null;          // forecast: { issue, locs }
+    let TIMES = [], tIdx = 0;
+    let OBS = null;         // observations: { issue, stations:[...] }
+
+    const METRICS = {
+      forecast: [{ k: 'heat', l: 'עומס חום' }, { k: 'temp', l: 'טמפרטורה' }, { k: 'feels', l: 'מורגש' }, { k: 'rh', l: 'לחות' }],
+      obs: [{ k: 'wbgt', l: 'WBGT (בצל)' }, { k: 'tw', l: 'לחה' }, { k: 'temp', l: 'טמפ\'' }, { k: 'hi', l: 'מדד חום' }, { k: 'rh', l: 'לחות' }, { k: 'solar', l: 'קרינה' }]
+    };
+    const DEF_METRIC = { forecast: 'heat', obs: 'wbgt' };
+
+    const $ = function (id) { return document.getElementById(id); };
+    function setStatus(m, k) { const s = $('status'); s.textContent = m || ''; s.className = 'status ' + (k || ''); }
+    function setNote(m) { $('note').textContent = m || ''; }
+    function round(v) { return v == null ? '–' : Math.round(v); }
+    function show(v) { return v == null ? '–' : v; }
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+    function txt(n) { return n ? (n.textContent || '').trim() : ''; }
+
+    /* ---------------- forecast parsing ---------------- */
+    function numTag(f, tag) { const e = f.getElementsByTagName(tag)[0]; const v = parseFloat(txt(e)); return isNaN(v) ? null : v; }
+    function parseForecast(xmlText) {
+      const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+      if (doc.getElementsByTagName('parsererror').length) throw new Error('XML parse error');
+      const issue = txt(doc.getElementsByTagName('IssueDateTime')[0]);
+      const locs = [];
+      const ln = doc.getElementsByTagName('Location');
+      for (let i = 0; i < ln.length; i++) {
+        const md = ln[i].getElementsByTagName('LocationMetaData')[0]; if (!md) continue;
+        const lat = parseFloat(txt(md.getElementsByTagName('DisplayLat')[0]));
+        const lon = parseFloat(txt(md.getElementsByTagName('DisplayLon')[0]));
+        if (isNaN(lat) || isNaN(lon)) continue;
+        const fcs = ln[i].getElementsByTagName('Forecast'); const forecasts = [];
+        for (let j = 0; j < fcs.length; j++) {
+          const f = fcs[j];
+          forecasts.push({
+            time: txt(f.getElementsByTagName('ForecastTime')[0]),
+            temp: numTag(f, 'Temperature'), rh: numTag(f, 'RelativeHumidity'), wind: numTag(f, 'WindSpeed'),
+            heat: numTag(f, 'HeatStress'), heatLvl: numTag(f, 'HeatStressLevel'), feels: numTag(f, 'FeelsLike'),
+            wch: numTag(f, 'WindChill'), rain: numTag(f, 'Rain'), uv: numTag(f, 'UVIndex')
+          });
+        }
+        locs.push({ name: txt(md.getElementsByTagName('LocationNameEng')[0]), lat: lat, lon: lon, forecasts: forecasts });
+      }
+      if (!locs.length) throw new Error('no locations');
+      return { issue: issue, locs: locs };
+    }
+
+    /* ---------------- observations parsing ---------------- */
+    function parseObs(xmlText) {
+      const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+      if (doc.getElementsByTagName('parsererror').length) throw new Error('XML parse error');
+      const issue = txt(doc.getElementsByTagName('IssueDateTimeUTC')[0]);
+      const obs = doc.getElementsByTagName('Observation');
+      const byStation = {};
+      for (let i = 0; i < obs.length; i++) {
+        const o = obs[i];
+        const st = o.getElementsByTagName('Station')[0]; if (!st) continue;
+        const num = txt(st.getElementsByTagName('StationNumber')[0]);
+        const lat = parseFloat(txt(st.getElementsByTagName('StationLatitude')[0]));
+        const lon = parseFloat(txt(st.getElementsByTagName('StationLongitude')[0]));
+        if (isNaN(lat) || isNaN(lon)) continue;
+        const time = txt(o.getElementsByTagName('DateTime')[0]);
+        const prev = byStation[num];
+        if (prev && prev.time >= time) continue; // keep latest per station
+        const p = {};
+        const ps = o.getElementsByTagName('Parameter');
+        for (let j = 0; j < ps.length; j++) {
+          const sn = txt(ps[j].getElementsByTagName('ParameterShortName')[0]);
+          const v = parseFloat(txt(ps[j].getElementsByTagName('ParameterValue')[0]));
+          if (sn && !isNaN(v)) p[sn] = v;
+        }
+        byStation[num] = {
+          name: txt(st.getElementsByTagName('StationName')[0]),
+          height: txt(st.getElementsByTagName('StationHeight')[0]),
+          lat: lat, lon: lon, time: time, p: p
+        };
+      }
+      const stations = Object.keys(byStation).map(function (k) {
+        const s = byStation[k], p = s.p;
+        const ta = p.TT != null ? p.TT / 10 : null;          // tenths °C
+        const rh = p.RH != null ? p.RH : null;               // %
+        let tw = p.TWE != null ? p.TWE / 10 : null;          // wet-bulb tenths °C
+        if (tw == null && ta != null && rh != null) tw = wetBulbStull(ta, rh);
+        s.ta = ta; s.rh = rh; s.tw = tw;
+        s.wind = p.FF != null ? p.FF / 10 : (p.FX1 != null ? p.FX1 / 10 : null);  // m/s
+        s.solar = p.GRH != null ? p.GRH : null;              // W/m²
+        s.dew = p.TD != null ? p.TD / 10 : null;
+        s.rain = p.R01 != null ? p.R01 / 10 : null;
+        s.wbgt = (tw != null && ta != null) ? 0.7 * tw + 0.3 * ta : null;        // shade WBGT
+        s.hi = (ta != null && rh != null) ? heatIndexC(ta, rh) : null;
+        return s;
+      });
+      if (!stations.length) throw new Error('no stations');
+      return { issue: issue, stations: stations };
+    }
+
+    /* ---------------- time helpers (forecast) ---------------- */
+    function parseTime(s) { return new Date(s.replace(' ', 'T')); }
+    const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+    function fmtTime(s) {
+      const d = parseTime(s);
+      return 'יום ' + HEB_DAYS[d.getDay()] + ' · ' + String(d.getDate()).padStart(2, '0') + '/' +
+        String(d.getMonth() + 1).padStart(2, '0') + ' · ' + String(d.getHours()).padStart(2, '0') + ':00';
+    }
+    function buildTimes() { const set = {}; FC.locs.forEach(function (l) { l.forecasts.forEach(function (f) { if (f.time) set[f.time] = 1; }); }); return Object.keys(set).sort(); }
+    function defaultTimeIndex() {
+      const now = Date.now(); let best = 0, bd = Infinity;
+      for (let i = 0; i < TIMES.length; i++) { const d = Math.abs(parseTime(TIMES[i]).getTime() - now); if (d < bd) { bd = d; best = i; } }
+      return best;
+    }
+
+    /* ---------------- metric accessors ---------------- */
+    function fcMetric(f) {
+      if (metric === 'heat') return { label: round(f.heat), color: heatColor(f.heatLvl || 0) };
+      if (metric === 'temp') return { label: round(f.temp) + '°', color: tempColor(f.temp) };
+      if (metric === 'feels') return { label: round(f.feels) + '°', color: tempColor(f.feels) };
+      if (metric === 'rh') return { label: round(f.rh), color: rhColor(f.rh) };
+      return { label: '?', color: '#888' };
+    }
+    function obsMetric(s) {
+      if (metric === 'wbgt') return { v: s.wbgt, label: round(s.wbgt), color: s.wbgt == null ? null : wbgtColor(s.wbgt) };
+      if (metric === 'tw') return { v: s.tw, label: round(s.tw) + '°', color: tempColor(s.tw) };
+      if (metric === 'temp') return { v: s.ta, label: round(s.ta) + '°', color: tempColor(s.ta) };
+      if (metric === 'hi') return { v: s.hi, label: round(s.hi) + '°', color: tempColor(s.hi) };
+      if (metric === 'rh') return { v: s.rh, label: round(s.rh), color: rhColor(s.rh) };
+      if (metric === 'solar') return { v: s.solar, label: round(s.solar), color: solarColor(s.solar) };
+      return { v: null, label: '?', color: null };
+    }
+
+    /* ---------------- render ---------------- */
+    function badge(label, color, name) {
+      return L.divIcon({
+        className: 'wm-icon',
+        html: '<div class="wm-badge" style="background:' + color + '">' + label + '</div>' +
+          (showNames && name ? '<div class="wm-name">' + esc(name) + '</div>' : ''),
+        iconSize: [30, 30], iconAnchor: [15, 15]
+      });
+    }
+
+    function render() {
+      layer.clearLayers();
+      if (mode === 'forecast') return renderForecast();
+      return renderObs();
+    }
+
+    function renderForecast() {
+      if (!FC || !TIMES.length) return;
+      const time = TIMES[tIdx];
+      $('timeLabel').innerHTML = fmtTime(time) + (parseTime(time).getHours() === 15 ? ' <span class="hot">☀ שיא יום</span>' : '');
+      $('timeSlider').value = tIdx;
+      let n = 0;
+      FC.locs.forEach(function (loc) {
+        let f = null; for (let i = 0; i < loc.forecasts.length; i++) if (loc.forecasts[i].time === time) { f = loc.forecasts[i]; break; }
+        if (!f) return;
+        const m = fcMetric(f);
+        const mk = L.marker([loc.lat, loc.lon], { icon: badge(m.label, m.color, loc.name), riseOnHover: true });
+        mk.bindTooltip(loc.name + ' · עומס ' + (f.heatLvl == null ? '–' : f.heatLvl), { direction: 'top', offset: [0, -12] });
+        mk.bindPopup(
+          '<b>' + esc(loc.name) + '</b>' +
+          '<div style="color:' + heatColor(f.heatLvl || 0) + ';font-weight:700">עומס חום: רמה ' + (f.heatLvl == null ? '–' : f.heatLvl) +
+          ' — ' + ((HEAT[f.heatLvl] && HEAT[f.heatLvl].t) || '') + '</div>' +
+          '<div class="pop-grid"><span>עומס חום</span><span>' + show(f.heat) + '</span>' +
+          '<span>טמפרטורה</span><span>' + show(f.temp) + '°C</span>' +
+          '<span>מורגש</span><span>' + show(f.feels) + '°C</span>' +
+          '<span>לחות</span><span>' + show(f.rh) + '%</span>' +
+          '<span>רוח</span><span>' + show(f.wind) + ' קמ"ש</span>' +
+          '<span>UV</span><span>' + show(f.uv) + '</span></div>');
+        mk.addTo(layer); n++;
+      });
+      setStatus('מוצגות ' + n + ' ערים · עודכן: ' + (FC.issue || '—'), 'ok');
+    }
+
+    function renderObs() {
+      if (!OBS) return;
+      let n = 0, latest = '';
+      OBS.stations.forEach(function (s) {
+        const m = obsMetric(s);
+        if (m.v == null || m.color == null) return;
+        if (s.time > latest) latest = s.time;
+        const mk = L.marker([s.lat, s.lon], { icon: badge(m.label, m.color, s.name), riseOnHover: true });
+        mk.bindTooltip(s.name + ' · WBGT ' + round(s.wbgt) + '°', { direction: 'top', offset: [0, -12] });
+        mk.bindPopup(
+          '<b>' + esc(s.name) + '</b>' +
+          '<div style="color:' + (s.wbgt == null ? '#888' : wbgtColor(s.wbgt)) + ';font-weight:700">WBGT (בצל): ' + round(s.wbgt) + '°C</div>' +
+          '<div class="pop-grid"><span>טמפרטורה</span><span>' + (s.ta == null ? '–' : s.ta.toFixed(1)) + '°C</span>' +
+          '<span>לחה (wet-bulb)</span><span>' + (s.tw == null ? '–' : s.tw.toFixed(1)) + '°C</span>' +
+          '<span>מדד חום</span><span>' + (s.hi == null ? '–' : s.hi.toFixed(0)) + '°C</span>' +
+          '<span>לחות</span><span>' + show(s.rh) + '%</span>' +
+          '<span>רוח</span><span>' + (s.wind == null ? '–' : (s.wind * 3.6).toFixed(0)) + ' קמ"ש</span>' +
+          '<span>קרינה</span><span>' + show(s.solar) + ' W/m²</span>' +
+          '<span>גובה</span><span>' + show(s.height) + ' מ\'</span>' +
+          '<span>שעת מדידה</span><span>' + esc(s.time) + ' UTC</span></div>');
+        mk.addTo(layer); n++;
+      });
+      setStatus('מוצגות ' + n + ' תחנות · מדידה אחרונה: ' + (latest || '—') + ' UTC', 'ok');
+    }
+
+    /* ---------------- legend ---------------- */
+    function renderLegend() {
+      const el = $('legend');
+      if (mode === 'forecast' && metric === 'heat') {
+        el.innerHTML = '<h2>עומס חום — רמה (IMS)</h2>' + HEAT.map(function (h, i) { return row(h.c, i + ' · ' + h.t); }).join('');
+      } else if (mode === 'obs' && metric === 'wbgt') {
+        el.innerHTML = '<h2>WBGT (הערכה בצל)</h2>' + WBGT_BANDS.map(function (b) { return row(b.c, b.t); }).join('');
+      } else if (metric === 'rh') {
+        el.innerHTML = '<h2>לחות יחסית</h2>' + row(rhColor(20), 'יבש') + row(rhColor(60), 'בינוני') + row(rhColor(95), 'לח מאוד');
+      } else if (metric === 'solar') {
+        el.innerHTML = '<h2>קרינה W/m²</h2>' + row(solarColor(50), '~50') + row(solarColor(400), '~400') + row(solarColor(850), '~850');
+      } else {
+        const lbl = metric === 'tw' ? 'לחה °C' : (metric === 'hi' ? 'מדד חום °C' : (metric === 'feels' ? 'מורגש °C' : 'טמפרטורה °C'));
+        el.innerHTML = '<h2>' + lbl + '</h2>' + [10, 20, 28, 33, 38, 43].map(function (t) { return row(tempColor(t), '~' + t + '°'); }).join('');
+      }
+    }
+    function row(c, t) { return '<div class="item"><span class="sw" style="background:' + c + '"></span>' + t + '</div>'; }
+
+    /* ---------------- metric buttons ---------------- */
+    function renderMetrics() {
+      $('metrics').innerHTML = METRICS[mode].map(function (m) {
+        return '<button data-m="' + m.k + '"' + (m.k === metric ? ' class="active"' : '') + '>' + m.l + '</button>';
+      }).join('');
+      document.querySelectorAll('#metrics button').forEach(function (b) {
+        b.onclick = function () {
+          metric = b.getAttribute('data-m');
+          document.querySelectorAll('#metrics button').forEach(function (x) { x.classList.toggle('active', x === b); });
+          renderLegend(); render();
+        };
+      });
+    }
+
+    /* ---------------- data loading ---------------- */
+    async function fetchFirst(paths) {
+      for (let i = 0; i < paths.length; i++) {
+        try { const r = await fetch(paths[i], { cache: 'no-store' }); if (!r.ok) continue; const t = await r.text(); if (t && (t.indexOf('LocationForecasts') >= 0 || t.indexOf('SurfaceHourlyObservations') >= 0)) return t; } catch (e) { }
+      }
+      return null;
+    }
+    function proxies(src, local) { return [local, src, 'https://api.allorigins.win/raw?url=' + encodeURIComponent(src), 'https://corsproxy.io/?url=' + encodeURIComponent(src)]; }
+
+    async function loadCurrent() {
+      setStatus('טוען נתונים חיים…');
+      if (mode === 'forecast') {
+        const t = await fetchFirst(proxies(SRC_FC, 'ims.xml'));
+        if (t) applyText(t); else blocked();
+      } else {
+        const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml'));
+        if (t) applyText(t); else blocked();
+      }
+    }
+    function blocked() { setStatus('טעינה ישירה נחסמה (CORS). הפעילו את weather-server, או פתחו/גררו קובץ XML.', 'err'); }
+
+    // Apply XML text, auto-detecting which feed it is.
+    function applyText(xmlText) {
+      try {
+        if (xmlText.indexOf('SurfaceHourlyObservations') >= 0) {
+          OBS = parseObs(xmlText);
+          if (mode !== 'obs') switchMode('obs', true);
+          renderMetrics(); renderLegend(); render();
+        } else {
+          FC = parseForecast(xmlText);
+          TIMES = buildTimes(); $('timeSlider').max = Math.max(0, TIMES.length - 1); tIdx = defaultTimeIndex();
+          if (mode !== 'forecast') switchMode('forecast', true);
+          renderMetrics(); renderLegend(); render();
+        }
+      } catch (e) { setStatus('שגיאה בקריאת הקובץ: ' + e.message, 'err'); }
+    }
+
+    /* ---------------- mode switching ---------------- */
+    function switchMode(m, fromData) {
+      mode = m;
+      metric = DEF_METRIC[m];
+      document.querySelectorAll('#modeRow button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-mode') === m); });
+      $('timeWrap').style.display = (m === 'forecast') ? '' : 'none';
+      $('sub').textContent = (m === 'forecast')
+        ? 'תחזית 6 שעות ל-80 ערים · עומס חום IMS'
+        : 'תצפיות שעתיות · WBGT/לחה מחושבים מהמדידות';
+      setNote(m === 'obs'
+        ? 'WBGT בצל ≈ 0.7·טמפ\' לחה + 0.3·טמפ\' יבשה. הערכה — בשמש מלאה העומס גבוה יותר.'
+        : 'דרגות עומס החום (0–6) כפי שמחושבות ע"י השירות המטאורולוגי.');
+      renderMetrics(); renderLegend();
+      if (fromData) return;
+      // need data for this mode?
+      if (m === 'forecast' && !FC) loadCurrent();
+      else if (m === 'obs' && !OBS) loadCurrent();
+      else render();
+    }
+
+    /* ============ point click → hourly heat/cold load table ============ */
+    // Bands match the GO / IMS classification exactly.
+    const HEAT_BANDS = [
+      { lvl: 0, name: 'ללא', max: 22.05, c: '#e9edf2', dark: false },
+      { lvl: 1, name: 'קל', max: 24.05, c: '#3aa856', dark: false },
+      { lvl: 2, name: 'מתון', max: 26.05, c: '#f1c40f', dark: false },
+      { lvl: 3, name: 'בינוני', max: 28.05, c: '#e67e22', dark: false },
+      { lvl: 4, name: 'כבד', max: 30.05, c: '#e74c3c', dark: true },
+      { lvl: 5, name: 'קיצוני', max: Infinity, c: '#161616', dark: true }
+    ];
+    const COLD_BANDS = [
+      { lvl: 0, name: 'ללא', min: 8.05, c: '#eef2f6', dark: false },
+      { lvl: 1, name: 'קל', min: 0.95, c: '#a7d3ef', dark: false },
+      { lvl: 2, name: 'בינוני', min: -3.05, c: '#3a8fd0', dark: true },
+      { lvl: 3, name: 'כבד', min: -Infinity, c: '#1f4e8c', dark: true }
+    ];
+    function heatBand(v) { for (let i = 0; i < HEAT_BANDS.length; i++) if (v < HEAT_BANDS[i].max) return HEAT_BANDS[i]; return HEAT_BANDS[HEAT_BANDS.length - 1]; }
+    function coldBand(v) { for (let i = 0; i < COLD_BANDS.length; i++) if (v > COLD_BANDS[i].min) return COLD_BANDS[i]; return COLD_BANDS[COLD_BANDS.length - 1]; }
+
+    function distKm(la, lo, lb, lob) {
+      const R = 6371, d = Math.PI / 180;
+      const dLa = (lb - la) * d, dLo = (lob - lo) * d;
+      const a = Math.sin(dLa / 2) ** 2 + Math.cos(la * d) * Math.cos(lb * d) * Math.sin(dLo / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    // Inverse-distance-weighted anchor series for a clicked point (k nearest forecast points).
+    function idwSeries(lat, lon, key) {
+      const ranked = FC.locs.map(function (l) { return { l: l, d: distKm(lat, lon, l.lat, l.lon) }; })
+        .sort(function (a, b) { return a.d - b.d; }).slice(0, 4);
+      const times = {};
+      ranked.forEach(function (r) { r.l.forecasts.forEach(function (f) { if (f.time && f[key] != null) times[f.time] = 1; }); });
+      const series = {};
+      Object.keys(times).forEach(function (t) {
+        let num = 0, den = 0;
+        ranked.forEach(function (r) {
+          let f = null; for (let i = 0; i < r.l.forecasts.length; i++) if (r.l.forecasts[i].time === t) { f = r.l.forecasts[i]; break; }
+          if (!f || f[key] == null) return;
+          const w = 1 / Math.pow(r.d + 0.05, 2);
+          num += w * f[key]; den += w;
+        });
+        if (den > 0) series[t] = num / den;
+      });
+      return { series: series, nearest: ranked[0] };
+    }
+
+    // Catmull-Rom spline → smooth 6h→hourly curve (matches GO's diurnal shape).
+    function catmull(p0, p1, p2, p3, u) {
+      return 0.5 * ((2 * p1) + (-p0 + p2) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u * u + (-p0 + 3 * p1 - 3 * p2 + p3) * u * u * u);
+    }
+    function interpAt(a, tt) {
+      if (a.length < 2 || tt < a[0].ms || tt > a[a.length - 1].ms) return null; // outside forecast horizon → blank
+      let i = 0; while (i < a.length - 1 && a[i + 1].ms <= tt) i++;
+      const p1 = a[i], p2 = a[i + 1] || a[i];
+      const p0 = a[i - 1] || p1, p3 = a[i + 2] || p2;
+      const u = (p2.ms === p1.ms) ? 0 : (tt - p1.ms) / (p2.ms - p1.ms);
+      return catmull(p0.v, p1.v, p2.v, p3.v, u);
+    }
+
+    const HEB_DAYS_SH = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+    let lastClick = null, ptLoad = 'heat';
+    const PT_DAYS = 3;
+
+    function renderPtTable() {
+      if (!lastClick || !FC) return;
+      const lat = lastClick.lat, lon = lastClick.lon;
+      const key = (ptLoad === 'heat') ? 'heat' : 'wch';
+      const band = (ptLoad === 'heat') ? heatBand : coldBand;
+      const res = idwSeries(lat, lon, key);
+      const anchors = Object.keys(res.series).map(function (t) { return { ms: parseTime(t).getTime(), v: res.series[t] }; })
+        .sort(function (a, b) { return a.ms - b.ms; });
+
+      $('ptTitle').textContent = (ptLoad === 'heat') ? 'תחזית עומס חום · לפי שעה' : 'תחזית עומס קור · לפי שעה';
+      $('ptMeta').innerHTML = 'נ.צ ' + lat.toFixed(4) + ', ' + lon.toFixed(4) +
+        ' · נקודת ייחוס: ' + esc(res.nearest.l.name) + ' (' + res.nearest.d.toFixed(1) + ' ק"מ)' +
+        '<br>עודכן: ' + esc(FC.issue || '—');
+
+      if (!anchors.length) { $('ptHead').innerHTML = ''; $('ptBody').innerHTML = '<tr><td>אין נתונים זמינים</td></tr>'; $('ptLegend').innerHTML = ''; return; }
+
+      const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+      const days = [];
+      for (let k = 0; k < PT_DAYS; k++) days.push(new Date(d0.getTime() + k * 86400000));
+
+      let head = '<tr><th>שעה</th>';
+      days.forEach(function (d) { head += '<th>' + HEB_DAYS_SH[d.getDay()] + '<br>' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '</th>'; });
+      $('ptHead').innerHTML = head + '</tr>';
+
+      let rows = '';
+      for (let hr = 0; hr < 24; hr++) {
+        rows += '<tr><td class="hr">' + String(hr).padStart(2, '0') + ':00</td>';
+        days.forEach(function (d) {
+          const v = interpAt(anchors, d.getTime() + hr * 3600000);
+          if (v == null) { rows += '<td class="cell" style="background:#0b121c;color:#3c485a">·</td>'; return; }
+          const b = band(v);
+          rows += '<td class="cell" style="background:' + b.c + ';color:' + (b.dark ? '#fff' : '#10151c') + '">' + v.toFixed(1) + '</td>';
+        });
+        rows += '</tr>';
+      }
+      $('ptBody').innerHTML = rows;
+
+      const bands = (ptLoad === 'heat') ? HEAT_BANDS : COLD_BANDS;
+      $('ptLegend').innerHTML = bands.map(function (b) { return '<span class="it"><span class="sw" style="background:' + b.c + '"></span>' + b.lvl + ' · ' + b.name + '</span>'; }).join('');
+    }
+
+    async function ensureForecast(cb) {
+      if (FC) { cb && cb(); return; }
+      const t = await fetchFirst(proxies(SRC_FC, 'ims.xml'));
+      if (t) { try { FC = parseForecast(t); } catch (e) { setStatus('שגיאת תחזית: ' + e.message, 'err'); return; } cb && cb(); }
+      else setStatus('לא ניתן לטעון את התחזית (CORS). הפעילו את weather-server או פתחו קובץ XML.', 'err');
+    }
+
+    function openPt(lat, lon) {
+      lastClick = { lat: lat, lon: lon };
+      clickLayer.clearLayers();
+      L.marker([lat, lon], { icon: L.divIcon({ className: 'pt-pin', html: '<div class="pt-pindot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(clickLayer);
+      if (!FC) { setStatus('טוען תחזית…'); ensureForecast(function () { renderPtTable(); $('ptPanel').classList.add('show'); }); return; }
+      renderPtTable();
+      $('ptPanel').classList.add('show');
+    }
+
+    /* ---------------- wiring ---------------- */
+    map.on('click', function (e) { openPt(e.latlng.lat, e.latlng.lng); });
+    document.querySelectorAll('#ptToggle button').forEach(function (b) {
+      b.onclick = function () {
+        ptLoad = b.getAttribute('data-load');
+        document.querySelectorAll('#ptToggle button').forEach(function (x) { x.classList.toggle('active', x === b); });
+        renderPtTable();
+      };
+    });
+    $('ptClose').onclick = function () { $('ptPanel').classList.remove('show'); };
+    $('ptPanel').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
+
+    document.querySelectorAll('#modeRow button').forEach(function (b) {
+      b.onclick = function () { switchMode(b.getAttribute('data-mode')); };
+    });
+    $('timeSlider').oninput = function () { tIdx = +this.value; render(); };
+    $('prevBtn').onclick = function () { if (tIdx > 0) { tIdx--; render(); } };
+    $('nextBtn').onclick = function () { if (tIdx < TIMES.length - 1) { tIdx++; render(); } };
+    $('showNames').onchange = function () { showNames = this.checked; render(); };
+    $('reloadBtn').onclick = loadCurrent;
+    $('fileBtn').onclick = function () { $('fileInput').click(); };
+    $('fileInput').onchange = function () {
+      const f = this.files && this.files[0]; if (!f) return;
+      const fr = new FileReader(); fr.onload = function () { setStatus('נטען קובץ מקומי'); applyText(String(fr.result)); }; fr.readAsText(f, 'utf-8');
+    };
+    const hint = $('dropHint');
+    window.addEventListener('dragover', function (e) { e.preventDefault(); hint.classList.add('show'); });
+    window.addEventListener('dragleave', function (e) { if (e.target === hint) hint.classList.remove('show'); });
+    window.addEventListener('drop', function (e) {
+      e.preventDefault(); hint.classList.remove('show');
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (!f) return;
+      const fr = new FileReader(); fr.onload = function () { setStatus('נטען קובץ שנגרר'); applyText(String(fr.result)); }; fr.readAsText(f, 'utf-8');
+    });
+
+    // boot
+    switchMode('forecast');
+    loadCurrent();
+  })();
+  </script>
+</body>
+</html>
