@@ -1359,6 +1359,7 @@
         if (res && res.code) {
           // For unexpected server errors, surface the real backend detail (helps debugging).
           if (res.code === 'server_error') return L('err.server_error', lang) + (res.error ? ' — ' + res.error : '');
+          if (res.code === 'test_access') return L('err.test_access', lang) + (res.error ? ' — ' + res.error : '');
           const k = 'err.' + res.code;
           const d = DICT[lang] || DICT.en;
           if (d[k] != null || DICT.en[k] != null) return L(k, lang);
