@@ -372,7 +372,10 @@
     {
       "href": "protocols/idf-protocols-06.pdf",
       "en": "IDF Protocols 06.2026",
-      "he": "פרוטוקולים צה\"ל 06.2026"
+      "he": "פרוטוקולים צה\"ל 06.2026",
+      "promoted": true,
+      "promoEn": "The IDF's new book of protocols. Convenient file structure, you can \"jump\" from one protocol, stand in another protocol, improved graphic design and refinement of subtleties accompanied by references.",
+      "promoHe": "ספר הפרוטוקולים החדש של צה\"ל. מבנה קובץ נוח, אפשר \"לקפוץ\" מפרוטוקול אחד, לעמוד בפרוטוקוך אחר, עיצוב גרפי משופר וחידוד של דקויות מלווה בסימוכין."
     },
     {
       "href": "protocols/tom-chapter-1-the-protocol-treating-a-trauma-casualty-in-the-field.pdf",
