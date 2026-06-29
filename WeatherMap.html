@@ -262,6 +262,7 @@
         const md = ln[i].getElementsByTagName('LocationMetaData')[0]; if (!md) continue;
         const lat = parseFloat(txt(md.getElementsByTagName('DisplayLat')[0]));
         const lon = parseFloat(txt(md.getElementsByTagName('DisplayLon')[0]));
+        const height = parseFloat(txt(md.getElementsByTagName('DisplayHeight')[0]));
         if (isNaN(lat) || isNaN(lon)) continue;
         const fcs = ln[i].getElementsByTagName('Forecast'); const forecasts = [];
         for (let j = 0; j < fcs.length; j++) {
@@ -273,7 +274,7 @@
             wch: numTag(f, 'WindChill'), rain: numTag(f, 'Rain'), uv: numTag(f, 'UVIndex')
           });
         }
-        locs.push({ name: txt(md.getElementsByTagName('LocationNameEng')[0]), lat: lat, lon: lon, forecasts: forecasts });
+        locs.push({ name: txt(md.getElementsByTagName('LocationNameEng')[0]), lat: lat, lon: lon, height: isNaN(height) ? null : height, forecasts: forecasts });
       }
       if (!locs.length) throw new Error('no locations');
       return { issue: issue, locs: locs };
@@ -544,22 +545,61 @@
       return 2 * R * Math.asin(Math.sqrt(a));
     }
 
-    // Inverse-distance-weighted anchor series for a clicked point (k nearest forecast points).
-    function idwSeries(lat, lon, key) {
+    // Elevation lookup (Open-Meteo, CORS-friendly) with a small cache.
+    const ELEV_CACHE = {};
+    async function fetchElevation(lat, lon) {
+      const k = lat.toFixed(3) + ',' + lon.toFixed(3);
+      if (k in ELEV_CACHE) return ELEV_CACHE[k];
+      try {
+        const r = await fetch('https://api.open-meteo.com/v1/elevation?latitude=' + lat.toFixed(4) + '&longitude=' + lon.toFixed(4), { cache: 'force-cache' });
+        if (!r.ok) { ELEV_CACHE[k] = null; return null; }
+        const j = await r.json();
+        const v = (j && j.elevation && j.elevation.length) ? j.elevation[0] : null;
+        ELEV_CACHE[k] = v; return v;
+      } catch (e) { ELEV_CACHE[k] = null; return null; }
+    }
+
+    // Inverse-distance-weighted anchor series for a clicked point, with an
+    // elevation detrend (regression of the value vs height over the nearest points).
+    function idwSeries(lat, lon, key, targetH) {
       const ranked = FC.locs.map(function (l) { return { l: l, d: distKm(lat, lon, l.lat, l.lon) }; })
-        .sort(function (a, b) { return a.d - b.d; }).slice(0, 4);
+        .sort(function (a, b) { return a.d - b.d; });
+      const idw = ranked.slice(0, 4);
+      const reg = ranked.slice(0, 6);
       const times = {};
-      ranked.forEach(function (r) { r.l.forecasts.forEach(function (f) { if (f.time && f[key] != null) times[f.time] = 1; }); });
+      idw.forEach(function (r) { r.l.forecasts.forEach(function (f) { if (f.time && f[key] != null) times[f.time] = 1; }); });
       const series = {};
       Object.keys(times).forEach(function (t) {
-        let num = 0, den = 0;
-        ranked.forEach(function (r) {
+        let num = 0, den = 0, hnum = 0, hden = 0;
+        idw.forEach(function (r) {
           let f = null; for (let i = 0; i < r.l.forecasts.length; i++) if (r.l.forecasts[i].time === t) { f = r.l.forecasts[i]; break; }
           if (!f || f[key] == null) return;
           const w = 1 / Math.pow(r.d + 0.05, 2);
           num += w * f[key]; den += w;
+          if (r.l.height != null) { hnum += w * r.l.height; hden += w; }
         });
-        if (den > 0) series[t] = num / den;
+        if (den <= 0) return;
+        let v = num / den;
+        // elevation correction: shift by local lapse rate × (target − reference height)
+        if (targetH != null && hden > 0) {
+          const Href = hnum / hden;
+          const pts = [];
+          reg.forEach(function (r) {
+            if (r.l.height == null) return;
+            let f = null; for (let i = 0; i < r.l.forecasts.length; i++) if (r.l.forecasts[i].time === t) { f = r.l.forecasts[i]; break; }
+            if (f && f[key] != null) pts.push({ h: r.l.height, v: f[key] });
+          });
+          if (pts.length >= 3) {
+            const n = pts.length;
+            let sh = 0, sv = 0, shh = 0, shv = 0;
+            pts.forEach(function (p) { sh += p.h; sv += p.v; shh += p.h * p.h; shv += p.h * p.v; });
+            const denom = n * shh - sh * sh;
+            let slope = denom !== 0 ? (n * shv - sh * sv) / denom : 0;
+            slope = Math.max(-0.010, Math.min(0.003, slope)); // clamp °C per metre
+            v += slope * (targetH - Href);
+          }
+        }
+        series[t] = v;
       });
       return { series: series, nearest: ranked[0] };
     }
@@ -586,12 +626,13 @@
       const lat = lastClick.lat, lon = lastClick.lon;
       const key = (ptLoad === 'heat') ? 'heat' : 'wch';
       const band = (ptLoad === 'heat') ? heatBand : coldBand;
-      const res = idwSeries(lat, lon, key);
+      const res = idwSeries(lat, lon, key, lastClick.h);
       const anchors = Object.keys(res.series).map(function (t) { return { ms: parseTime(t).getTime(), v: res.series[t] }; })
         .sort(function (a, b) { return a.ms - b.ms; });
 
       $('ptTitle').textContent = (ptLoad === 'heat') ? 'תחזית עומס חום · לפי שעה' : 'תחזית עומס קור · לפי שעה';
       $('ptMeta').innerHTML = 'נ.צ ' + lat.toFixed(4) + ', ' + lon.toFixed(4) +
+        (lastClick.h != null ? ' · גובה ' + Math.round(lastClick.h) + ' מ\'' : '') +
         ' · נקודת ייחוס: ' + esc(res.nearest.l.name) + ' (' + res.nearest.d.toFixed(1) + ' ק"מ)' +
         '<br>עודכן: ' + esc(FC.issue || '—');
 
@@ -630,12 +671,19 @@
     }
 
     function openPt(lat, lon) {
-      lastClick = { lat: lat, lon: lon };
+      lastClick = { lat: lat, lon: lon, h: null };
       clickLayer.clearLayers();
       L.marker([lat, lon], { icon: L.divIcon({ className: 'pt-pin', html: '<div class="pt-pindot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(clickLayer);
-      if (!FC) { setStatus('טוען תחזית…'); ensureForecast(function () { renderPtTable(); $('ptPanel').classList.add('show'); }); return; }
-      renderPtTable();
-      $('ptPanel').classList.add('show');
+      const show = function () {
+        renderPtTable();
+        $('ptPanel').classList.add('show');
+        // refine with terrain elevation, then re-render
+        fetchElevation(lat, lon).then(function (h) {
+          if (lastClick && lastClick.lat === lat && lastClick.lon === lon) { lastClick.h = h; renderPtTable(); }
+        });
+      };
+      if (!FC) { setStatus('טוען תחזית…'); ensureForecast(show); return; }
+      show();
     }
 
     /* ---------------- wiring ---------------- */
