@@ -109,43 +109,77 @@
     .pt-legend .it{display:flex;align-items:center;gap:5px}
     .pt-legend .sw{width:13px;height:13px;border-radius:3px;border:1px solid rgba(255,255,255,.25)}
     .pt-note{font-size:11px;color:#7d8aa0;margin-top:10px;line-height:1.5}
+    .pt-save{width:100%;background:var(--panel2);border:1px solid var(--line);color:#ffe9a3;border-radius:9px;
+      padding:7px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:8px}
+
+    /* collapsible panel header */
+    .panel-hd{display:flex;align-items:center;gap:8px}
+    .panel-hd h1{margin:0}
+    .panel-tg{margin-inline-start:auto;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+      border-radius:8px;width:28px;height:28px;font-size:13px;cursor:pointer;flex:0 0 auto;line-height:1}
+    .panel.collapsed{width:auto}
+    .panel.collapsed .panel-bd{display:none}
+    .panel.collapsed .panel-tg{transform:rotate(-90deg)}
+    .panel-bd{margin-top:8px}
+
+    /* saved locations */
+    .saved{margin-top:10px}
+    .saved-tg{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+      border-radius:9px;padding:8px;font-size:13px;cursor:pointer;font-weight:600}
+    .saved-list{margin-top:6px;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto}
+    .saved-row{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
+      border-radius:8px;padding:6px 8px;font-size:12.5px}
+    .saved-row .nm{flex:1;cursor:pointer;color:#cfe6ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .saved-row .del{background:none;border:none;color:#ff8a8a;cursor:pointer;font-size:13px;flex:0 0 auto;padding:0 2px}
+    .saved-empty{font-size:11.5px;color:var(--muted);padding:4px 2px;line-height:1.5}
   </style>
 </head>
 <body>
   <div id="map"></div>
 
-  <div class="panel">
-    <h1>מפת עומס חום</h1>
-    <div class="sub" id="sub">השירות המטאורולוגי הישראלי (IMS)</div>
-
-    <div class="seg mode" id="modeRow">
-      <button data-mode="forecast" class="active">תחזית (שבוע)</button>
-      <button data-mode="obs">תצפית עכשיו</button>
+  <div class="panel" id="panel">
+    <div class="panel-hd">
+      <h1>מפת עומס חום</h1>
+      <button class="panel-tg" id="panelToggle" title="כיווץ / הרחבה">▾</button>
     </div>
+    <div class="panel-bd" id="panelBody">
+      <div class="sub" id="sub">השירות המטאורולוגי הישראלי (IMS)</div>
 
-    <div class="seg" id="metrics"></div>
-
-    <div class="time-wrap" id="timeWrap">
-      <div class="time-label" id="timeLabel">—</div>
-      <input type="range" id="timeSlider" min="0" max="0" value="0" />
-      <div class="time-nav">
-        <button id="prevBtn">⟨ קודם</button>
-        <button id="nextBtn">הבא ⟩</button>
+      <div class="seg mode" id="modeRow">
+        <button data-mode="forecast" class="active">תחזית (שבוע)</button>
+        <button data-mode="obs">תצפית עכשיו</button>
       </div>
-    </div>
 
-    <div class="opts">
-      <label><input type="checkbox" id="showNames" /> הצגת שמות</label>
-    </div>
+      <div class="seg" id="metrics"></div>
 
-    <div class="btns">
-      <button id="reloadBtn">טעינת נתונים חיים</button>
-      <button class="ghost" id="fileBtn">פתיחת קובץ XML</button>
-      <input type="file" id="fileInput" accept=".xml,text/xml" hidden />
+      <div class="time-wrap" id="timeWrap">
+        <div class="time-label" id="timeLabel">—</div>
+        <input type="range" id="timeSlider" min="0" max="0" value="0" />
+        <div class="time-nav">
+          <button id="prevBtn">⟨ קודם</button>
+          <button id="nextBtn">הבא ⟩</button>
+        </div>
+      </div>
+
+      <div class="opts">
+        <label><input type="checkbox" id="showPoints" /> הצגת נקודות</label>
+        <label><input type="checkbox" id="showNames" /> הצגת שמות</label>
+      </div>
+
+      <div class="saved">
+        <button class="saved-tg" id="savedToggle">מיקומים שמורים</button>
+        <div class="saved-list" id="savedList" hidden></div>
+      </div>
+
+      <div class="btns">
+        <button id="reloadBtn">טעינת נתונים חיים</button>
+        <button class="ghost" id="fileBtn">פתיחת קובץ XML</button>
+        <input type="file" id="fileInput" accept=".xml,text/xml" hidden />
+      </div>
+      <div class="status" id="status">טוען נתונים…</div>
+      <div class="note" id="note"></div>
+      <div class="hint">לחצו על כל נקודה במפה לקבלת תחזית עומס שעתית ל-3 ימים לאותה נקודה.</div>
     </div>
-    <div class="status" id="status">טוען נתונים…</div>
-    <div class="note" id="note"></div>
-    <div class="hint">לחצו על כל נקודה במפה לקבלת תחזית עומס שעתית ל-3 ימים לאותה נקודה.</div>
   </div>
 
   <div class="legend" id="legend"></div>
@@ -164,6 +198,7 @@
         <button data-load="heat" class="active">עומס חום</button>
         <button data-load="cold">עומס קור</button>
       </div>
+      <button class="pt-save" id="ptSave">★ שמירת מיקום זה</button>
       <label class="pt-bias"><input type="checkbox" id="ptBias" /> החל תיקון לפי תחנת מדידה סמוכה (מדידה חיה)</label>
       <div class="pt-check" id="ptCheck"></div>
       <table class="pt"><thead id="ptHead"></thead><tbody id="ptBody"></tbody></table>
@@ -240,6 +275,7 @@
     let mode = 'forecast';
     let metric = 'heat';
     let showNames = false;
+    let showPoints = false;
     let FC = null;          // forecast: { issue, locs }
     let TIMES = [], tIdx = 0;
     let OBS = null;         // observations: { issue, stations:[...] }
@@ -382,6 +418,7 @@
 
     function render() {
       layer.clearLayers();
+      $('legend').style.display = showPoints ? '' : 'none';
       if (mode === 'forecast') return renderForecast();
       return renderObs();
     }
@@ -391,6 +428,7 @@
       const time = TIMES[tIdx];
       $('timeLabel').innerHTML = fmtTime(time) + (parseTime(time).getHours() === 15 ? ' <span class="hot">☀ שיא יום</span>' : '');
       $('timeSlider').value = tIdx;
+      if (!showPoints) { setStatus('הנקודות מוסתרות · לחצו על המפה לתחזית נקודתית', 'ok'); return; }
       let n = 0;
       FC.locs.forEach(function (loc) {
         let f = null; for (let i = 0; i < loc.forecasts.length; i++) if (loc.forecasts[i].time === time) { f = loc.forecasts[i]; break; }
@@ -415,6 +453,7 @@
 
     function renderObs() {
       if (!OBS) return;
+      if (!showPoints) { setStatus('הנקודות מוסתרות · לחצו על המפה לתחזית נקודתית', 'ok'); return; }
       let n = 0, latest = '';
       OBS.stations.forEach(function (s) {
         const m = obsMetric(s);
@@ -770,8 +809,40 @@
       show();
     }
 
+    /* ---------------- saved locations ---------------- */
+    const SAVED_KEY = 'wm_saved_locs';
+    function loadSaved() { try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'); } catch (e) { return []; } }
+    function storeSaved(a) { try { localStorage.setItem(SAVED_KEY, JSON.stringify(a)); } catch (e) { } }
+    function renderSaved() {
+      const list = loadSaved(), el = $('savedList');
+      $('savedToggle').textContent = 'מיקומים שמורים (' + list.length + ')';
+      if (!list.length) { el.innerHTML = '<div class="saved-empty">אין מיקומים שמורים. פתחו נקודה במפה ולחצו "שמירת מיקום זה".</div>'; return; }
+      el.innerHTML = list.map(function (s, i) {
+        return '<div class="saved-row"><span class="nm" data-i="' + i + '" title="' + esc(s.name) + '">' + esc(s.name) + '</span><button class="del" data-d="' + i + '" title="מחיקה">✕</button></div>';
+      }).join('');
+      el.querySelectorAll('.nm').forEach(function (n) {
+        n.onclick = function () { const s = loadSaved()[+n.getAttribute('data-i')]; if (s) { map.setView([s.lat, s.lon], Math.max(map.getZoom(), 10)); openPt(s.lat, s.lon); } };
+      });
+      el.querySelectorAll('.del').forEach(function (b) {
+        b.onclick = function () { const a = loadSaved(); a.splice(+b.getAttribute('data-d'), 1); storeSaved(a); renderSaved(); };
+      });
+    }
+    function saveCurrent() {
+      if (!lastClick) return;
+      const res = FC ? idwSeries(lastClick.lat, lastClick.lon, 'heat', lastClick.h) : null;
+      const def = res ? res.nearest.l.name : (lastClick.lat.toFixed(3) + ', ' + lastClick.lon.toFixed(3));
+      const name = prompt('שם המיקום:', def);
+      if (name == null) return;
+      const a = loadSaved(); a.push({ name: (name.trim() || def), lat: lastClick.lat, lon: lastClick.lon }); storeSaved(a); renderSaved();
+      if ($('savedList').hidden) { $('savedList').hidden = false; }
+    }
+
     /* ---------------- wiring ---------------- */
     map.on('click', function (e) { openPt(e.latlng.lat, e.latlng.lng); });
+    $('panelToggle').onclick = function () { $('panel').classList.toggle('collapsed'); };
+    $('showPoints').onchange = function () { showPoints = this.checked; render(); };
+    $('savedToggle').onclick = function () { $('savedList').hidden = !$('savedList').hidden; };
+    $('ptSave').onclick = saveCurrent;
     document.querySelectorAll('#ptToggle button').forEach(function (b) {
       b.onclick = function () {
         ptLoad = b.getAttribute('data-load');
@@ -806,6 +877,7 @@
     });
 
     // boot
+    renderSaved();
     switchMode('forecast');
     loadCurrent();
   })();
