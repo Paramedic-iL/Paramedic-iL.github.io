@@ -1122,10 +1122,11 @@
 
     /* -------- independent cross-check (Open-Meteo) — sanity only -------- */
     // Pulls an independent global model for the clicked point and computes the SAME
-    // shade-WBGT heat load IMS publishes (HeatStress ≈ 0.7·Tw + 0.3·Ta). It is used
-    // ONLY to flag gross disagreement — never feeds the table, bias or any number.
-    const OM_CACHE = {}; // key "lat,lon" -> Promise<[{ms,v}]|null>  (Open-Meteo WBGT series)
-    function fetchOpenMeteoWbgt(lat, lon) {
+    // heat-load index IMS publishes: the Israeli Discomfort Index, HeatStress = 0.5·T + 0.5·Tw
+    // (verified against the live IMS file and the IMS DI table). Used ONLY to flag gross
+    // disagreement — it never feeds the table, the bias correction, or any displayed number.
+    const OM_CACHE = {}; // key "lat,lon" -> Promise<[{ms,v}]|null>  (Open-Meteo DI series)
+    function fetchOpenMeteoDI(lat, lon) {
       const k = lat.toFixed(3) + ',' + lon.toFixed(3);
       if (k in OM_CACHE) return OM_CACHE[k];
       const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(4) +
@@ -1143,7 +1144,7 @@
           if (tw == null) continue;
           const ms = new Date(h.time[i]).getTime();
           if (isNaN(ms)) continue;
-          out.push({ ms: ms, v: 0.7 * tw + 0.3 * ta });   // shade WBGT, same basis as IMS HeatStress
+          out.push({ ms: ms, v: 0.5 * ta + 0.5 * tw });   // Discomfort Index — same basis as IMS HeatStress
         }
         return out.length ? out : null;
       }).catch(function () { return null; });
@@ -1151,7 +1152,7 @@
     }
     // Mean absolute difference between IMS heat-load and Open-Meteo, over shared hours.
     async function crossCheck(lat, lon, targetH) {
-      const om = await fetchOpenMeteoWbgt(lat, lon);
+      const om = await fetchOpenMeteoDI(lat, lon);
       if (!om) return null;
       const ims = idwSeries(lat, lon, 'heat', targetH);
       const imsAnchors = Object.keys(ims.series).map(function (t) { return { ms: parseTime(t).getTime(), v: ims.series[t] }; })
