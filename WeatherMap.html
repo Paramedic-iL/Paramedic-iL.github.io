@@ -214,6 +214,13 @@
     .coord-seg button.active{border-color:var(--accent);background:rgba(74,163,255,.16);color:#cfe6ff;font-weight:700}
     .coord-hint{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.45}
     .coord-hint.coord-err{color:#ff8a8a}
+    .warn-card{border-color:#e0a23a;box-shadow:0 18px 50px rgba(0,0,0,.65),0 0 0 1px rgba(224,162,58,.25)}
+    .warn-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+    .warn-ic{font-size:22px;line-height:1}
+    .warn-title{font-size:15.5px;font-weight:800;color:#ffd483}
+    .warn-msg{font-size:13.5px;line-height:1.6;color:#ffe9c2}
+    .warn-meta{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+    .warn-ok{background:#e0a23a;color:#2a1a00}
     .panel.collapsed{width:auto}
     .panel.collapsed .panel-bd{display:none}
     .panel.collapsed .panel-tg{transform:rotate(-90deg)}
@@ -389,6 +396,17 @@
       <div class="ask-btns">
         <button class="ask-ok" id="coordOk">איתור</button>
         <button class="ask-cancel" id="coordCancel">ביטול</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ask-overlay" id="staleOverlay">
+    <div class="ask-card warn-card">
+      <div class="warn-head"><span class="warn-ic">⚠</span><span class="warn-title">נתוני המקור אינם מעודכנים</span></div>
+      <div class="warn-msg" id="staleMsg">אתר המקור של השירות המטראולוגי הישראלי - לא עדכן את הקבצים כמתוכנן. השתמש במקור אחר לתכנון אימונים.</div>
+      <div class="warn-meta" id="staleMeta"></div>
+      <div class="ask-btns">
+        <button class="ask-ok warn-ok" id="staleOk">הבנתי</button>
       </div>
     </div>
   </div>
@@ -789,6 +807,48 @@
     }
     function blocked() { setStatus('טעינה ישירה נחסמה (CORS). הפעילו את weather-server, או פתחו/גררו קובץ XML.', 'err'); }
 
+    /* ---------------- source freshness test ---------------- */
+    // IMS publishes the forecast file twice daily (~every 12h). We read the file's own
+    // publish stamp (IssueDateTime) and warn if it's overdue — i.e. IMS didn't refresh
+    // the source as scheduled. The stamp looks like "Tue Jun 30 00:05:50 IDT 2026"
+    // (it may use 12h "PM" form and various tz abbreviations), so we parse it explicitly.
+    const FC_STALE_H = 16;   // forecast overdue threshold (12h cadence + grace)
+    let staleWarned = false; // warn at most once per page load
+    const IMS_MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+    const IMS_TZ = { utc: 0, gmt: 0, z: 0, ist: 2, idt: 3 };   // IST=+2, IDT=+3 (Israel)
+    function parseImsIssue(str) {
+      if (!str) return null;
+      const parts = String(str).trim().split(/\s+/);
+      let mon = null, day = null, year = null, time = null, ampm = null, tz = 0, hasTz = false;
+      parts.forEach(function (p) {
+        const lp = p.toLowerCase();
+        if (mon == null && IMS_MON[lp] != null) mon = IMS_MON[lp];
+        else if (!time && /^\d{1,2}:\d{2}(:\d{2})?$/.test(p)) time = p;
+        else if (/^(am|pm)$/i.test(p)) ampm = lp;
+        else if (year == null && /^\d{4}$/.test(p)) year = +p;
+        else if (day == null && /^\d{1,2}$/.test(p)) day = +p;
+        else if (IMS_TZ[lp] != null) { tz = IMS_TZ[lp]; hasTz = true; }
+      });
+      if (mon == null || day == null || year == null || !time) return null;
+      const tp = time.split(':');
+      let h = +tp[0]; const mi = +tp[1], se = +(tp[2] || 0);
+      if (ampm === 'pm' && h < 12) h += 12;
+      if (ampm === 'am' && h === 12) h = 0;
+      return Date.UTC(year, mon, day, h, mi, se) - tz * 3600000;
+    }
+    function issueAgeH(str) {
+      const ms = parseImsIssue(str);
+      return ms == null ? null : (Date.now() - ms) / 3600000;
+    }
+    function checkStale() {
+      if (!FC || staleWarned) return;
+      const fcA = issueAgeH(FC.issue);
+      if (fcA == null || fcA <= FC_STALE_H) return;   // unknown or fresh → no warning
+      staleWarned = true;
+      $('staleMeta').textContent = FC.issue ? ('עדכון אחרון של קובץ המקור: ' + FC.issue) : '';
+      $('staleOverlay').classList.add('show');
+    }
+
     // Apply XML text, auto-detecting which feed it is.
     function applyText(xmlText) {
       try {
@@ -802,6 +862,7 @@
           if (mode !== 'forecast') switchMode('forecast', true);
           renderMetrics(); renderLegend(); render();
         }
+        checkStale();
       } catch (e) { setStatus('שגיאה בקריאת הקובץ: ' + e.message, 'err'); }
     }
 
@@ -1209,18 +1270,18 @@
     async function ensureForecast(cb) {
       if (FC) { cb && cb(); return; }
       const t = await fetchFirst(proxies(SRC_FC, 'ims.xml', 'forecast'));
-      if (t) { try { FC = parseForecast(t); FC_TIME = Date.now(); } catch (e) { setStatus('שגיאת תחזית: ' + e.message, 'err'); return; } cb && cb(); }
+      if (t) { try { FC = parseForecast(t); FC_TIME = Date.now(); } catch (e) { setStatus('שגיאת תחזית: ' + e.message, 'err'); return; } checkStale(); cb && cb(); }
       else setStatus('לא ניתן לטעון את התחזית כעת. נסו שוב בעוד רגע.', 'err');
     }
 
     // Silent background refresh when a snapshot is stale.
     async function refreshForecast() {
       const t = await fetchFirst(proxies(SRC_FC, 'ims.xml', 'forecast'));
-      if (t) { try { FC = parseForecast(t); FC_TIME = Date.now(); if (mode === 'forecast') { TIMES = buildTimes(); $('timeSlider').max = Math.max(0, TIMES.length - 1); } } catch (e) { } }
+      if (t) { try { FC = parseForecast(t); FC_TIME = Date.now(); if (mode === 'forecast') { TIMES = buildTimes(); $('timeSlider').max = Math.max(0, TIMES.length - 1); } checkStale(); } catch (e) { } }
     }
     async function refreshObs() {
       const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml', 'obs'));
-      if (t) { try { OBS = parseObs(t); OBS_TIME = Date.now(); } catch (e) { } }
+      if (t) { try { OBS = parseObs(t); OBS_TIME = Date.now(); checkStale(); } catch (e) { } }
     }
 
     function openPt(lat, lon, name) {
@@ -1423,6 +1484,8 @@
     $('askCancel').onclick = function () { askClose(null); };
     $('askInput').onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); askClose(this.value); } else if (e.key === 'Escape') { e.preventDefault(); askClose(null); } };
     $('askOverlay').onclick = function (e) { if (e.target === this) askClose(null); };
+    $('staleOk').onclick = function () { $('staleOverlay').classList.remove('show'); };
+    $('staleOverlay').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
 
     $('coordBtn').onclick = openCoordSearch;
     document.querySelectorAll('#coordSeg button').forEach(function (b) {
