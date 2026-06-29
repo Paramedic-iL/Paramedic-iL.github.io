@@ -119,6 +119,34 @@
     .img-x{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
     .img-body{overflow:auto;text-align:center;border-radius:8px}
     .img-body img{max-width:100%;height:auto;border-radius:6px}
+    table.pt td.cell.clk{cursor:pointer}
+    .pt-cellhint{font-size:11px;color:#9fd0ee;margin-top:8px;line-height:1.5}
+    .guide-overlay{z-index:3400}
+    .guide-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+      box-shadow:0 18px 50px rgba(0,0,0,.6);width:min(560px,96vw);max-height:92vh;overflow:auto;padding:14px 16px}
+    .guide-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+    .guide-grade{font-size:16px;font-weight:700}
+    .guide-meta{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+    .guide-hint{font-size:12px;color:var(--muted);margin:8px 0}
+    .guide-efforts{display:flex;flex-direction:column;gap:6px}
+    .ge{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel2)}
+    .ge-head{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer}
+    .ge-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+    .ge-name{font-weight:600;font-size:13px;flex:1;min-width:0}
+    .ge-tag{font-size:11.5px;font-weight:700;flex:0 0 auto}
+    .ge-arrow{font-size:11px;color:var(--muted);transition:transform .15s;flex:0 0 auto}
+    .ge.open .ge-arrow{transform:rotate(180deg)}
+    .ge-body{display:none;padding:0 10px 10px;font-size:12.5px;line-height:1.6}
+    .ge.open .ge-body{display:block}
+    .ge-guide{color:#e8eef6}
+    .ge-verify{color:#f59e0b;font-size:11px;font-weight:700;white-space:nowrap;display:inline-block;margin-top:3px}
+    .ge-water{margin-top:6px;color:#9fd0ee;font-size:12px}
+    .ge-ex{margin-top:6px;color:var(--muted)}
+    .ge-ex-t{font-size:11px;margin-bottom:2px}
+    .ge-ex ul{margin:0;padding-inline-start:18px}
+    .ge-ex li{font-size:11.5px;margin:1px 0}
+    .guide-notes{font-size:10.5px;color:#7d8aa0;line-height:1.6;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+    .guide-foot{margin-top:10px}
     .pt-conf{display:inline-block;margin-inline-start:8px;font-size:11px;font-weight:700;padding:2px 9px;
       border-radius:999px;border:1px solid rgba(255,255,255,.18);vertical-align:middle}
     .pt-bias{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:0 0 6px;cursor:pointer}
@@ -294,10 +322,27 @@
           <label class="pt-bias"><input type="checkbox" id="ptBias" /> החל תיקון לפי תחנת מדידה סמוכה (מדידה חיה)</label>
           <div class="pt-check" id="ptCheck"></div>
           <table class="pt"><thead id="ptHead"></thead><tbody id="ptBody"></tbody></table>
+          <div class="pt-cellhint" id="ptCellHint">לחצו על תא בטבלה לקבלת הנחיות אימון/מאמץ לעומס שבאותה שעה.</div>
         </div>
       </div>
       <div class="pt-legend" id="ptLegend"></div>
       <div class="pt-note">תחזית זו היא כלי תכנון בלבד. הערך מחושב מנתוני התחזית של IMS לנקודות הסמוכות (אינטרפולציה מרחבית) ומוחלק לרזולוציה שעתית. בכל מקרה מדידת העומס בשטח (קסטרל) היא הקובעת.</div>
+    </div>
+  </div>
+
+  <div class="img-overlay guide-overlay" id="guideOverlay">
+    <div class="guide-card">
+      <div class="guide-head">
+        <div style="flex:1;min-width:0">
+          <div class="guide-grade" id="guideGrade"></div>
+          <div class="guide-meta" id="guideMeta"></div>
+        </div>
+        <button class="img-x" id="guideClose">סגור</button>
+      </div>
+      <div class="guide-hint">בחרו סוג מאמץ/אימון כדי לראות את ההנחיות לעומס זה:</div>
+      <div class="guide-efforts" id="guideEfforts"></div>
+      <div class="guide-notes" id="guideNotes"></div>
+      <div class="guide-foot"><button class="pt-effort" id="guideFull">📋 צפה בטבלה המלאה</button></div>
     </div>
   </div>
 
@@ -782,6 +827,94 @@
     function heatBand(v) { for (let i = 0; i < HEAT_BANDS.length; i++) if (v < HEAT_BANDS[i].max) return HEAT_BANDS[i]; return HEAT_BANDS[HEAT_BANDS.length - 1]; }
     function coldBand(v) { for (let i = 0; i < COLD_BANDS.length; i++) if (v > COLD_BANDS[i].min) return COLD_BANDS[i]; return COLD_BANDS[COLD_BANDS.length - 1]; }
 
+    /* ---- IDF heat-effort guidance (התניות לפעילות בעומסי חום, מאי 2024) ---- */
+    const HEAT_RANGES = ['≤22.0', '22.1–24.0', '24.1–26.0', '26.1–28.0', '28.1–30.0', '≥30.1'];
+    const GSTAT = {
+      ok: { t: 'מותר ללא הגבלה', c: '#3aa856' },
+      limited: { t: 'מותר עם הפסקות', c: '#f1c40f' },
+      cond: { t: 'מותר באישור', c: '#e67e22' },
+      no: { t: 'אסור', c: '#e74c3c' }
+    };
+    function bmCell() { return { s: 'limited', t: 'ניתן לבצע את הפעילות: כל 60 דקות עבודה — 15 דקות הפסקה בצל. אחת ליום ניתן לבצע פעילות רצופה של 120 דקות ולאחריה 30 דקות מנוחה. במסעות — לאחר 4–6 שעות מתחילת המסע תינתן מנוחה של 30 דקות לפחות, ללא ציוד כלל (כולל הסרת אפוד/ווסט).' }; }
+    const okCell = { s: 'ok', t: 'ללא הגבלה.' };
+    const noBinoni = { s: 'no', t: 'אין לבצע פעילות במאמץ בינוני ומעלה.' };
+    const HEAT_EFFORTS = [
+      {
+        name: 'פעילות ללא מאמץ',
+        ex: ['פעילות תיאורטית בכיתה / מקום מוצל', 'הליכה עד 500 מ׳ ליום'],
+        cells: [okCell, okCell, okCell, okCell, okCell, okCell]
+      },
+      {
+        name: 'מאמץ קל',
+        ex: ['מטווחים נייחים', 'הליכה מעל 500 מ׳ ולא יותר מ-2,000 מ׳ ליום (לרבות אפוד ונשק)', 'תרגול טכני (פירוק והרכבת נשק קל, קשר, ע"ר וכד׳)', 'אימונים ע"ג רכב ורק"מ (ללא פעילות רגלית)'],
+        cells: [
+          okCell, okCell, okCell,
+          { s: 'limited', t: 'לאחר 45 דקות עבודה — 15 דקות הפסקה בצל.' },
+          { s: 'cond', t: 'לאחר 45 דקות עבודה — 15 דקות הפסקה בצל. באישור אל"מ (סמכות פיקודית על היחידה המתאמנת) ובהתייעצות רופא.' },
+          { s: 'cond', t: 'לאחר 45 דקות עבודה — 15 דקות הפסקה בצל. באישור אל"מ (סמכות פיקודית על היחידה המתאמנת) ובהתייעצות רופא.', verify: true }
+        ]
+      },
+      {
+        name: 'מאמץ בינוני',
+        ex: ['תרגילים/אימונים רגליים', 'מסע רגיל/תנועה רגלית (עד 6 קמ"ש במישור עם אפוד, נשק ואגמ"ק) עד 30 ק"מ משוקלל', 'ניווטים', 'מטווחים בתנועה או לאחר מאמץ', 'אימוני כוח וקרב מגע בסיסי', 'ריצה בקצב קל'],
+        cells: [bmCell(), bmCell(), bmCell(), bmCell(), noBinoni, noBinoni]
+      },
+      {
+        name: 'מאמץ קשה',
+        ex: ['תרגילים/אימונים רגליים', 'תנועה רגלית בתנאי שטח קשים', 'מסע רגיל/פק"לים ותנועה רגלית מעל 30 ק"מ משוקלל', 'מסע מזורז (מעל 6 קמ"ש)', 'מסע אלונקות', 'קרב מגע מתקדם', 'ריצות (קצב/מרחק)'],
+        cells: [bmCell(), bmCell(), bmCell(), bmCell(), noBinoni, noBinoni]
+      },
+      {
+        name: 'מאמץ עצים',
+        ex: ['פעילויות במאמץ עצים ע"פ הוראת קחצ"ר בנושא כושר קרבי — מס׳ 4'],
+        cells: [
+          { s: 'limited', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל.' },
+          { s: 'limited', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל.' },
+          { s: 'limited', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל.', verify: true },
+          { s: 'limited', t: 'ניתן לבצע: כל 60 דקות עבודה — 15 דקות הפסקה בצל.', verify: true },
+          { s: 'no', t: 'אין לבצע מאמץ עצים. נדרש אישור סא"ל בהתייעצות רופא וקא"ג.' },
+          { s: 'no', t: 'אין לבצע מאמץ עצים. נדרש אישור סא"ל בהתייעצות רופא וקא"ג.' }
+        ]
+      }
+    ];
+    // החזר נוזלים (מ"ל מים לשעה) לפי [סוג מאמץ][דרגת עומס]; null = פעילות אסורה
+    const HEAT_WATER = [
+      [50, 100, 100, 100, 200, 200],
+      [250, 500, 750, 750, 750, 1000],
+      [500, 750, 1000, 1000, null, null],
+      [750, 1000, 1250, 1250, null, null],
+      [750, 1000, 1250, 1250, null, null]
+    ];
+    const HEAT_NOTES = '<b>הערות כלליות:</b> בדיקת קסטרל בשטח כל 3 שעות (מעל 23.0 יא"נ — כל שעה). · בלילה/יום מעונן להפחית 250 מ"ל לשעה. · מינימום 50 מ"ל במנוחה ו-100 מ"ל בפעילות, ולא יותר מ-1,500 מ"ל לשעה. · הערכים לחייל 70 ק"ג (±10% לכל 10 ק"ג). · אוכלוסיות מיוחדות (הכשרות יסוד, עד חודשיים בשירות, מילואים, מלש"בים, גדנ"ע, קד"צ): מעל 26.0 יא"נ נחשב "כבד". · הטבלה היא תמצית הוראות קחצ"ר ואינה מחליפה אותן.';
+
+    function openGuide(g, label, val) {
+      const gb = HEAT_BANDS[g];
+      const swatch = (gb.lvl === 5) ? '#cfd6e0' : gb.c;
+      $('guideGrade').innerHTML = 'עומס חום: <span style="color:' + swatch + '">' + gb.name + ' (' + g + ')</span>';
+      $('guideMeta').textContent = (label ? label + ' · ' : '') + 'ערך משוער ' + val + '° (יא"נ) · טווח הדרגה ' + HEAT_RANGES[g];
+      $('guideEfforts').innerHTML = HEAT_EFFORTS.map(function (ef, i) {
+        const c = ef.cells[g], st = GSTAT[c.s], w = HEAT_WATER[i][g];
+        return '<div class="ge" data-e="' + i + '">' +
+          '<div class="ge-head">' +
+            '<span class="ge-dot" style="background:' + st.c + '"></span>' +
+            '<span class="ge-name">' + esc(ef.name) + '</span>' +
+            '<span class="ge-tag" style="color:' + st.c + '">' + st.t + '</span>' +
+            '<span class="ge-arrow">▾</span>' +
+          '</div>' +
+          '<div class="ge-body">' +
+            '<div class="ge-guide">' + esc(c.t) + (c.verify ? ' <span class="ge-verify">⚠ לאימות מול הפקודה</span>' : '') + '</div>' +
+            (c.s !== 'no' && w != null ? '<div class="ge-water">החזר נוזלים: <b>' + w + ' מ"ל</b> לשעה</div>' : '') +
+            (ef.ex && ef.ex.length ? '<div class="ge-ex"><div class="ge-ex-t">דוגמאות לפעילות בדרגה זו:</div><ul>' + ef.ex.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+      $('guideEfforts').querySelectorAll('.ge-head').forEach(function (h) {
+        h.onclick = function () { h.parentNode.classList.toggle('open'); };
+      });
+      $('guideNotes').innerHTML = HEAT_NOTES;
+      $('guideOverlay').classList.add('show');
+    }
+
     function distKm(la, lo, lb, lob) {
       const R = 6371, d = Math.PI / 180;
       const dLa = (lb - la) * d, dLo = (lob - lo) * d;
@@ -979,11 +1112,14 @@
           if (v == null) { rows += '<td class="cell' + (isNow ? ' now' : '') + '" style="background:#0b121c;color:#3c485a">·</td>'; return; }
           v += biasOffset;
           const b = band(v);
-          rows += '<td class="cell' + (isNow ? ' now' : '') + '" style="background:' + b.c + ';color:' + (b.dark ? '#fff' : '#10151c') + '">' + v.toFixed(1) + '</td>';
+          const heat = (ptLoad === 'heat');
+          const attrs = heat ? ' data-g="' + b.lvl + '" data-val="' + v.toFixed(1) + '" data-lbl="' + esc('יום ' + HEB_DAYS_SH[d.getDay()] + ' ' + String(hr).padStart(2, '0') + ':00') + '"' : '';
+          rows += '<td class="cell' + (isNow ? ' now' : '') + (heat ? ' clk' : '') + '" style="background:' + b.c + ';color:' + (b.dark ? '#fff' : '#10151c') + '"' + attrs + '>' + v.toFixed(1) + '</td>';
         });
         rows += '</tr>';
       }
       $('ptBody').innerHTML = rows;
+      $('ptCellHint').style.display = (ptLoad === 'heat') ? 'block' : 'none';
 
       const bands = (ptLoad === 'heat') ? HEAT_BANDS : COLD_BANDS;
       $('ptLegend').innerHTML = bands.map(function (b) { return '<span class="it"><span class="sw" style="background:' + b.c + '"></span>' + b.lvl + ' · ' + b.name + '</span>'; }).join('');
@@ -1256,6 +1392,13 @@
     $('ptEffort').onclick = function () { $('effortOverlay').classList.add('show'); };
     $('effortClose').onclick = function () { $('effortOverlay').classList.remove('show'); };
     $('effortOverlay').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
+    $('ptBody').onclick = function (e) {
+      const td = e.target.closest('td.clk'); if (!td) return;
+      openGuide(+td.getAttribute('data-g'), td.getAttribute('data-lbl'), td.getAttribute('data-val'));
+    };
+    $('guideClose').onclick = function () { $('guideOverlay').classList.remove('show'); };
+    $('guideOverlay').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
+    $('guideFull').onclick = function () { $('effortOverlay').classList.add('show'); };
     $('ptPanel').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
 
     document.querySelectorAll('#modeRow button').forEach(function (b) {
