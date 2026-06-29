@@ -91,10 +91,18 @@
     .pt-head .meta{font-size:11.5px;color:var(--muted);line-height:1.5}
     .pt-x{margin-inline-start:auto;background:var(--panel2);border:1px solid var(--line);color:var(--text);
       border-radius:8px;width:30px;height:30px;font-size:15px;cursor:pointer;flex:0 0 auto}
-    .pt-toggle{display:flex;gap:6px;margin:6px 0 10px}
+    .pt-body{display:flex;gap:12px;align-items:flex-start}
+    .pt-side{flex:0 0 140px;display:flex;flex-direction:column;gap:7px}
+    .pt-main{flex:1 1 auto;min-width:0}
+    .pt-sub{font-size:12.5px;font-weight:600;color:var(--muted);text-align:center;margin-bottom:1px}
+    .pt-toggle{display:flex;flex-direction:column;gap:6px;margin:0}
     .pt-toggle button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--text);
       border-radius:9px;padding:8px;font-size:13.5px;font-weight:600;cursor:pointer}
     .pt-toggle button.active{border-color:var(--accent);background:rgba(74,163,255,.16);color:#cfe6ff}
+    .pt-back,.pt-export{width:100%;border-radius:9px;padding:8px;font-size:12.5px;font-weight:600;cursor:pointer}
+    .pt-back{background:var(--accent);border:1px solid var(--accent);color:#06121f}
+    .pt-export{background:var(--panel2);border:1px solid var(--line);color:#bfe3ff}
+    .pt-export:disabled{opacity:.5;cursor:default}
     .pt-conf{display:inline-block;margin-inline-start:8px;font-size:11px;font-weight:700;padding:2px 9px;
       border-radius:999px;border:1px solid rgba(255,255,255,.18);vertical-align:middle}
     .pt-bias{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:0 0 6px;cursor:pointer}
@@ -102,9 +110,9 @@
     .pt-bias input:disabled{opacity:.4}
     .pt-check{font-size:11.5px;color:#9fd0ee;margin-bottom:8px;min-height:14px;line-height:1.45}
     table.pt{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
-    table.pt th,table.pt td{border:1px solid #0a0e15;padding:4px 2px;text-align:center}
-    table.pt thead th{background:#0e1622;color:#cfe0f2;font-size:11.5px;padding:6px 2px;line-height:1.3}
-    table.pt td.hr{background:#0e1622;color:#9aa9bc;font-weight:600;width:52px;font-size:11.5px}
+    table.pt th,table.pt td{border:1px solid #0a0e15;padding:3px 2px;text-align:center}
+    table.pt thead th{background:#0e1622;color:#cfe0f2;font-size:11.5px;padding:6px 4px;line-height:1.3;white-space:nowrap}
+    table.pt td.hr{background:#0e1622;color:#9aa9bc;font-weight:600;width:46px;font-size:11.5px}
     table.pt td.cell{font-weight:700}
     table.pt thead th.now-col{color:#bae6fd;background:#13283a;box-shadow:inset 0 0 0 1px #38bdf8}
     table.pt td.hr.now-row{color:#bae6fd;background:#13283a;box-shadow:inset 0 0 0 1px #38bdf8}
@@ -115,7 +123,14 @@
     .pt-legend .sw{width:13px;height:13px;border-radius:3px;border:1px solid rgba(255,255,255,.25)}
     .pt-note{font-size:11px;color:#7d8aa0;margin-top:10px;line-height:1.5}
     .pt-save{width:100%;background:var(--panel2);border:1px solid var(--line);color:#ffe9a3;border-radius:9px;
-      padding:7px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:8px}
+      padding:8px;font-size:12.5px;font-weight:600;cursor:pointer;margin:0}
+    @media (max-width:560px){
+      .pt-body{flex-direction:column}
+      .pt-side{flex:1 1 auto;width:100%;flex-direction:row;flex-wrap:wrap}
+      .pt-sub{width:100%}
+      .pt-toggle{flex-direction:row;flex:1 1 100%}
+      .pt-save,.pt-back,.pt-export{flex:1 1 30%;width:auto}
+    }
 
     /* collapsible panel header */
     .panel-hd{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -234,19 +249,28 @@
     <div class="pt-card">
       <div class="pt-head">
         <div>
-          <h2 id="ptTitle">תחזית עומס לפי שעה<span class="pt-conf" id="ptConf"></span></h2>
+          <h2 id="ptTitle"><span id="ptLoc">מיקום נבחר</span><span class="pt-conf" id="ptConf"></span></h2>
           <div class="meta" id="ptMeta"></div>
         </div>
         <button class="pt-x" id="ptClose" title="סגירה">✕</button>
       </div>
-      <div class="pt-toggle" id="ptToggle">
-        <button data-load="heat" class="active">עומס חום</button>
-        <button data-load="cold">עומס קור</button>
+      <div class="pt-body">
+        <div class="pt-side">
+          <div class="pt-sub" id="ptSub">תחזית עומס חום · לפי שעה</div>
+          <div class="pt-toggle" id="ptToggle">
+            <button data-load="heat" class="active">עומס חום</button>
+            <button data-load="cold">עומס קור</button>
+          </div>
+          <button class="pt-save" id="ptSave">★ שמירת מיקום זה</button>
+          <button class="pt-back" id="ptBack">↩ חזרה למפה</button>
+          <button class="pt-export" id="ptExport">⬇ ייצא כקובץ</button>
+        </div>
+        <div class="pt-main">
+          <label class="pt-bias"><input type="checkbox" id="ptBias" /> החל תיקון לפי תחנת מדידה סמוכה (מדידה חיה)</label>
+          <div class="pt-check" id="ptCheck"></div>
+          <table class="pt"><thead id="ptHead"></thead><tbody id="ptBody"></tbody></table>
+        </div>
       </div>
-      <button class="pt-save" id="ptSave">★ שמירת מיקום זה</button>
-      <label class="pt-bias"><input type="checkbox" id="ptBias" /> החל תיקון לפי תחנת מדידה סמוכה (מדידה חיה)</label>
-      <div class="pt-check" id="ptCheck"></div>
-      <table class="pt"><thead id="ptHead"></thead><tbody id="ptBody"></tbody></table>
       <div class="pt-legend" id="ptLegend"></div>
       <div class="pt-note">תחזית זו היא כלי תכנון בלבד. הערך מחושב מנתוני התחזית של IMS לנקודות הסמוכות (אינטרפולציה מרחבית) ומוחלק לרזולוציה שעתית. בכל מקרה מדידת העומס בשטח (קסטרל) היא הקובעת.</div>
     </div>
@@ -280,6 +304,8 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
   (function () {
     const SRC_FC  = 'https://ims.gov.il/sites/default/files/ims_data/xml_files/isr_cities_1week_6hr_forecast.xml';
@@ -881,7 +907,8 @@
         $('ptCheck').textContent = s;
       } else { $('ptCheck').textContent = OBS ? 'אין תחנת מדידה סמוכה לאימות' : 'טוען מדידות חיות לאימות…'; }
 
-      $('ptTitle').firstChild.textContent = (ptLoad === 'heat') ? 'תחזית עומס חום · לפי שעה' : 'תחזית עומס קור · לפי שעה';
+      $('ptLoc').textContent = lastClick.name || 'מיקום נבחר';
+      $('ptSub').textContent = (ptLoad === 'heat') ? 'תחזית עומס חום · לפי שעה' : 'תחזית עומס קור · לפי שעה';
       $('ptMeta').innerHTML = 'נ.צ ' + lat.toFixed(4) + ', ' + lon.toFixed(4) +
         (lastClick.h != null ? ' · גובה ' + Math.round(lastClick.h) + ' מ\'' : '') +
         ' · נקודת ייחוס: ' + esc(res.nearest.l.name) + ' (' + res.nearest.d.toFixed(1) + ' ק"מ)' +
@@ -898,7 +925,7 @@
       const todayMs = d0.getTime();
 
       let head = '<tr><th>שעה</th>';
-      days.forEach(function (d) { head += '<th' + (d.getTime() === todayMs ? ' class="now-col"' : '') + '>' + HEB_DAYS_SH[d.getDay()] + '<br>' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '</th>'; });
+      days.forEach(function (d) { head += '<th' + (d.getTime() === todayMs ? ' class="now-col"' : '') + '>יום ' + HEB_DAYS_SH[d.getDay()] + ' (' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + ')</th>'; });
       $('ptHead').innerHTML = head + '</tr>';
 
       let rows = '';
@@ -921,6 +948,52 @@
       $('ptLegend').innerHTML = bands.map(function (b) { return '<span class="it"><span class="sw" style="background:' + b.c + '"></span>' + b.lvl + ' · ' + b.name + '</span>'; }).join('');
     }
 
+    function exportPt() {
+      if (!lastClick || !FC) return;
+      if (typeof html2canvas === 'undefined' || !window.jspdf) { alert('כלי הייצוא עדיין נטען — נסו שוב בעוד רגע.'); return; }
+      const name = lastClick.name || 'מיקום נבחר';
+      const loadTxt = (ptLoad === 'heat') ? 'תחזית עומס חום · לפי שעה' : 'תחזית עומס קור · לפי שעה';
+      const tableHtml = document.querySelector('#ptPanel table.pt').outerHTML;
+      const checkTxt = $('ptCheck').textContent || '';
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:760px;background:#0f1722;color:#eaf0f6;padding:22px;direction:rtl;font-family:inherit';
+      wrap.innerHTML =
+        '<div style="font-size:20px;font-weight:800;margin-bottom:2px">' + esc(name) + '</div>' +
+        '<div style="font-size:13px;font-weight:600;color:#9fb0c4;margin-bottom:8px">' + loadTxt + '</div>' +
+        '<div style="font-size:11.5px;color:#9aa9bc;line-height:1.6;margin-bottom:6px">' + $('ptMeta').innerHTML + '</div>' +
+        (checkTxt ? '<div style="font-size:11px;color:#9fd0ee;margin-bottom:8px">' + esc(checkTxt) + '</div>' : '') +
+        '<div style="margin:8px 0 10px">' + tableHtml + '</div>' +
+        '<div class="pt-legend" style="display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:#9aa9bc;margin-bottom:8px">' + $('ptLegend').innerHTML + '</div>' +
+        '<div style="font-size:10px;color:#7d8aa0;line-height:1.5">תחזית זו היא כלי תכנון בלבד. הערך מחושב מנתוני התחזית של IMS (אינטרפולציה מרחבית) ומוחלק לרזולוציה שעתית. מדידת העומס בשטח (קסטרל) היא הקובעת. · הופק ' + new Date().toLocaleString('he-IL') + '</div>';
+      document.body.appendChild(wrap);
+      const btn = $('ptExport'), old = btn.textContent; btn.disabled = true; btn.textContent = 'מייצא…';
+      html2canvas(wrap, { scale: 2, backgroundColor: '#0f1722' }).then(function (canvas) {
+        const jsPDF = window.jspdf.jsPDF;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+        const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+        const margin = 24, availW = pw - margin * 2, scale = availW / canvas.width;
+        const ih = canvas.height * scale;
+        if (ih <= ph - margin * 2) {
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin, margin, availW, ih);
+        } else {
+          const pageH = ph - margin * 2, slicePx = pageH / scale, tmp = document.createElement('canvas');
+          let drawn = 0;
+          while (drawn < canvas.height) {
+            const h = Math.min(slicePx, canvas.height - drawn);
+            tmp.width = canvas.width; tmp.height = h;
+            const ctx = tmp.getContext('2d');
+            ctx.fillStyle = '#0f1722'; ctx.fillRect(0, 0, tmp.width, tmp.height);
+            ctx.drawImage(canvas, 0, drawn, canvas.width, h, 0, 0, canvas.width, h);
+            if (drawn > 0) pdf.addPage();
+            pdf.addImage(tmp.toDataURL('image/png'), 'PNG', margin, margin, availW, h * scale);
+            drawn += h;
+          }
+        }
+        pdf.save('omes-' + (ptLoad === 'heat' ? 'hom' : 'kor') + '-' + name.replace(/[\\/:*?"<>|]+/g, '_') + '.pdf');
+      }).catch(function (e) { alert('שגיאה בייצוא: ' + e.message); })
+        .then(function () { document.body.removeChild(wrap); btn.disabled = false; btn.textContent = old; });
+    }
+
     async function ensureForecast(cb) {
       if (FC) { cb && cb(); return; }
       const t = await fetchFirst(proxies(SRC_FC, 'ims.xml'));
@@ -938,8 +1011,8 @@
       if (t) { try { OBS = parseObs(t); OBS_TIME = Date.now(); } catch (e) { } }
     }
 
-    function openPt(lat, lon) {
-      lastClick = { lat: lat, lon: lon, h: null };
+    function openPt(lat, lon, name) {
+      lastClick = { lat: lat, lon: lon, h: null, name: name || null };
       clickLayer.clearLayers();
       L.marker([lat, lon], { icon: L.divIcon({ className: 'pt-pin', html: '<div class="pt-pindot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(clickLayer);
       const same = function () { return lastClick && lastClick.lat === lat && lastClick.lon === lon; };
@@ -974,7 +1047,7 @@
           return '<div class="saved-row"><span class="nm" data-i="' + i + '" title="' + esc(s.name) + '">' + esc(s.name) + '</span><button class="del" data-d="' + i + '" title="מחיקה">✕</button></div>';
         }).join('');
         el.querySelectorAll('.nm').forEach(function (n) {
-          n.onclick = function () { const s = loadSaved()[+n.getAttribute('data-i')]; if (s) { map.setView([s.lat, s.lon], Math.max(map.getZoom(), 12)); openPt(s.lat, s.lon); } };
+          n.onclick = function () { const s = loadSaved()[+n.getAttribute('data-i')]; if (s) { map.setView([s.lat, s.lon], Math.max(map.getZoom(), 12)); openPt(s.lat, s.lon, s.name); } };
           n.oncontextmenu = function (e) { e.preventDefault(); renameSaved(+n.getAttribute('data-i')); };
         });
         el.querySelectorAll('.del').forEach(function (b) {
@@ -986,11 +1059,11 @@
       list.forEach(function (s, i) {
         const mk = L.marker([s.lat, s.lon], { draggable: true, icon: savedIcon(), zIndexOffset: 1000 });
         mk.bindTooltip(s.name, { permanent: true, direction: 'right', className: 'saved-tip', offset: [10, 0] });
-        mk.on('click', function () { openPt(s.lat, s.lon); });
+        mk.on('click', function () { openPt(s.lat, s.lon, s.name); });
         mk.on('contextmenu', function (e) { if (e.originalEvent) e.originalEvent.preventDefault(); renameSaved(i); });
         mk.on('dragend', function (e) {
           const ll = e.target.getLatLng(); const a = loadSaved();
-          if (a[i]) { a[i].lat = ll.lat; a[i].lon = ll.lng; storeSaved(a); renderSaved(); openPt(ll.lat, ll.lng); }
+          if (a[i]) { a[i].lat = ll.lat; a[i].lon = ll.lng; storeSaved(a); renderSaved(); openPt(ll.lat, ll.lng, a[i].name); }
         });
         mk.addTo(savedLayer);
       });
@@ -1016,7 +1089,9 @@
       const def = res ? res.nearest.l.name : (lastClick.lat.toFixed(3) + ', ' + lastClick.lon.toFixed(3));
       askText('שם המיקום', def, 'שמירה', function (name) {
         if (name == null) return;
-        const a = loadSaved(); a.push({ name: (name.trim() || def), lat: lastClick.lat, lon: lastClick.lon }); storeSaved(a); renderSaved();
+        const nm = (name.trim() || def);
+        const a = loadSaved(); a.push({ name: nm, lat: lastClick.lat, lon: lastClick.lon }); storeSaved(a); renderSaved();
+        if (lastClick) { lastClick.name = nm; renderPtTable(); }
       });
     }
     function renameSaved(i) {
@@ -1130,6 +1205,8 @@
     });
     $('ptBias').onchange = function () { ptBias = this.checked; renderPtTable(); };
     $('ptClose').onclick = function () { $('ptPanel').classList.remove('show'); };
+    $('ptBack').onclick = function () { $('ptPanel').classList.remove('show'); };
+    $('ptExport').onclick = exportPt;
     $('ptPanel').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
 
     document.querySelectorAll('#modeRow button').forEach(function (b) {
