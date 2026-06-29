@@ -353,6 +353,9 @@
     let FC = null;          // forecast: { issue, locs }
     let TIMES = [], tIdx = 0;
     let OBS = null;         // observations: { issue, stations:[...] }
+    let FC_TIME = 0, OBS_TIME = 0;       // when each snapshot was fetched (ms)
+    const FC_MAX_AGE = 30 * 60 * 1000;   // re-fetch forecast if older than 30 min
+    const OBS_MAX_AGE = 15 * 60 * 1000;  // re-fetch observations if older than 15 min
 
     const METRICS = {
       forecast: [{ k: 'heat', l: 'עומס חום' }, { k: 'temp', l: 'טמפרטורה' }, { k: 'feels', l: 'מורגש' }, { k: 'rh', l: 'לחות' }],
@@ -615,11 +618,11 @@
     function applyText(xmlText) {
       try {
         if (xmlText.indexOf('SurfaceHourlyObservations') >= 0) {
-          OBS = parseObs(xmlText);
+          OBS = parseObs(xmlText); OBS_TIME = Date.now();
           if (mode !== 'obs') switchMode('obs', true);
           renderMetrics(); renderLegend(); render();
         } else {
-          FC = parseForecast(xmlText);
+          FC = parseForecast(xmlText); FC_TIME = Date.now();
           TIMES = buildTimes(); $('timeSlider').max = Math.max(0, TIMES.length - 1); tIdx = defaultTimeIndex();
           if (mode !== 'forecast') switchMode('forecast', true);
           renderMetrics(); renderLegend(); render();
@@ -777,7 +780,7 @@
     async function ensureObs(cb) {
       if (OBS) { cb && cb(); return; }
       const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml'));
-      if (t) { try { OBS = parseObs(t); } catch (e) { } }
+      if (t) { try { OBS = parseObs(t); OBS_TIME = Date.now(); } catch (e) { } }
       cb && cb();
     }
 
@@ -869,8 +872,18 @@
     async function ensureForecast(cb) {
       if (FC) { cb && cb(); return; }
       const t = await fetchFirst(proxies(SRC_FC, 'ims.xml'));
-      if (t) { try { FC = parseForecast(t); } catch (e) { setStatus('שגיאת תחזית: ' + e.message, 'err'); return; } cb && cb(); }
+      if (t) { try { FC = parseForecast(t); FC_TIME = Date.now(); } catch (e) { setStatus('שגיאת תחזית: ' + e.message, 'err'); return; } cb && cb(); }
       else setStatus('לא ניתן לטעון את התחזית (CORS). הפעילו את weather-server או פתחו קובץ XML.', 'err');
+    }
+
+    // Silent background refresh when a snapshot is stale.
+    async function refreshForecast() {
+      const t = await fetchFirst(proxies(SRC_FC, 'ims.xml'));
+      if (t) { try { FC = parseForecast(t); FC_TIME = Date.now(); if (mode === 'forecast') { TIMES = buildTimes(); $('timeSlider').max = Math.max(0, TIMES.length - 1); } } catch (e) { } }
+    }
+    async function refreshObs() {
+      const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml'));
+      if (t) { try { OBS = parseObs(t); OBS_TIME = Date.now(); } catch (e) { } }
     }
 
     function openPt(lat, lon) {
@@ -883,8 +896,10 @@
         $('ptPanel').classList.add('show');
         // refine with terrain elevation, then re-render
         fetchElevation(lat, lon).then(function (h) { if (same()) { lastClick.h = h; renderPtTable(); } });
-        // load live observations for validation, then re-render
-        ensureObs(function () { if (same()) renderPtTable(); });
+        // observations for validation: fetch if missing or stale (>15 min)
+        if (!OBS || Date.now() - OBS_TIME > OBS_MAX_AGE) refreshObs().then(function () { if (same()) renderPtTable(); });
+        // forecast: silently refresh in the background if stale (>30 min)
+        if (FC && Date.now() - FC_TIME > FC_MAX_AGE) refreshForecast().then(function () { if (same()) { renderPtTable(); render(); } });
       };
       if (!FC) { setStatus('טוען תחזית…'); ensureForecast(show); return; }
       show();
