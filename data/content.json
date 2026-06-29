@@ -30,6 +30,15 @@
       "descHe": "UTM 36N ↔ גוגל מפות"
     },
     {
+      "id": "t_heatmap",
+      "href": "WeatherMap.html",
+      "icon": "🌡",
+      "en": "Heat Stress Map",
+      "he": "מפת עומס חום",
+      "descEn": "IMS heat-load forecast by location",
+      "descHe": "תחזית עומס חום לפי מיקום (IMS)"
+    },
+    {
       "id": "t_medtest",
       "href": "tools/medics-test/index.html",
       "icon": "✓",

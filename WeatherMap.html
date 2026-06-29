@@ -398,6 +398,9 @@
   (function () {
     const SRC_FC  = 'https://ims.gov.il/sites/default/files/ims_data/xml_files/isr_cities_1week_6hr_forecast.xml';
     const SRC_OBS = 'https://ims.gov.il/sites/default/files/ims_data/xml_files/observ.xml';
+    // Backend that proxies the IMS feeds (bypasses CORS on the live GitHub Pages site).
+    // Keep this in sync with APPS_SCRIPT_URL in index.html.
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxupc2Nmll6NOoIXmegBI0rn5Ia0TOLbLbkcP-QbOydrP8aUdWFxrwWbKdHEHEf6nN/exec';
 
     /* ---------------- color helpers ---------------- */
     const HEAT = [
@@ -763,15 +766,22 @@
       }
       return null;
     }
-    function proxies(src, local) { return [local, src, 'https://api.allorigins.win/raw?url=' + encodeURIComponent(src), 'https://corsproxy.io/?url=' + encodeURIComponent(src)]; }
+    // Source order: local dev proxy → Apps Script backend (live) → direct → public CORS proxies.
+    function proxies(src, local, feed) {
+      const arr = [local];
+      if (APPS_SCRIPT_URL && feed) arr.push(APPS_SCRIPT_URL + '?action=weather&feed=' + feed);
+      arr.push(src, 'https://api.allorigins.win/raw?url=' + encodeURIComponent(src),
+        'https://corsproxy.io/?url=' + encodeURIComponent(src));
+      return arr;
+    }
 
     async function loadCurrent() {
       setStatus('טוען נתונים חיים…');
       if (mode === 'forecast') {
-        const t = await fetchFirst(proxies(SRC_FC, 'ims.xml'));
+        const t = await fetchFirst(proxies(SRC_FC, 'ims.xml', 'forecast'));
         if (t) applyText(t); else blocked();
       } else {
-        const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml'));
+        const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml', 'obs'));
         if (t) applyText(t); else blocked();
       }
     }
@@ -1042,7 +1052,7 @@
 
     async function ensureObs(cb) {
       if (OBS) { cb && cb(); return; }
-      const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml'));
+      const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml', 'obs'));
       if (t) { try { OBS = parseObs(t); OBS_TIME = Date.now(); } catch (e) { } }
       cb && cb();
     }
@@ -1196,18 +1206,18 @@
 
     async function ensureForecast(cb) {
       if (FC) { cb && cb(); return; }
-      const t = await fetchFirst(proxies(SRC_FC, 'ims.xml'));
+      const t = await fetchFirst(proxies(SRC_FC, 'ims.xml', 'forecast'));
       if (t) { try { FC = parseForecast(t); FC_TIME = Date.now(); } catch (e) { setStatus('שגיאת תחזית: ' + e.message, 'err'); return; } cb && cb(); }
-      else setStatus('לא ניתן לטעון את התחזית (CORS). הפעילו את weather-server או פתחו קובץ XML.', 'err');
+      else setStatus('לא ניתן לטעון את התחזית כעת. נסו שוב בעוד רגע.', 'err');
     }
 
     // Silent background refresh when a snapshot is stale.
     async function refreshForecast() {
-      const t = await fetchFirst(proxies(SRC_FC, 'ims.xml'));
+      const t = await fetchFirst(proxies(SRC_FC, 'ims.xml', 'forecast'));
       if (t) { try { FC = parseForecast(t); FC_TIME = Date.now(); if (mode === 'forecast') { TIMES = buildTimes(); $('timeSlider').max = Math.max(0, TIMES.length - 1); } } catch (e) { } }
     }
     async function refreshObs() {
-      const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml'));
+      const t = await fetchFirst(proxies(SRC_OBS, 'obs.xml', 'obs'));
       if (t) { try { OBS = parseObs(t); OBS_TIME = Date.now(); } catch (e) { } }
     }
 
