@@ -15,7 +15,7 @@
     body{font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
     #map{position:absolute;inset:0;z-index:1;background:#0b1018}
     .map-logos{position:absolute;top:86px;left:10px;z-index:600;display:flex;flex-direction:column;gap:6px;pointer-events:none}
-    .map-logos img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,.75))}
+    .map-logos img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,.75))}
 
     .panel{
       position:absolute;top:12px;inset-inline-start:12px;z-index:1000;width:340px;max-width:calc(100vw - 24px);
@@ -185,9 +185,9 @@
     .panel-hd h1{margin:0;flex:1 1 100%}
     .city-label{color:#e6eef9;font-size:11px;font-weight:600;white-space:nowrap;pointer-events:none;
       text-shadow:0 0 3px #000,0 0 3px #000,0 0 4px #000;transform:translate(-50%,-50%);width:max-content}
-    .base-seg{display:flex;gap:3px;flex:0 0 auto}
-    .base-seg button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);
-      border-radius:7px;height:28px;padding:0 8px;font-size:11.5px;cursor:pointer;line-height:1}
+    .base-seg{display:flex;gap:3px;flex:1 1 auto}
+    .base-seg button{flex:1 1 0;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--muted);
+      border-radius:7px;height:28px;padding:0 4px;font-size:11px;cursor:pointer;line-height:1;white-space:nowrap}
     .base-seg button.active{border-color:var(--accent);background:rgba(74,163,255,.16);color:#cfe6ff;font-weight:700}
     .panel-tg{background:rgba(74,163,255,.16);border:1px solid var(--accent);color:#cfe6ff;
       border-radius:9px;width:38px;height:38px;font-size:20px;font-weight:700;cursor:pointer;flex:0 0 auto;line-height:1}
@@ -249,6 +249,9 @@
     @media (max-width:560px){
       .panel-tg{width:46px;height:46px;font-size:25px;background:rgba(74,163,255,.24)}
       .calc-fab{width:58px;height:58px;font-size:27px}
+      /* keep logos on the left (vertical, as before) but below the collapsed menu so it doesn't cover them */
+      .map-logos{top:132px;left:8px}
+      .map-logos img{width:46px;height:46px}
     }
 
     /* saved locations */
