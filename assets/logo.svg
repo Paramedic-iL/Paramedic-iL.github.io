@@ -1,33 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Paramedic-iL">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1a2638"/>
-      <stop offset="1" stop-color="#0b1018"/>
+    <linearGradient id="bg" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#101d2e"/>
+      <stop offset="0.55" stop-color="#0a1320"/>
+      <stop offset="1" stop-color="#05080d"/>
     </linearGradient>
+    <radialGradient id="halo" cx="0.42" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#b3242b" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#b3242b" stop-opacity="0"/>
+    </radialGradient>
     <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#e34a52"/>
-      <stop offset="1" stop-color="#b3242b"/>
+      <stop offset="0" stop-color="#cf444b"/>
+      <stop offset="1" stop-color="#8f2329"/>
     </linearGradient>
     <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#d8333b" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="1.1" flood-color="#d8333b" flood-opacity="0.5"/>
     </filter>
   </defs>
 
-  <!-- navy badge, coordinating with the site background -->
-  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)" stroke="#2a3a4f" stroke-width="1.5"/>
-  <rect x="2" y="2" width="60" height="28" rx="14" fill="#ffffff" opacity="0.04"/>
+  <!-- dark navy badge, matching the hero background -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)" stroke="#223349" stroke-width="1.5"/>
+  <!-- soft red halo behind the star, like the hero -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#halo)"/>
 
-  <!-- red Star of David (two overlapping triangles) -->
-  <g filter="url(#glow)" fill="url(#red)" stroke="#ef6b73" stroke-width="0.6" stroke-linejoin="round">
-    <polygon points="28,5 46,36.5 10,36.5"/>
-    <polygon points="28,47 10,15.5 46,15.5"/>
+  <!-- EKG / heartbeat line (brighter red), drawn behind the star -->
+  <path d="M2,30 H14 L17,30 L19,24 L21,37 L23,22 L25,31 L27,30 H62"
+        fill="none" stroke="#d8333b" stroke-opacity="0.5" stroke-width="1.1"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- red outline Star of David (hexagram), muted to match the hero -->
+  <g filter="url(#glow)" fill="none" stroke="url(#red)" stroke-width="3.2"
+     stroke-linejoin="miter" stroke-miterlimit="10" stroke-opacity="0.95">
+    <polygon points="27,7 44.3,37 9.7,37"/>
+    <polygon points="27,47 9.7,17 44.3,17"/>
   </g>
 
-  <!-- "iL" monogram in the lower-right corner (geometric, font-independent) -->
+  <!-- "iL" monogram, lower-right (geometric, font-independent) -->
   <g fill="#eef3f8">
-    <rect x="39.8" y="44" width="3.2" height="12" rx="1"/>
-    <rect x="39.8" y="38.6" width="3.2" height="3.2" rx="1"/>
-    <rect x="47.6" y="40" width="3.4" height="16" rx="1"/>
-    <rect x="47.6" y="52.6" width="10.6" height="3.4" rx="1"/>
+    <rect x="41" y="42" width="3" height="11" rx="1"/>
+    <rect x="41" y="36.5" width="3" height="3" rx="1"/>
+    <rect x="48" y="38" width="3.2" height="15" rx="1"/>
+    <rect x="48" y="49.8" width="9" height="3.2" rx="1"/>
   </g>
 </svg>
