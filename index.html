@@ -145,6 +145,13 @@
     .item.doc{align-items:flex-start}
     .item.doc .ic{margin-top:2px}
     .item.doc .meta strong{white-space:normal;overflow:visible;text-overflow:clip}
+    .item.featured{border-color:#2a59b8;animation:featGlow 1.8s ease-in-out infinite}
+    .item.featured:hover{border-color:#4aa3ff;transform:translateY(-2px)}
+    @keyframes featGlow{
+      0%,100%{border-color:#15306e;box-shadow:0 0 0 0 rgba(74,163,255,0)}
+      50%{border-color:#4aa3ff;box-shadow:0 0 14px 1px rgba(74,163,255,.45)}
+    }
+    @media (prefers-reduced-motion:reduce){.item.featured{animation:none;border-color:#4aa3ff}}
     .empty{color:var(--muted);font-style:italic;border:1px dashed var(--line);border-radius:12px;
       padding:24px;text-align:center}
     .empty .tag{display:inline-block;background:var(--olive-dim);color:#fff;font-size:11px;font-weight:700;
@@ -1183,7 +1190,7 @@
         const tgt = opts.targetFor
           ? (opts.targetFor(p) ? ' target="_blank" rel="noopener"' : '')
           : ' target="_blank" rel="noopener"';
-        const cls = 'item' + (opts.docClass === false ? '' : ' doc');
+        const cls = 'item' + (opts.docClass === false ? '' : ' doc') + (p.promoted ? ' featured' : '');
         const meta = '<span class="meta" dir="auto"><strong>' + esc(nm(p, lang)) + '</strong>' +
           '<span>' + esc(subFor(p)) + '</span></span>';
         return '<a class="' + cls + '" href="' + esc(p.href) + '"' + tgt +
