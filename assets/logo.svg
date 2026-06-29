@@ -23,11 +23,6 @@
   <!-- soft red halo behind the star, like the hero -->
   <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#halo)"/>
 
-  <!-- EKG / heartbeat line (brighter red), drawn behind the star -->
-  <path d="M2,30 H14 L17,30 L19,24 L21,37 L23,22 L25,31 L27,30 H62"
-        fill="none" stroke="#d8333b" stroke-opacity="0.5" stroke-width="1.1"
-        stroke-linecap="round" stroke-linejoin="round"/>
-
   <!-- red outline Star of David (hexagram), muted to match the hero -->
   <g filter="url(#glow)" fill="none" stroke="url(#red)" stroke-width="3.2"
      stroke-linejoin="miter" stroke-miterlimit="10" stroke-opacity="0.95">
@@ -35,11 +30,11 @@
     <polygon points="27,47 9.7,17 44.3,17"/>
   </g>
 
-  <!-- "iL" monogram, lower-right (geometric, font-independent) -->
+  <!-- "iL" monogram; the "i" dot sits centered in the star's lower-right point -->
   <g fill="#eef3f8">
-    <rect x="41" y="42" width="3" height="11" rx="1"/>
-    <rect x="41" y="36.5" width="3" height="3" rx="1"/>
-    <rect x="48" y="38" width="3.2" height="15" rx="1"/>
-    <rect x="48" y="49.8" width="9" height="3.2" rx="1"/>
+    <rect x="37.1" y="32.27" width="2.8" height="2.8" rx="0.9"/>
+    <rect x="37.1" y="39.5" width="2.8" height="13" rx="1"/>
+    <rect x="44" y="39.5" width="3.2" height="13" rx="1"/>
+    <rect x="44" y="49.3" width="9" height="3.2" rx="1"/>
   </g>
 </svg>
