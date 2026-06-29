@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>מפת עומס חום · IMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root{
@@ -12,10 +15,16 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0}
-    body{font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+    body{font-family:"Heebo","Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
     #map{position:absolute;inset:0;z-index:1;background:#0b1018}
-    .map-logos{position:absolute;top:86px;left:10px;z-index:600;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+    .map-logos{position:absolute;top:120px;left:10px;z-index:600;display:flex;flex-direction:column;gap:6px;pointer-events:none}
     .map-logos img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,.75))}
+    .site-back{position:absolute;top:10px;left:10px;z-index:1100;display:inline-flex;align-items:center;gap:6px;
+      font:700 13px/1 "Heebo","Segoe UI",Arial,sans-serif;color:var(--text);text-decoration:none;
+      background:rgba(20,29,43,.96);border:1px solid var(--line);border-radius:9px;padding:8px 11px;
+      box-shadow:0 6px 18px rgba(0,0,0,.45);backdrop-filter:blur(8px)}
+    .site-back:hover{border-color:var(--accent);color:#cfe6ff}
+    .leaflet-top.leaflet-left{margin-top:42px}
 
     .panel{
       position:absolute;top:12px;inset-inline-start:12px;z-index:1000;width:340px;max-width:calc(100vw - 24px);
@@ -206,6 +215,15 @@
     .ask-btns button{flex:1;border-radius:9px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;border:none}
     .ask-ok{background:var(--accent);color:#04122a}
     .ask-cancel{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+    .help-card{width:min(470px,94vw);max-height:88vh;overflow:auto}
+    .help-h{font-size:17px;font-weight:800;color:#cfe6ff;margin:0 0 4px}
+    .help-sub{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .help-sec{margin:13px 0 0}
+    .help-sec h3{font-size:14px;font-weight:700;color:#eaf0f6;margin:0 0 5px}
+    .help-sec p{font-size:12.5px;line-height:1.65;color:#c4d0de;margin:0 0 5px}
+    .help-sec ul{margin:5px 0 0;padding-inline-start:18px;font-size:12.5px;line-height:1.65;color:#c4d0de}
+    .help-cred{margin-top:15px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:#9fb0c4;text-align:center}
+    .help-cred b{color:#cfe6ff}
     .coord-btn{width:100%;background:var(--panel2);border:1px solid var(--accent);color:#cfe6ff;
       border-radius:9px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px}
     .coord-seg{display:flex;gap:6px;margin-bottom:10px}
@@ -230,6 +248,9 @@
     .calc{position:absolute;left:12px;bottom:18px;z-index:1200;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
     .calc-fab{order:2;width:54px;height:54px;border-radius:50%;background:var(--accent);color:#06121f;border:none;
       font-size:25px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.55)}
+    .help-fab{order:0;width:54px;height:54px;border-radius:50%;background:var(--panel);color:#cfe6ff;
+      border:1px solid var(--line);font-size:26px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.55)}
+    .help-fab:hover{border-color:var(--accent)}
     .calc-card{order:1;display:none;background:var(--panel);border:1px solid var(--line);border-radius:14px;
       box-shadow:0 16px 44px rgba(0,0,0,.6);width:235px;padding:14px}
     .calc.open .calc-card{display:block}
@@ -249,6 +270,7 @@
     @media (max-width:560px){
       .panel-tg{width:46px;height:46px;font-size:25px;background:rgba(74,163,255,.24)}
       .calc-fab{width:58px;height:58px;font-size:27px}
+      .help-fab{width:58px;height:58px;font-size:28px}
       /* keep logos on the left (vertical, as before) but below the collapsed menu so it doesn't cover them */
       .map-logos{top:132px;left:8px}
       .map-logos img{width:46px;height:46px}
@@ -279,12 +301,14 @@
 </head>
 <body>
   <div id="map"></div>
+  <a class="site-back" id="siteBack" href="index.html" target="_top">↩ חזרה לאתר</a>
   <div class="map-logos" id="mapLogos">
     <img src="assets/medic-logo.png" alt="רפואה אביר" />
     <img src="assets/ims-logo.png" alt="IMS" />
   </div>
 
   <div class="calc" id="calc">
+    <button class="help-fab" id="helpFab" title="על האפליקציה">?</button>
     <div class="calc-card" id="calcCard">
       <div class="calc-title">מחשבון עומס חום (DI)</div>
       <label class="calc-row"><span>טמפרטורה נוכחית (°C)</span><input type="number" id="calcT" step="0.1" inputmode="decimal" placeholder="לדוגמה 32" /></label>
@@ -447,6 +471,44 @@
       <div class="warn-meta" id="staleMeta"></div>
       <div class="ask-btns">
         <button class="ask-ok warn-ok" id="staleOk">הבנתי</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ask-overlay" id="helpOverlay">
+    <div class="ask-card help-card">
+      <h2 class="help-h">על מפת עומס החום</h2>
+      <div class="help-sub">כלי תכנון לעומס חום מבוסס נתוני השירות המטאורולוגי הישראלי (IMS)</div>
+
+      <div class="help-sec">
+        <h3>מאיפה מגיעים הנתונים?</h3>
+        <p>כל הנתונים נשאבים ישירות מהשירות המטאורולוגי הישראלי (IMS): קובץ תחזית לשבוע ברזולוציה של 6 שעות לערים, וקובץ תצפיות חיות מתחנות המדידה הארציות. הקבצים הרשמיים (XML) של IMS נמשכים אוטומטית בכל טעינה.</p>
+      </div>
+
+      <div class="help-sec">
+        <h3>איך מחושב "עומס החום"?</h3>
+        <p>עומס החום מחושב לפי מדד אי-הנוחות (DI) — אותה נוסחה שבה משתמש IMS:</p>
+        <ul>
+          <li>DI = ½ × טמפרטורה + ½ × טמפרטורת הלחה (Wet-Bulb).</li>
+          <li>טמפרטורת הלחה מחושבת מהטמפרטורה והלחות היחסית (קירוב Stull).</li>
+          <li>לכל נקודה שנבחרת במפה הערך מחושב באינטרפולציה מרחבית מהתחנות הסמוכות, ומוחלק לרזולוציה שעתית.</li>
+        </ul>
+        <p>בכל מקרה — מדידת קסטרל (WBGT) בשטח היא הקובעת. הכלי נועד לתכנון בלבד.</p>
+      </div>
+
+      <div class="help-sec">
+        <h3>איך נבדקת עדכניות הנתונים?</h3>
+        <ul>
+          <li>האפליקציה בודקת את חותמת הזמן של קובץ התחזית מול מועד הפרסום הצפוי.</li>
+          <li>אם הקובץ ישן מהמתוכנן (מעבר לסף), מוצגת אזהרה הממליצה להשתמש במקור חלופי לתכנון.</li>
+          <li>בנוסף מתבצעת בדיקת שפיות מול מקור עצמאי (Open-Meteo): הפער מסומן בצבע (ירוק / צהוב / כתום / אדום) ליד דרגת הוודאות, כדי לזהות חריגות גסות. הנתון החיצוני משמש לבקרה בלבד ואינו נכנס לחישוב.</li>
+        </ul>
+      </div>
+
+      <div class="help-cred">פותח על ידי <b>דן דרורי, פראמדיק</b></div>
+
+      <div class="ask-btns">
+        <button class="ask-ok" id="helpOk">סגור</button>
       </div>
     </div>
   </div>
@@ -1677,6 +1739,10 @@
     };
     $('calcGo').onclick = computeCalc;
     $('calcT').onkeydown = $('calcRH').onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); computeCalc(); } };
+
+    $('helpFab').onclick = function () { $('helpOverlay').classList.add('show'); };
+    $('helpOk').onclick = function () { $('helpOverlay').classList.remove('show'); };
+    $('helpOverlay').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
 
     // boot
     renderSaved();
