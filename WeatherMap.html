@@ -101,10 +101,24 @@
     .pt-toggle button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--text);
       border-radius:9px;padding:8px;font-size:13.5px;font-weight:600;cursor:pointer}
     .pt-toggle button.active{border-color:var(--accent);background:rgba(74,163,255,.16);color:#cfe6ff}
-    .pt-back,.pt-export{width:100%;border-radius:9px;padding:8px;font-size:12.5px;font-weight:600;cursor:pointer}
+    .pt-back,.pt-export,.pt-effort{width:100%;border-radius:9px;padding:8px;font-size:12.5px;font-weight:600;cursor:pointer}
     .pt-back{background:var(--accent);border:1px solid var(--accent);color:#06121f}
     .pt-export{background:var(--panel2);border:1px solid var(--line);color:#bfe3ff}
     .pt-export:disabled{opacity:.5;cursor:default}
+    .pt-effort{background:rgba(245,158,11,.16);border:1px solid #f59e0b;color:#fcd9a1}
+    .img-overlay{position:absolute;inset:0;z-index:3500;display:none;align-items:center;justify-content:center;
+      background:rgba(4,8,14,.78);padding:18px}
+    .img-overlay.show{display:flex}
+    .img-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+      box-shadow:0 18px 50px rgba(0,0,0,.6);width:min(1100px,97vw);max-height:94vh;display:flex;flex-direction:column;padding:12px}
+    .img-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .img-title{font-size:15px;font-weight:700;flex:1;min-width:0}
+    .img-actions{display:flex;gap:8px;flex:0 0 auto}
+    .img-dl,.img-x{border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none}
+    .img-dl{background:var(--accent);border:1px solid var(--accent);color:#06121f}
+    .img-x{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+    .img-body{overflow:auto;text-align:center;border-radius:8px}
+    .img-body img{max-width:100%;height:auto;border-radius:6px}
     .pt-conf{display:inline-block;margin-inline-start:8px;font-size:11px;font-weight:700;padding:2px 9px;
       border-radius:999px;border:1px solid rgba(255,255,255,.18);vertical-align:middle}
     .pt-bias{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:0 0 6px;cursor:pointer}
@@ -271,6 +285,7 @@
             <button data-load="heat" class="active">עומס חום</button>
             <button data-load="cold">עומס קור</button>
           </div>
+          <button class="pt-effort" id="ptEffort">📋 צפה בטבלת מאמצים</button>
           <button class="pt-save" id="ptSave">★ שמירת מיקום זה</button>
           <button class="pt-back" id="ptBack">↩ חזרה למפה</button>
           <button class="pt-export" id="ptExport">⬇ ייצא כקובץ</button>
@@ -283,6 +298,19 @@
       </div>
       <div class="pt-legend" id="ptLegend"></div>
       <div class="pt-note">תחזית זו היא כלי תכנון בלבד. הערך מחושב מנתוני התחזית של IMS לנקודות הסמוכות (אינטרפולציה מרחבית) ומוחלק לרזולוציה שעתית. בכל מקרה מדידת העומס בשטח (קסטרל) היא הקובעת.</div>
+    </div>
+  </div>
+
+  <div class="img-overlay" id="effortOverlay">
+    <div class="img-card">
+      <div class="img-head">
+        <div class="img-title">התניות לפעילות · אימונים ושיגרה בעומסי חום</div>
+        <div class="img-actions">
+          <a class="img-dl" id="effortDl" href="assets/heat-effort-table.png" download="טבלת-מאמצים-עומס-חום.png">⬇ הורד</a>
+          <button class="img-x" id="effortClose">סגור</button>
+        </div>
+      </div>
+      <div class="img-body"><img src="assets/heat-effort-table.png" alt="טבלת אימונים ושיגרה בעומסי חום" /></div>
     </div>
   </div>
 
@@ -1225,6 +1253,9 @@
     $('ptBias').onchange = function () { ptBias = this.checked; renderPtTable(); };
     $('ptBack').onclick = function () { $('ptPanel').classList.remove('show'); };
     $('ptExport').onclick = exportPt;
+    $('ptEffort').onclick = function () { $('effortOverlay').classList.add('show'); };
+    $('effortClose').onclick = function () { $('effortOverlay').classList.remove('show'); };
+    $('effortOverlay').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
     $('ptPanel').onclick = function (e) { if (e.target === this) this.classList.remove('show'); };
 
     document.querySelectorAll('#modeRow button').forEach(function (b) {
