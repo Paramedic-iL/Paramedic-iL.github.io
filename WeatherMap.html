@@ -311,7 +311,7 @@
     <div class="pt-card">
       <div class="pt-head">
         <div>
-          <h2 id="ptTitle"><span id="ptLoc">מיקום נבחר</span><span class="pt-conf" id="ptConf"></span></h2>
+          <h2 id="ptTitle"><span id="ptLoc">מיקום נבחר</span><span class="pt-conf" id="ptConf"></span><span class="pt-conf" id="ptCross"></span></h2>
           <div class="meta" id="ptMeta"></div>
         </div>
         <div class="pt-logos">
@@ -1120,6 +1120,78 @@
       cb && cb();
     }
 
+    /* -------- independent cross-check (Open-Meteo) — sanity only -------- */
+    // Pulls an independent global model for the clicked point and computes the SAME
+    // shade-WBGT heat load IMS publishes (HeatStress ≈ 0.7·Tw + 0.3·Ta). It is used
+    // ONLY to flag gross disagreement — never feeds the table, bias or any number.
+    const OM_CACHE = {}; // key "lat,lon" -> Promise<[{ms,v}]|null>  (Open-Meteo WBGT series)
+    function fetchOpenMeteoWbgt(lat, lon) {
+      const k = lat.toFixed(3) + ',' + lon.toFixed(3);
+      if (k in OM_CACHE) return OM_CACHE[k];
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(4) +
+        '&longitude=' + lon.toFixed(4) +
+        '&hourly=temperature_2m,relative_humidity_2m,wet_bulb_temperature_2m&forecast_days=3&timezone=auto';
+      const p = fetch(url).then(function (r) { if (!r.ok) throw new Error('om'); return r.json(); }).then(function (j) {
+        const h = j && j.hourly; if (!h || !h.time) return null;
+        const out = [];
+        for (let i = 0; i < h.time.length; i++) {
+          const ta = h.temperature_2m ? h.temperature_2m[i] : null;
+          let tw = h.wet_bulb_temperature_2m ? h.wet_bulb_temperature_2m[i] : null;
+          const rh = h.relative_humidity_2m ? h.relative_humidity_2m[i] : null;
+          if (ta == null) continue;
+          if (tw == null && rh != null) tw = wetBulbStull(ta, rh);
+          if (tw == null) continue;
+          const ms = new Date(h.time[i]).getTime();
+          if (isNaN(ms)) continue;
+          out.push({ ms: ms, v: 0.7 * tw + 0.3 * ta });   // shade WBGT, same basis as IMS HeatStress
+        }
+        return out.length ? out : null;
+      }).catch(function () { return null; });
+      OM_CACHE[k] = p; return p;
+    }
+    // Mean absolute difference between IMS heat-load and Open-Meteo, over shared hours.
+    async function crossCheck(lat, lon, targetH) {
+      const om = await fetchOpenMeteoWbgt(lat, lon);
+      if (!om) return null;
+      const ims = idwSeries(lat, lon, 'heat', targetH);
+      const imsAnchors = Object.keys(ims.series).map(function (t) { return { ms: parseTime(t).getTime(), v: ims.series[t] }; })
+        .sort(function (a, b) { return a.ms - b.ms; });
+      if (imsAnchors.length < 2) return null;
+      let sum = 0, n = 0, peak = 0;
+      om.forEach(function (p) {
+        const iv = interpAt(imsAnchors, p.ms);
+        if (iv == null) return;
+        const d = Math.abs(iv - p.v);
+        sum += d; n++; if (d > peak) peak = d;
+      });
+      return n ? { mad: sum / n, peak: peak, n: n } : null;
+    }
+    function crossGrade(mad) {
+      if (mad <= 1.0) return { t: 'תואם', c: '#3aa856' };       // green
+      if (mad <= 2.0) return { t: 'פער קל', c: '#f1c40f' };     // yellow
+      if (mad <= 3.0) return { t: 'פער בינוני', c: '#e67e22' }; // orange
+      return { t: 'פער גדול', c: '#e74c3c' };                    // red
+    }
+    function setCrossBadge(el, color, text, title) {
+      el.textContent = 'אימות חיצוני: ' + text;
+      el.style.background = color + '22'; el.style.color = color; el.style.borderColor = color + '66';
+      el.title = title;
+    }
+    function updateCrossBadge(lat, lon, targetH) {
+      const el = $('ptCross');
+      el.style.display = '';
+      const k = lat.toFixed(3) + ',' + lon.toFixed(3);
+      if (!(k in OM_CACHE)) setCrossBadge(el, '#6b7687', 'בודק…', 'השוואה למודל עצמאי (Open-Meteo) — לבדיקת טעויות גסות בלבד');
+      crossCheck(lat, lon, targetH).then(function (res) {
+        if (!lastClick || lastClick.lat !== lat || lastClick.lon !== lon || ptLoad !== 'heat') return; // stale
+        if (!res) { setCrossBadge(el, '#6b7687', 'לא זמין', 'לא ניתן להשוות למקור החיצוני כעת'); return; }
+        const g = crossGrade(res.mad);
+        setCrossBadge(el, g.c, g.t,
+          'השוואה בין עומס החום של IMS למודל עצמאי (Open-Meteo): פער ממוצע ' + res.mad.toFixed(1) +
+          '° (שיא ' + res.peak.toFixed(1) + '°). זוהי בדיקת שפיות בלבד — IMS הוא המקור הקובע.');
+      });
+    }
+
     // Catmull-Rom spline → smooth 6h→hourly curve (matches GO's diurnal shape).
     function catmull(p0, p1, p2, p3, u) {
       return 0.5 * ((2 * p1) + (-p0 + p2) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u * u + (-p0 + 3 * p1 - 3 * p2 + p3) * u * u * u);
@@ -1156,6 +1228,10 @@
       cb.title = 'מרחק לנקודת ייחוס ' + conf.dn.toFixed(1) + ' ק"מ' +
         (conf.dh != null ? ' · הפרש גובה ' + Math.round(conf.dh) + ' מ\'' : '') +
         (conf.spread != null ? ' · פיזור שכנים ' + conf.spread.toFixed(1) + '°' : '');
+
+      // independent cross-check badge (heat only; sanity comparison vs Open-Meteo)
+      if (ptLoad === 'heat') updateCrossBadge(lat, lon, lastClick.h);
+      else $('ptCross').style.display = 'none';
 
       // live station validation + optional bias correction
       const chk = stationCheck(lat, lon);
