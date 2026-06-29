@@ -203,9 +203,11 @@
     .modal-body{padding:18px 22px 22px;display:flex;flex-direction:column;gap:14px}
     .field label{display:block;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
       color:var(--muted);margin-bottom:6px}
-    .field input,.field select{width:100%;font-family:"Inter",sans-serif;font-size:15px;padding:11px 13px;
+    .field input,.field select,.field textarea{width:100%;font-family:"Inter",sans-serif;font-size:15px;padding:11px 13px;
       border-radius:9px;background:var(--bg);border:1px solid var(--line);color:var(--text)}
-    .field input:focus,.field select:focus{outline:none;border-color:var(--olive)}
+    .field textarea{resize:vertical;line-height:1.5}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--olive)}
+    .btn.btn-sm{padding:8px 12px;font-size:13px;align-self:flex-start;flex:0 0 auto}
     .modal .row{display:flex;gap:10px;flex-wrap:wrap}
     .modal .row .btn{flex:1 1 auto;justify-content:center;cursor:pointer}
     .modal-msg{font-size:13.5px;font-weight:600;min-height:18px}
@@ -288,6 +290,17 @@
       .promo{top:auto;bottom:14px;left:14px;right:14px;width:auto}
       [dir="rtl"] .promo{left:14px;right:14px}
     }
+
+    /* ---------- hero "Featured" expander ---------- */
+    .btn.open{box-shadow:0 0 0 2px rgba(74,163,255,.5) inset}
+    .feat-list{margin-top:14px;max-width:560px;display:flex;flex-direction:column;gap:8px;
+      background:rgba(11,16,24,.6);border:1px solid var(--line);border-radius:12px;padding:10px}
+    .feat-row{display:block;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+      padding:10px 13px;transition:.15s}
+    .feat-row:hover{border-color:#4aa3ff;background:var(--panel2)}
+    .feat-row .feat-nm{display:block;font-family:"Oswald",sans-serif;font-weight:600;font-size:14px;color:var(--text)}
+    .feat-row .feat-txt{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+    .feat-empty{color:var(--muted);font-style:italic;padding:6px 4px;font-size:14px}
 
     /* ---------- stats (site visits) ---------- */
     .stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
@@ -440,9 +453,10 @@
         <h1><span data-i18n="hero.title1">Tactical Medicine,</span><br><span class="accent" data-i18n="hero.title2">Made Clear</span></h1>
         <p data-i18n-html="hero.sub">A site built for paramedics, medics, and lay caregivers in Israel — a large, up-to-date library of protocols, position papers, and bulletins from emergency-medicine organizations in Israel and around the world. It also offers interactive lessons, relevant articles, and helper apps that make it easier to respond to a medical event already at the training and planning stage.<br><br>All of it gathered, organized, and validated for the people who are called on to save lives the right way.</p>
         <div class="cta">
-          <a class="btn btn-primary" href="#lessons" data-i18n="hero.btnStart">Start a Lesson</a>
+          <button class="btn btn-primary" type="button" id="heroFeatured" data-i18n="hero.btnFeatured">Featured</button>
           <a class="btn btn-ghost" href="#protocols" data-i18n="hero.btnProtocols">View Protocols</a>
         </div>
+        <div id="heroFeaturedList" class="feat-list" hidden></div>
       </div>
     </div>
   </div>
@@ -769,6 +783,20 @@
         "admin.statReset": "Reset open counts",
         "admin.statConfirmReset": "Reset all open counts to zero? Visit counts are kept.",
         "promo.featured": "Featured",
+        "hero.btnFeatured": "Featured",
+        "hero.featEmpty": "Nothing featured right now.",
+        "admin.ctxEditPromo": "Edit promotion",
+        "admin.promoTitle": "Promote on home",
+        "admin.promoSub": "This text is shown for the featured item.",
+        "admin.promoEnter": "Promotion text",
+        "admin.promoText": "Promotion text",
+        "admin.promoTranslateTo": "Translate to %1",
+        "admin.promoTranslating": "Translating…",
+        "admin.promoTrFail": "Translation failed — type it manually.",
+        "admin.promoNoText": "Enter promotion text first.",
+        "admin.promoRemove": "Remove from home",
+        "lang.en": "English",
+        "lang.he": "Hebrew",
         "admin.pwTitle": "Change Password",
         "admin.pwSub": "Choose a new password for your account.",
         "admin.newPw": "New Password",
@@ -1015,6 +1043,20 @@
         "admin.statReset": "איפוס מוני פתיחות",
         "admin.statConfirmReset": "לאפס את כל מוני הפתיחות לאפס? מוני הכניסות יישמרו.",
         "promo.featured": "מומלץ",
+        "hero.btnFeatured": "מומלצים",
+        "hero.featEmpty": "אין כרגע תוכן מומלץ.",
+        "admin.ctxEditPromo": "עריכת קידום",
+        "admin.promoTitle": "קידום בעמוד הבית",
+        "admin.promoSub": "הטקסט הזה יוצג עבור הפריט המומלץ.",
+        "admin.promoEnter": "טקסט קידום",
+        "admin.promoText": "טקסט קידום",
+        "admin.promoTranslateTo": "תרגום ל%1",
+        "admin.promoTranslating": "מתרגם…",
+        "admin.promoTrFail": "התרגום נכשל — הקלידו ידנית.",
+        "admin.promoNoText": "הזינו תחילה טקסט קידום.",
+        "admin.promoRemove": "הסרה מעמוד הבית",
+        "lang.en": "אנגלית",
+        "lang.he": "עברית",
         "admin.pwTitle": "שינוי סיסמה",
         "admin.pwSub": "בחרו סיסמה חדשה לחשבון שלכם.",
         "admin.newPw": "סיסמה חדשה",
@@ -1272,10 +1314,27 @@
       const out = [];
       PROMO_SECTIONS.forEach(function (sec) {
         (CONTENT[sec] || []).forEach(function (it) {
-          if (it.promoted) out.push({ section: sec, href: it.href, en: it.en, he: it.he, newtab: !!it.newtab, pdf: PDF_SECTIONS.indexOf(sec) >= 0 });
+          if (it.promoted) out.push({
+            section: sec, href: it.href, en: it.en, he: it.he,
+            promoEn: it.promoEn || '', promoHe: it.promoHe || '',
+            newtab: !!it.newtab, pdf: PDF_SECTIONS.indexOf(sec) >= 0
+          });
         });
       });
       return out;
+    }
+    // Promotion text in the current language, falling back to the other language.
+    function promoText(it, lang) {
+      return (lang === 'he' ? it.promoHe : it.promoEn) || it.promoEn || it.promoHe || '';
+    }
+    // Unofficial Google Translate endpoint (no key, CORS-friendly). from/to: 'en'|'he'.
+    function gtranslate(text, from, to) {
+      const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' +
+        from + '&tl=' + to + '&dt=t&q=' + encodeURIComponent(text);
+      return fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+        if (data && data[0]) return data[0].map(function (seg) { return seg[0]; }).join('');
+        return '';
+      });
     }
 
     let __promoTimer = null, __promoIdx = 0;
@@ -1292,12 +1351,14 @@
         __promoIdx = (i + items.length) % items.length;
         const it = items[__promoIdx];
         const tgt = (it.pdf || it.newtab) ? ' target="_blank" rel="noopener"' : '';
+        const ptxt = promoText(it, lang);
         box.innerHTML =
           '<button type="button" class="promo-x" id="promoX" aria-label="close">&times;</button>' +
           '<div class="promo-tag">' + esc(L('promo.featured', lang)) + '</div>' +
           '<a class="promo-item" href="' + esc(it.href) + '"' + tgt +
           ' data-msection="' + esc(it.section) + '" data-mhref="' + esc(it.href) + '" dir="auto">' +
-          esc(nm(it, lang) || it.href) + '</a>' +
+          esc(ptxt || nm(it, lang) || it.href) + '</a>' +
+          (ptxt ? '<div class="promo-name" dir="auto">' + esc(nm(it, lang) || '') + '</div>' : '') +
           (items.length > 1
             ? '<div class="promo-dots">' + items.map(function (_, k) { return '<i class="' + (k === __promoIdx ? 'on' : '') + '"></i>'; }).join('') + '</div>'
             : '');
@@ -1312,6 +1373,25 @@
       if (items.length > 1) __promoTimer = setInterval(function () { show(__promoIdx + 1); }, 5000);
     }
 
+    function renderFeaturedList() {
+      const wrap = document.getElementById('heroFeaturedList');
+      if (!wrap) return;
+      const lang = getLang();
+      const items = promotedItems();
+      if (!items.length) {
+        wrap.innerHTML = '<div class="feat-empty">' + esc(L('hero.featEmpty', lang)) + '</div>';
+        return;
+      }
+      wrap.innerHTML = items.map(function (it) {
+        const tgt = (it.pdf || it.newtab) ? ' target="_blank" rel="noopener"' : '';
+        const ptxt = promoText(it, lang);
+        return '<a class="feat-row" href="' + esc(it.href) + '"' + tgt +
+          ' data-msection="' + esc(it.section) + '" data-mhref="' + esc(it.href) + '" dir="auto">' +
+          '<span class="feat-nm">' + esc(nm(it, lang) || it.href) + '</span>' +
+          (ptxt ? '<span class="feat-txt">' + esc(ptxt) + '</span>' : '') + '</a>';
+      }).join('');
+    }
+
     function renderAll() {
       renderLinkList('lessons', 'lessonList');
       renderProtocols();
@@ -1319,6 +1399,8 @@
       renderDocList('presentations', 'presoList', '▤', 'presentations.empty');
       renderLinkList('tools', 'toolList');
       renderPromos();
+      const fl = document.getElementById('heroFeaturedList');
+      if (fl && !fl.hidden) renderFeaturedList();
     }
 
     /* ---------------- search ---------------- */
@@ -1473,6 +1555,18 @@
     document.getElementById('searchBox').addEventListener('focus', function () {
       if (this.value.trim()) document.getElementById('searchResults').classList.add('show');
     });
+    (function () {
+      const fb = document.getElementById('heroFeatured');
+      if (!fb) return;
+      fb.addEventListener('click', function () {
+        const wrap = document.getElementById('heroFeaturedList');
+        if (!wrap) return;
+        const willShow = wrap.hidden;
+        if (willShow) renderFeaturedList();
+        wrap.hidden = !willShow;
+        fb.classList.toggle('open', willShow);
+      });
+    })();
 
     /* ---------------- content loading ---------------- */
     function loadContent() {
@@ -1843,12 +1937,21 @@
           body.querySelectorAll('.promo-ck').forEach(function (ck) {
             ck.onchange = function () {
               const sec = ck.getAttribute('data-sec'), href = ck.getAttribute('data-href'), on = ck.checked;
-              ck.disabled = true;
-              api('setPromote', { token: token(), section: sec, href: href, on: on }).then(function (res) {
-                ck.disabled = false;
-                if (res && res.ok) { setPromotedLocal(sec, href, on); renderPromos(); }
-                else { ck.checked = !on; if (!handleAuthFail(res)) setMsg(errMsg(res), 'err'); }
-              }).catch(function () { ck.disabled = false; ck.checked = !on; setMsg(L('admin.genericErr', lang), 'err'); });
+              const it = (CONTENT[sec] || []).filter(function (x) { return x.href === href; })[0] || {};
+              const name = nm(it, lang) || href;
+              if (on) {
+                // collect promotion text before turning it on; revert the box if cancelled
+                promoteDialog(sec, href, name, { promoted: it.promoted, promoEn: it.promoEn, promoHe: it.promoHe }, function (result) {
+                  ck.checked = !!result;
+                });
+              } else {
+                ck.disabled = true;
+                api('setPromote', { token: token(), section: sec, href: href, on: false }).then(function (res) {
+                  ck.disabled = false;
+                  if (res && res.ok) { setPromotedLocal(sec, href, false); afterPromoChange(); }
+                  else { ck.checked = true; if (!handleAuthFail(res)) setMsg(errMsg(res), 'err'); }
+                }).catch(function () { ck.disabled = false; ck.checked = true; setMsg(L('admin.genericErr', lang), 'err'); });
+              }
             };
           });
         }
@@ -2363,9 +2466,14 @@
         else { const it = findItem(section, key); if (it) { it.en = en; it.he = he; } }
         renderAll();
       }
-      function setPromotedLocal(section, href, on) {
+      function setPromotedLocal(section, href, on, promoEn, promoHe) {
         (CONTENT[section] || []).forEach(function (i) {
-          if (i.href === href) { if (on) i.promoted = true; else delete i.promoted; }
+          if (i.href !== href) return;
+          if (on) {
+            i.promoted = true;
+            if (promoEn) i.promoEn = promoEn; else delete i.promoEn;
+            if (promoHe) i.promoHe = promoHe; else delete i.promoHe;
+          } else { delete i.promoted; delete i.promoEn; delete i.promoHe; }
         });
       }
 
@@ -2435,18 +2543,71 @@
         };
       }
 
-      function ctxPromote(section, href, on, name) {
+      function afterPromoChange() { renderAll(); }
+
+      // Promote/edit dialog: collect EN+HE promotion text (site language first) with
+      // a one-click Google-Translate to the other language. `cur` may carry existing values.
+      // `onResult` (optional) is called with the final promoted boolean.
+      function promoteDialog(section, href, name, cur, onResult) {
         const lang = getLang();
-        open('<div class="modal-head"><h3>' + esc(L(on ? 'admin.ctxPromote' : 'admin.ctxUnpromote', lang)) + '</h3></div>' +
-          '<div class="modal-body"><div class="modal-msg" dir="auto">' + esc(name) + '</div>' + msgBox() +
-          '<div class="row"><button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.backToSite', lang)) + '</button></div>' +
+        const primary = lang;
+        const other = lang === 'he' ? 'en' : 'he';
+        const isOn = !!(cur && cur.promoted);
+        const curEn = (cur && cur.promoEn) || '';
+        const curHe = (cur && cur.promoHe) || '';
+        const ln = function (c) { return L('lang.' + c, lang); };
+
+        open('<div class="modal-head"><h3>' + esc(L('admin.promoTitle', lang)) + '</h3>' +
+          '<p>' + esc(L('admin.promoSub', lang)) + '</p></div>' +
+          '<div class="modal-body">' +
+          '<div class="modal-msg" dir="auto">' + esc(name) + '</div>' +
+          '<div class="field"><label for="pmPrimary">' + esc(L('admin.promoEnter', lang) + ' · ' + ln(primary)) + '</label>' +
+          '<textarea id="pmPrimary" rows="2" dir="auto"></textarea></div>' +
+          '<button class="btn btn-ghost btn-sm" type="button" id="pmTr">' + esc(fmt(L('admin.promoTranslateTo', lang), ln(other))) + '</button>' +
+          '<div class="field"><label for="pmSecondary">' + esc(L('admin.promoText', lang) + ' · ' + ln(other)) + '</label>' +
+          '<textarea id="pmSecondary" rows="2" dir="auto"></textarea></div>' +
+          msgBox() +
+          '<div class="row">' +
+          (isOn ? '<button class="btn btn-ghost" type="button" id="pmRemove">' + esc(L('admin.promoRemove', lang)) + '</button>' : '') +
+          '<button class="btn btn-ghost" type="button" id="aCancel">' + esc(L('admin.cancel', lang)) + '</button>' +
+          '<button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.save', lang)) + '</button></div>' +
           '</div>');
-        document.getElementById('aGo').onclick = close;
-        setMsg(L('admin.working', lang), '');
-        api('setPromote', { token: token(), section: section, href: href, on: on }).then(function (res) {
-          if (res && res.ok) { setPromotedLocal(section, href, on); renderPromos(); setMsg(L('admin.saved', lang), 'ok'); }
-          else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
-        }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+
+        document.getElementById('pmPrimary').value = (primary === 'he') ? curHe : curEn;
+        document.getElementById('pmSecondary').value = (other === 'he') ? curHe : curEn;
+        document.getElementById('aCancel').onclick = function () { close(); if (onResult) onResult(isOn); };
+
+        document.getElementById('pmTr').onclick = function () {
+          const src = document.getElementById('pmPrimary').value.trim();
+          if (!src) { setMsg(L('admin.promoNoText', lang), 'err'); return; }
+          const b = document.getElementById('pmTr'); b.disabled = true; setMsg(L('admin.promoTranslating', lang), '');
+          gtranslate(src, primary, other).then(function (t) {
+            b.disabled = false;
+            if (t) { document.getElementById('pmSecondary').value = t; setMsg('', ''); }
+            else setMsg(L('admin.promoTrFail', lang), 'err');
+          }).catch(function () { b.disabled = false; setMsg(L('admin.promoTrFail', lang), 'err'); });
+        };
+
+        if (isOn) document.getElementById('pmRemove').onclick = function () {
+          setMsg(L('admin.working', lang), '');
+          api('setPromote', { token: token(), section: section, href: href, on: false }).then(function (res) {
+            if (res && res.ok) { setPromotedLocal(section, href, false); afterPromoChange(); setMsg(L('admin.saved', lang), 'ok'); turnIntoBackToSite(); if (onResult) onResult(false); }
+            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        };
+
+        document.getElementById('aGo').onclick = function () {
+          const pv = document.getElementById('pmPrimary').value.trim();
+          const sv = document.getElementById('pmSecondary').value.trim();
+          const promoEn = (primary === 'en') ? pv : sv;
+          const promoHe = (primary === 'he') ? pv : sv;
+          if (!promoEn && !promoHe) { setMsg(L('admin.promoNoText', lang), 'err'); return; }
+          setMsg(L('admin.working', lang), '');
+          api('setPromote', { token: token(), section: section, href: href, on: true, promoEn: promoEn, promoHe: promoHe }).then(function (res) {
+            if (res && res.ok) { setPromotedLocal(section, href, true, promoEn, promoHe); afterPromoChange(); setMsg(L('admin.saved', lang), 'ok'); turnIntoBackToSite(); if (onResult) onResult(true); }
+            else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+          }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        };
       }
 
       let ctxEl = null;
@@ -2499,8 +2660,8 @@
             { act: 'rename', icon: 'edit', label: L('admin.ctxRename', lang),
               run: function () { ctxRename('item', section, href, obj.en || '', obj.he || ''); } },
             { act: 'promote', icon: obj.promoted ? 'star' : 'star_outline',
-              label: L(obj.promoted ? 'admin.ctxUnpromote' : 'admin.ctxPromote', lang),
-              run: function () { ctxPromote(section, href, !obj.promoted, name); } },
+              label: L(obj.promoted ? 'admin.ctxEditPromo' : 'admin.ctxPromote', lang),
+              run: function () { promoteDialog(section, href, name, { promoted: obj.promoted, promoEn: obj.promoEn, promoHe: obj.promoHe }); } },
             { act: 'remove', icon: 'delete', danger: true, label: L('admin.ctxRemove', lang),
               run: function () { ctxRemove('item', section, href, name); } }
           ]);
