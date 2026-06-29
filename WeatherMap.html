@@ -228,12 +228,14 @@
       border-radius:8px;padding:6px 8px;font-size:12.5px}
     .saved-row .nm{flex:1;cursor:pointer;color:#cfe6ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .saved-row .del{background:none;border:none;color:#ff8a8a;cursor:pointer;font-size:13px;flex:0 0 auto;padding:0 2px}
+    .saved-row .lock{flex:0 0 auto;font-size:10.5px;opacity:.65}
     .saved-empty{font-size:11.5px;color:var(--muted);padding:4px 2px;line-height:1.5}
 
     /* saved-location markers on the map */
     .saved-pin{width:24px;height:24px;border-radius:50%;background:#ffd23f;color:#3a2a00;display:flex;
       align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid #fff;
       box-shadow:0 2px 7px rgba(0,0,0,.6);cursor:grab}
+    .saved-pin.fixed{background:#4aa3ff;color:#06121f;cursor:pointer}
     .saved-pin:active{cursor:grabbing}
     .leaflet-tooltip.saved-tip{background:rgba(20,29,43,.92);border:1px solid var(--line);color:#ffe9a3;
       font-size:11px;font-weight:600;border-radius:6px;padding:1px 6px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
@@ -1242,39 +1244,69 @@
 
     /* ---------------- saved locations ---------------- */
     const SAVED_KEY = 'wm_saved_locs';
+    // Built-in locations: always shown, cannot be deleted / dragged / renamed.
+    const FIXED_LOCS = [
+      { name: 'בא"פ לכיש',     lat: 31.5836, lon: 34.9045 },
+      { name: 'בא"פ צפון',     lat: 32.6317, lon: 35.0611 },
+      { name: 'יד חנה',        lat: 32.3315, lon: 35.0131 },
+      { name: 'מטווח דני היי', lat: 32.4599, lon: 34.9269 },
+      { name: 'מטווח רנתיס',   lat: 32.0168, lon: 34.9977 },
+      { name: 'מכללת השוטרים', lat: 31.7373, lon: 34.9505 },
+      { name: 'מכללת תע"ש',    lat: 31.7953, lon: 34.8776 },
+      { name: 'מתקן אדם',      lat: 31.9583, lon: 34.9686 },
+      { name: 'צאלים',         lat: 31.1640, lon: 34.5323 }
+    ];
     function loadSaved() { try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'); } catch (e) { return []; } }
     function storeSaved(a) { try { localStorage.setItem(SAVED_KEY, JSON.stringify(a)); } catch (e) { } }
-    function savedIcon() {
-      return L.divIcon({ className: 'saved-pin-wrap', html: '<div class="saved-pin">★</div>', iconSize: [24, 24], iconAnchor: [12, 12] });
+    function savedIcon(fixed) {
+      return L.divIcon({ className: 'saved-pin-wrap', html: '<div class="saved-pin' + (fixed ? ' fixed' : '') + '">★</div>', iconSize: [24, 24], iconAnchor: [12, 12] });
+    }
+    // Merged list: fixed (built-in) first, then user-saved. `ui` = index into the
+    // localStorage array (only for user entries). User entries that duplicate a
+    // fixed location (same name) are hidden so we don't show it twice.
+    function allSavedLocs() {
+      const fixed = FIXED_LOCS.map(function (s) { return { name: s.name, lat: s.lat, lon: s.lon, fixed: true }; });
+      const taken = {}; fixed.forEach(function (f) { taken[f.name.trim()] = true; });
+      const user = loadSaved().map(function (s, ui) {
+        return { name: s.name, lat: s.lat, lon: s.lon, fixed: false, ui: ui };
+      }).filter(function (s) { return !taken[(s.name || '').trim()]; });
+      // Single alphabetical list (Hebrew-aware), fixed and user entries intermixed.
+      return fixed.concat(user).sort(function (a, b) {
+        return (a.name || '').localeCompare(b.name || '', 'he');
+      });
     }
     function renderSaved() {
-      const list = loadSaved(), el = $('savedList');
-      $('savedToggle').textContent = 'מיקומים שמורים (' + list.length + ')';
+      const all = allSavedLocs(), el = $('savedList');
+      $('savedToggle').textContent = 'מיקומים שמורים (' + all.length + ')';
       // panel list
-      if (!list.length) { el.innerHTML = '<div class="saved-empty">אין מיקומים שמורים. פתחו נקודה במפה ולחצו "שמירת מיקום זה".</div>'; }
+      if (!all.length) { el.innerHTML = '<div class="saved-empty">אין מיקומים שמורים. פתחו נקודה במפה ולחצו "שמירת מיקום זה".</div>'; }
       else {
-        el.innerHTML = list.map(function (s, i) {
-          return '<div class="saved-row"><span class="nm" data-i="' + i + '" title="' + esc(s.name) + '">' + esc(s.name) + '</span><button class="del" data-d="' + i + '" title="מחיקה">✕</button></div>';
+        el.innerHTML = all.map(function (s, idx) {
+          const lock = s.fixed ? '<span class="lock" title="מיקום קבוע">🔒</span>' : '';
+          const del = s.fixed ? '' : '<button class="del" data-d="' + s.ui + '" title="מחיקה">✕</button>';
+          return '<div class="saved-row"><span class="nm" data-idx="' + idx + '" title="' + esc(s.name) + '">' + esc(s.name) + '</span>' + lock + del + '</div>';
         }).join('');
         el.querySelectorAll('.nm').forEach(function (n) {
-          n.onclick = function () { const s = loadSaved()[+n.getAttribute('data-i')]; if (s) { map.setView([s.lat, s.lon], Math.max(map.getZoom(), 12)); openPt(s.lat, s.lon, s.name); } };
-          n.oncontextmenu = function (e) { e.preventDefault(); renameSaved(+n.getAttribute('data-i')); };
+          n.onclick = function () { const s = all[+n.getAttribute('data-idx')]; if (s) { map.setView([s.lat, s.lon], Math.max(map.getZoom(), 12)); openPt(s.lat, s.lon, s.name); } };
+          n.oncontextmenu = function (e) { e.preventDefault(); const s = all[+n.getAttribute('data-idx')]; if (s && !s.fixed) renameSaved(s.ui); };
         });
         el.querySelectorAll('.del').forEach(function (b) {
           b.onclick = function () { const a = loadSaved(); a.splice(+b.getAttribute('data-d'), 1); storeSaved(a); renderSaved(); };
         });
       }
-      // map markers (always shown, draggable, with name labels)
+      // map markers (always shown, with name labels; user entries draggable)
       savedLayer.clearLayers();
-      list.forEach(function (s, i) {
-        const mk = L.marker([s.lat, s.lon], { draggable: true, icon: savedIcon(), zIndexOffset: 1000 });
+      all.forEach(function (s) {
+        const mk = L.marker([s.lat, s.lon], { draggable: !s.fixed, icon: savedIcon(s.fixed), zIndexOffset: 1000 });
         mk.bindTooltip(s.name, { permanent: true, direction: 'right', className: 'saved-tip', offset: [10, 0] });
         mk.on('click', function () { openPt(s.lat, s.lon, s.name); });
-        mk.on('contextmenu', function (e) { if (e.originalEvent) e.originalEvent.preventDefault(); renameSaved(i); });
-        mk.on('dragend', function (e) {
-          const ll = e.target.getLatLng(); const a = loadSaved();
-          if (a[i]) { a[i].lat = ll.lat; a[i].lon = ll.lng; storeSaved(a); renderSaved(); openPt(ll.lat, ll.lng, a[i].name); }
-        });
+        if (!s.fixed) {
+          mk.on('contextmenu', function (e) { if (e.originalEvent) e.originalEvent.preventDefault(); renameSaved(s.ui); });
+          mk.on('dragend', function (e) {
+            const ll = e.target.getLatLng(); const a = loadSaved();
+            if (a[s.ui]) { a[s.ui].lat = ll.lat; a[s.ui].lon = ll.lng; storeSaved(a); renderSaved(); openPt(ll.lat, ll.lng, a[s.ui].name); }
+          });
+        }
         mk.addTo(savedLayer);
       });
     }
