@@ -365,6 +365,138 @@
       "href": "protocols/idf-protocols-06.pdf",
       "en": "IDF Protocols 06.2026",
       "he": "ספר טראומה מבצעית 2026"
+    },
+    {
+      "href": "protocols/tom-chapter-1-the-protocol-treating-a-trauma-casualty-in-the-field.pdf",
+      "en": "Chapter 1 - The protocol - treating a trauma casualty in the field",
+      "he": "פרק 1 - הסכמה - הטיפול בפצוע טראומה בשדה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-2-treatment-safety-and-care-under-fire.pdf",
+      "en": "Chapter 2 - Treatment safety and care under fire",
+      "he": "פרק 2 - בטיחות בטיפול והטיפול תחת אש",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-3-damage-control-resuscitation-in-the-field.pdf",
+      "en": "Chapter 3 - Damage control resuscitation in the field",
+      "he": "פרק 3 - החייאת בקרת נזקים בשדה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-4-airway-assessment-and-treatment.pdf",
+      "en": "Chapter 4 - Airway - assessment and treatment",
+      "he": "פרק 4 - נתיב האוויר - הערכה וטיפול",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-5-breathing-approach-to-chest-injuries-in-the-field.pdf",
+      "en": "Chapter 5 - Breathing - approach to chest injuries in the field",
+      "he": "פרק 5 - נשימה - הגישה לפציעות חזה בשדה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-6-completing-the-primary-survey.pdf",
+      "en": "Chapter 6 - Completing the primary survey",
+      "he": "פרק 6 - השלמת הסקר הראשוני",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-7-the-secondary-survey.pdf",
+      "en": "Chapter 7 - The secondary survey",
+      "he": "פרק 7 - הסקר השניוני",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-8-medical-evacuation-principles-considerations-and-technique.pdf",
+      "en": "Chapter 8 - Medical evacuation - principles, considerations and technique",
+      "he": "פרק 8 - פינוי רפואי - עקרונות, שיקולים וטכניקה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-9-medical-response-to-a-mass-casualty-incident-in-the-field.pdf",
+      "en": "Chapter 9 - Medical response to a mass-casualty incident in the field",
+      "he": "פרק 9 - המענה הרפואי לאירוע רב נפגעים בשדה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-10-resuscitation-efforts-in-a-casualty-losing-signs-of-life.pdf",
+      "en": "Chapter 10 - Resuscitation efforts in a casualty losing signs of life",
+      "he": "פרק 10 - מאמצי החייאה בפצוע המאבד סימני חיים",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-11-obtaining-circulatory-access.pdf",
+      "en": "Chapter 11 - Obtaining circulatory access",
+      "he": "פרק 11 - השגת גישה למחזור הדם",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-12-traumatic-head-injuries.pdf",
+      "en": "Chapter 12 - Traumatic head injuries",
+      "he": "פרק 12 - פגיעות ראש טראומטיות",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-13-treatment-of-musculoskeletal-injuries.pdf",
+      "en": "Chapter 13 - Treatment of musculoskeletal injuries",
+      "he": "פרק 13 - הטיפול בפציעות שריר שלד",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-14-injuries-to-the-eye-orbit-and-adnexa.pdf",
+      "en": "Chapter 14 - Injuries to the eye, orbit and adnexa",
+      "he": "פרק 14 - פציעות עיניים, ארובה וטפולות",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-15-burn-treatment-in-the-field.pdf",
+      "en": "Chapter 15 - Burn treatment in the field",
+      "he": "פרק 15 - הטיפול בכוויות בשדה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-16-treatment-of-the-entrapped-and-crush-casualty.pdf",
+      "en": "Chapter 16 - Treatment of the entrapped and crush casualty",
+      "he": "פרק 16 - הטיפול בנפגע הלכוד ונפגע מעיכה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-17-pain-management-at-the-field-level.pdf",
+      "en": "Chapter 17 - Pain management at the field level",
+      "he": "פרק 17 - טיפול בכאב בדרג השדה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-18-antibiotic-treatment-in-the-field.pdf",
+      "en": "Chapter 18 - Antibiotic treatment in the field",
+      "he": "פרק 18 - הטיפול האנטיביוטי בשדה",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-19-medical-response-to-a-mass-toxicological-incident.pdf",
+      "en": "Chapter 19 - Medical response to a mass toxicological incident",
+      "he": "פרק 19 - המענה הרפואי לאירוע טוקסיקולוגי המוני",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-20-ongoing-care-and-casualty-holding-after-the-secondary-survey.pdf",
+      "en": "Chapter 20 - Ongoing care and casualty holding after the secondary survey",
+      "he": "פרק 20 - טיפול מתמשך והחזקת פצוע לאחר הסקר השניוני",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-21-pediatric-trauma-care.pdf",
+      "en": "Chapter 21 - Pediatric trauma care",
+      "he": "פרק 21 - הטיפול בטראומה בילדים",
+      "folder": "f_4de1de0f"
+    },
+    {
+      "href": "protocols/tom-chapter-22-medical-care-for-working-dogs-by-non-veterinary-teams.pdf",
+      "en": "Chapter 22 - Medical care for working dogs by non-veterinary teams",
+      "he": "פרק 22 - המענה הרפואי לטיפול בכלבים לצוות לא וטרינרי",
+      "folder": "f_4de1de0f"
     }
   ],
   "presentations": [
@@ -1036,6 +1168,11 @@
         "id": "f_cea86241",
         "en": "IDF Protocols",
         "he": "צה\"ל - אגרות טראומה"
+      },
+      {
+        "id": "f_4de1de0f",
+        "en": "Trauma & Operational Medicine Book (2026)",
+        "he": "ספר הטראומה והרפואה המבצעית (2026)"
       }
     ],
     "presentations": [
