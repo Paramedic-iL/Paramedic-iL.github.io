@@ -251,6 +251,58 @@
     .ctx-menu .material-symbols-outlined{font-size:18px;color:inherit}
     [dir="rtl"] .ctx-menu button{text-align:right}
 
+    /* ---------- promoted slideshow box ---------- */
+    .promo{
+      position:fixed;top:138px;left:16px;z-index:54;width:248px;max-width:calc(100vw - 32px);
+      background:linear-gradient(180deg,var(--panel2),var(--panel));
+      border:1px solid var(--line);border-left:3px solid var(--red-bright);
+      border-radius:12px;padding:12px 14px 11px;box-shadow:0 10px 30px rgba(0,0,0,.45);
+    }
+    [dir="rtl"] .promo{left:auto;right:16px;border-left:1px solid var(--line);border-right:3px solid var(--red-bright)}
+    .promo .promo-x{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--muted);
+      font-size:18px;line-height:1;cursor:pointer;padding:2px 4px}
+    [dir="rtl"] .promo .promo-x{right:auto;left:8px}
+    .promo .promo-x:hover{color:var(--text)}
+    .promo .promo-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red-bright);font-weight:700;margin-bottom:6px}
+    .promo .promo-item{display:block;font-family:"Oswald",sans-serif;font-weight:600;font-size:15px;line-height:1.3;
+      color:var(--text);padding-right:14px}
+    [dir="rtl"] .promo .promo-item{padding-right:0;padding-left:14px}
+    .promo .promo-item:hover{color:var(--red-bright)}
+    .promo .promo-dots{display:flex;gap:5px;margin-top:9px}
+    .promo .promo-dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+    .promo .promo-dots i.on{background:var(--red-bright)}
+    @media (max-width:760px){
+      .promo{top:auto;bottom:14px;left:14px;right:14px;width:auto}
+      [dir="rtl"] .promo{left:14px;right:14px}
+    }
+
+    /* ---------- stats (site visits) ---------- */
+    .stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+    .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px;text-align:center}
+    .stat-card .num{display:block;font-family:"Oswald",sans-serif;font-size:26px;font-weight:700;color:var(--text)}
+    .stat-card.on .num{color:var(--red-bright)}
+    .stat-card .lbl{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+    .stat-sec{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:16px 0 8px}
+    .chart{display:flex;align-items:flex-end;gap:4px;height:96px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:11px}
+    .chart .bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
+    .chart .bar span{width:100%;max-width:18px;background:linear-gradient(180deg,var(--red-bright),var(--red));border-radius:3px 3px 0 0;min-height:2px}
+    .chart .bar em{font-style:normal;font-size:8px;color:var(--muted);white-space:nowrap}
+    .stat-tblwrap{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:11px}
+    table.stat-tbl{width:100%;border-collapse:collapse;font-size:13px}
+    table.stat-tbl th{position:sticky;top:0;background:var(--panel2);color:var(--muted);font-weight:600;
+      font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:8px 10px;text-align:start}
+    table.stat-tbl th.r,table.stat-tbl td.r{text-align:end}
+    table.stat-tbl th.c,table.stat-tbl td.c{text-align:center}
+    table.stat-tbl td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:middle}
+    table.stat-tbl td.num{font-family:"Oswald",sans-serif;font-weight:600;color:var(--text)}
+    .stat-tbl .it-nm{font-weight:600;color:var(--text)}
+    .stat-tbl .it-sub{display:flex;align-items:center;gap:8px;margin-top:3px}
+    .stat-tbl .it-sub .tag{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);
+      border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+    .stat-tbl .it-bar{flex:1;height:5px;background:var(--line);border-radius:3px;overflow:hidden;max-width:160px}
+    .stat-tbl .it-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--red-bright))}
+    .stat-tbl .promo-ck{width:17px;height:17px;accent-color:var(--red-bright);cursor:pointer}
+
     /* Google Material Symbols (used in the admin menu) */
     .material-symbols-outlined{
       font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;font-size:21px;
@@ -353,6 +405,9 @@
       </div>
     </div>
   </header>
+
+  <!-- PROMOTED (super-admin featured items) -->
+  <div id="promoBox" class="promo" hidden></div>
 
   <!-- SEARCH -->
   <div class="searchbar">
@@ -683,6 +738,24 @@
         "act.endSession": "Ended a session",
         "act.testLock": "Changed test status",
         "act.testQuestions": "Updated test questions",
+        "act.resetStats": "Reset usage stats",
+        "act.promote": "Changed promotion",
+        "admin.ctxPromote": "Promote on home",
+        "admin.ctxUnpromote": "Remove from home",
+        "admin.statsMenu": "Site visits",
+        "admin.statsTitle": "Site visits & usage",
+        "admin.statsSub": "Live visitors, traffic, and the most-opened files.",
+        "admin.statOnline": "Online now",
+        "admin.statToday": "Today",
+        "admin.statTotal": "Total visits",
+        "admin.statTrend": "Visits — last 14 days",
+        "admin.statItems": "Opens by item (most → least)",
+        "admin.statItem": "Item",
+        "admin.statClicks": "Opens",
+        "admin.statPromote": "Promote",
+        "admin.statReset": "Reset open counts",
+        "admin.statConfirmReset": "Reset all open counts to zero? Visit counts are kept.",
+        "promo.featured": "Featured",
         "admin.pwTitle": "Change Password",
         "admin.pwSub": "Choose a new password for your account.",
         "admin.newPw": "New Password",
@@ -911,6 +984,24 @@
         "act.endSession": "ניתק התחברות",
         "act.testLock": "שינה סטטוס מבחן",
         "act.testQuestions": "עדכן שאלות מבחן",
+        "act.resetStats": "איפס נתוני שימוש",
+        "act.promote": "שינה קידום",
+        "admin.ctxPromote": "קידום בעמוד הבית",
+        "admin.ctxUnpromote": "הסרה מעמוד הבית",
+        "admin.statsMenu": "כניסות לאתר",
+        "admin.statsTitle": "כניסות ושימוש באתר",
+        "admin.statsSub": "מבקרים מחוברים, תנועה, והקבצים הנפתחים ביותר.",
+        "admin.statOnline": "מחוברים כעת",
+        "admin.statToday": "היום",
+        "admin.statTotal": "סך הכניסות",
+        "admin.statTrend": "כניסות — 14 הימים האחרונים",
+        "admin.statItems": "פתיחות לפי פריט (מהרב למעט)",
+        "admin.statItem": "פריט",
+        "admin.statClicks": "פתיחות",
+        "admin.statPromote": "קידום",
+        "admin.statReset": "איפוס מוני פתיחות",
+        "admin.statConfirmReset": "לאפס את כל מוני הפתיחות לאפס? מוני הכניסות יישמרו.",
+        "promo.featured": "מומלץ",
         "admin.pwTitle": "שינוי סיסמה",
         "admin.pwSub": "בחרו סיסמה חדשה לחשבון שלכם.",
         "admin.newPw": "סיסמה חדשה",
@@ -1152,12 +1243,69 @@
         { docClass: false, targetFor: function (p) { return !!p.newtab; } });
     }
 
+    const PROMO_SECTIONS = ['lessons', 'protocols', 'articles', 'presentations', 'tools'];
+    const PDF_SECTIONS = ['articles', 'protocols', 'presentations'];
+
+    function allContentItems() {
+      const out = [];
+      PROMO_SECTIONS.forEach(function (sec) {
+        (CONTENT[sec] || []).forEach(function (it) {
+          out.push({ section: sec, href: it.href, en: it.en, he: it.he, promoted: !!it.promoted });
+        });
+      });
+      return out;
+    }
+    function promotedItems() {
+      const out = [];
+      PROMO_SECTIONS.forEach(function (sec) {
+        (CONTENT[sec] || []).forEach(function (it) {
+          if (it.promoted) out.push({ section: sec, href: it.href, en: it.en, he: it.he, newtab: !!it.newtab, pdf: PDF_SECTIONS.indexOf(sec) >= 0 });
+        });
+      });
+      return out;
+    }
+
+    let __promoTimer = null, __promoIdx = 0;
+    function renderPromos() {
+      const box = document.getElementById('promoBox');
+      if (!box) return;
+      if (__promoTimer) { clearInterval(__promoTimer); __promoTimer = null; }
+      if (sessionStorage.getItem('pmil_promo_hidden') === '1') { box.hidden = true; box.innerHTML = ''; return; }
+      const lang = getLang();
+      const items = promotedItems();
+      if (!items.length) { box.hidden = true; box.innerHTML = ''; return; }
+      box.hidden = false;
+      function show(i) {
+        __promoIdx = (i + items.length) % items.length;
+        const it = items[__promoIdx];
+        const tgt = (it.pdf || it.newtab) ? ' target="_blank" rel="noopener"' : '';
+        box.innerHTML =
+          '<button type="button" class="promo-x" id="promoX" aria-label="close">&times;</button>' +
+          '<div class="promo-tag">' + esc(L('promo.featured', lang)) + '</div>' +
+          '<a class="promo-item" href="' + esc(it.href) + '"' + tgt +
+          ' data-msection="' + esc(it.section) + '" data-mhref="' + esc(it.href) + '" dir="auto">' +
+          esc(nm(it, lang) || it.href) + '</a>' +
+          (items.length > 1
+            ? '<div class="promo-dots">' + items.map(function (_, k) { return '<i class="' + (k === __promoIdx ? 'on' : '') + '"></i>'; }).join('') + '</div>'
+            : '');
+        const x = document.getElementById('promoX');
+        if (x) x.onclick = function () {
+          try { sessionStorage.setItem('pmil_promo_hidden', '1'); } catch (e) { }
+          box.hidden = true; box.innerHTML = '';
+          if (__promoTimer) { clearInterval(__promoTimer); __promoTimer = null; }
+        };
+      }
+      show(0);
+      if (items.length > 1) __promoTimer = setInterval(function () { show(__promoIdx + 1); }, 5000);
+    }
+
     function renderAll() {
       renderLinkList('lessons', 'lessonList');
       renderProtocols();
       renderDocList('articles', 'articleList', '✎', 'articles.empty');
       renderDocList('presentations', 'presoList', '▤', 'presentations.empty');
       renderLinkList('tools', 'toolList');
+      renderPromos();
     }
 
     /* ---------------- search ---------------- */
@@ -1341,6 +1489,52 @@
         })
         .catch(function () { /* keep defaults */ });
     }
+
+    /* ---------------- usage tracking (anonymous, no login) ---------------- */
+    const Tracker = (function () {
+      function vid() {
+        let v = localStorage.getItem('pmil_vid');
+        if (!v) { v = Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('pmil_vid', v); }
+        return v;
+      }
+      function send(payload) {
+        if (!APPS_SCRIPT_URL) return;
+        try {
+          fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(Object.assign({ action: 'track', vid: vid() }, payload)),
+            keepalive: true
+          }).catch(function () { });
+        } catch (e) { /* tracking must never break the page */ }
+      }
+      function nameFor(section, href) {
+        const arr = (CONTENT && CONTENT[section]) || [];
+        for (let i = 0; i < arr.length; i++) { if (arr[i].href === href) return arr[i]; }
+        return {};
+      }
+      function start() {
+        // One "visit" per browser tab session; later loads/pings only refresh presence.
+        try {
+          if (!sessionStorage.getItem('pmil_visited')) {
+            sessionStorage.setItem('pmil_visited', '1');
+            send({ t: 'visit' });
+          } else { send({ t: 'ping' }); }
+        } catch (e) { send({ t: 'visit' }); }
+        setInterval(function () { if (!document.hidden) send({ t: 'ping' }); }, 45000);
+        document.addEventListener('visibilitychange', function () { if (!document.hidden) send({ t: 'ping' }); });
+        // Record opens of any content item (file / app / link).
+        document.addEventListener('click', function (e) {
+          const a = e.target.closest && e.target.closest('a[data-mhref]');
+          if (!a) return;
+          const section = a.getAttribute('data-msection') || '';
+          const href = a.getAttribute('data-mhref') || '';
+          const obj = nameFor(section, href);
+          send({ t: 'click', section: section, href: href, en: obj.en || '', he: obj.he || '' });
+        }, true);
+      }
+      return { start: start };
+    })();
 
     /* ---------------- admin ---------------- */
     const ADMIN = (function () {
@@ -1546,6 +1740,7 @@
           body += mi('miSuper', 'shield_person', 'admin.assignSuper');
           body += mi('miTimeout', 'timer', 'admin.autoSignout');
           body += mi('miSessions', 'group', 'admin.endUserSession');
+          body += mi('miStats', 'insights', 'admin.statsMenu');
           body += mi('miTest', 'quiz', 'admin.testMenu');
         }
         body += mi('miPw', 'key', 'admin.changePw');
@@ -1558,9 +1753,107 @@
         on('miSuper', showAssignSuper);
         on('miTimeout', showTimeout);
         on('miSessions', showSessions);
+        on('miStats', showStats);
         on('miTest', showTest);
         on('miPw', showChangePw);
         on('miOut', endMySession);
+      }
+
+      function secLabel(section, lang) {
+        const map = { articles: 'nav.articles', protocols: 'nav.protocols', presentations: 'nav.presentations', lessons: 'nav.lessons', tools: 'nav.tools' };
+        return L(map[section] || section, lang);
+      }
+
+      function showStats() {
+        const lang = getLang();
+        open(backHead('admin.statsTitle', 'admin.statsSub', lang) +
+          '<div class="modal-body" id="statsBody"><div class="modal-msg">' + esc(L('admin.working', lang)) + '</div></div>');
+        content.parentElement.classList.add('wide');
+        wireBack();
+        const body = document.getElementById('statsBody');
+        let timer = null;
+        function clearTimer() { if (timer) { clearInterval(timer); timer = null; } }
+
+        function render(stats) {
+          const cmap = {};
+          (stats.items || []).forEach(function (i) { cmap[i.href] = i.n; });
+          const items = allContentItems();
+          items.forEach(function (i) { i.n = cmap[i.href] || 0; });
+          items.sort(function (a, b) { return b.n - a.n; });
+          const maxc = items.reduce(function (m, i) { return Math.max(m, i.n); }, 0) || 1;
+          const maxv = (stats.series || []).reduce(function (m, s) { return Math.max(m, s.count); }, 0) || 1;
+
+          let html = '<div class="stat-cards">' +
+            '<div class="stat-card on"><span class="num" id="stOnline">' + stats.online + '</span><span class="lbl">' + esc(L('admin.statOnline', lang)) + '</span></div>' +
+            '<div class="stat-card"><span class="num">' + stats.today + '</span><span class="lbl">' + esc(L('admin.statToday', lang)) + '</span></div>' +
+            '<div class="stat-card"><span class="num">' + stats.total + '</span><span class="lbl">' + esc(L('admin.statTotal', lang)) + '</span></div>' +
+            '</div>';
+
+          html += '<div class="stat-sec">' + esc(L('admin.statTrend', lang)) + '</div>';
+          html += '<div class="chart">' + (stats.series || []).map(function (s) {
+            const h = Math.max(2, Math.round((s.count / maxv) * 100));
+            return '<div class="bar" title="' + esc(s.date + ' · ' + s.count) + '"><span style="height:' + h + '%"></span><em>' + esc(s.date.slice(5)) + '</em></div>';
+          }).join('') + '</div>';
+
+          html += '<div class="stat-sec">' + esc(L('admin.statItems', lang)) + '</div>';
+          html += '<div class="stat-tblwrap"><table class="stat-tbl"><thead><tr>' +
+            '<th>' + esc(L('admin.statItem', lang)) + '</th>' +
+            '<th class="r">' + esc(L('admin.statClicks', lang)) + '</th>' +
+            '<th class="c">' + esc(L('admin.statPromote', lang)) + '</th></tr></thead><tbody>';
+          html += items.map(function (i) {
+            const w = Math.round((i.n / maxc) * 100);
+            return '<tr>' +
+              '<td><div class="it-nm" dir="auto">' + esc(nm(i, lang) || i.href) + '</div>' +
+              '<div class="it-sub"><span class="tag">' + esc(secLabel(i.section, lang)) + '</span>' +
+              '<span class="it-bar"><i style="width:' + w + '%"></i></span></div></td>' +
+              '<td class="r num">' + i.n + '</td>' +
+              '<td class="c"><input type="checkbox" class="promo-ck" data-sec="' + esc(i.section) + '" data-href="' + esc(i.href) + '"' + (i.promoted ? ' checked' : '') + '></td>' +
+              '</tr>';
+          }).join('');
+          html += '</tbody></table></div>';
+          html += msgBox();
+          html += '<div class="row" style="justify-content:space-between;margin-top:14px">' +
+            '<button class="btn btn-ghost" type="button" id="stReset">' + esc(L('admin.statReset', lang)) + '</button>' +
+            '<button class="btn btn-primary" type="button" id="stClose">' + esc(L('admin.backToSite', lang)) + '</button></div>';
+          body.innerHTML = html;
+
+          document.getElementById('stClose').onclick = close;
+          document.getElementById('stReset').onclick = function () {
+            confirmDialog(L('admin.statConfirmReset', lang)).then(function (ok) {
+              if (!ok) return;
+              api('resetStats', { token: token(), what: 'clicks' }).then(function (res) {
+                if (res && res.ok) load();
+                else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+              }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+            });
+          };
+          body.querySelectorAll('.promo-ck').forEach(function (ck) {
+            ck.onchange = function () {
+              const sec = ck.getAttribute('data-sec'), href = ck.getAttribute('data-href'), on = ck.checked;
+              ck.disabled = true;
+              api('setPromote', { token: token(), section: sec, href: href, on: on }).then(function (res) {
+                ck.disabled = false;
+                if (res && res.ok) { setPromotedLocal(sec, href, on); renderPromos(); }
+                else { ck.checked = !on; if (!handleAuthFail(res)) setMsg(errMsg(res), 'err'); }
+              }).catch(function () { ck.disabled = false; ck.checked = !on; setMsg(L('admin.genericErr', lang), 'err'); });
+            };
+          });
+        }
+
+        function load() {
+          api('getStats', { token: token() }).then(function (res) {
+            if (!res || !res.ok) { if (!handleAuthFail(res)) body.innerHTML = '<div class="modal-msg err">' + esc(errMsg(res)) + '</div>'; return; }
+            render(res);
+          }).catch(function () { body.innerHTML = '<div class="modal-msg err">' + esc(L('admin.genericErr', lang)) + '</div>'; });
+        }
+        load();
+        timer = setInterval(function () {
+          if (!document.body.contains(body)) { clearTimer(); return; }
+          api('getStats', { token: token() }).then(function (res) {
+            const el = document.getElementById('stOnline');
+            if (res && res.ok && el) el.textContent = res.online;
+          }).catch(function () { });
+        }, 12000);
       }
 
       function showChangePw() {
@@ -2057,6 +2350,12 @@
         else { const it = findItem(section, key); if (it) { it.en = en; it.he = he; } }
         renderAll();
       }
+      function setPromotedLocal(section, href, on) {
+        (CONTENT[section] || []).forEach(function (i) {
+          if (i.href === href) { if (on) i.promoted = true; else delete i.promoted; }
+        });
+      }
+
       function applyRemoveLocal(kind, section, key) {
         if (kind === 'folder') {
           CONTENT.folders[section] = (CONTENT.folders[section] || []).filter(function (f) { return f.id !== key; });
@@ -2123,6 +2422,20 @@
         };
       }
 
+      function ctxPromote(section, href, on, name) {
+        const lang = getLang();
+        open('<div class="modal-head"><h3>' + esc(L(on ? 'admin.ctxPromote' : 'admin.ctxUnpromote', lang)) + '</h3></div>' +
+          '<div class="modal-body"><div class="modal-msg" dir="auto">' + esc(name) + '</div>' + msgBox() +
+          '<div class="row"><button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.backToSite', lang)) + '</button></div>' +
+          '</div>');
+        document.getElementById('aGo').onclick = close;
+        setMsg(L('admin.working', lang), '');
+        api('setPromote', { token: token(), section: section, href: href, on: on }).then(function (res) {
+          if (res && res.ok) { setPromotedLocal(section, href, on); renderPromos(); setMsg(L('admin.saved', lang), 'ok'); }
+          else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+        }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+      }
+
       let ctxEl = null;
       function closeCtx() {
         if (!ctxEl) return;
@@ -2172,6 +2485,9 @@
           openCtx(x, y, [
             { act: 'rename', icon: 'edit', label: L('admin.ctxRename', lang),
               run: function () { ctxRename('item', section, href, obj.en || '', obj.he || ''); } },
+            { act: 'promote', icon: obj.promoted ? 'star' : 'star_outline',
+              label: L(obj.promoted ? 'admin.ctxUnpromote' : 'admin.ctxPromote', lang),
+              run: function () { ctxPromote(section, href, !obj.promoted, name); } },
             { act: 'remove', icon: 'delete', danger: true, label: L('admin.ctxRemove', lang),
               run: function () { ctxRemove('item', section, href, name); } }
           ]);
@@ -2276,6 +2592,7 @@
     apply(getLang());
     ADMIN.init();
     loadContent();
+    Tracker.start();
   })();
   </script>
 
