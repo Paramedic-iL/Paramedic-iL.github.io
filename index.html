@@ -1607,11 +1607,23 @@
           const rows = qBody.rows;
           for (let i = 0; i < rows.length; i++) rows[i].cells[0].textContent = (i + 1);
         }
+        // Flip the whole grid to RTL when the questions are written in Hebrew, else keep LTR.
+        function isHeb(s) { return /[\u0590-\u05FF]/.test(s || ''); }
+        function applyDir() {
+          let heb = 0, tot = 0;
+          const rows = qBody.rows;
+          for (let i = 0; i < rows.length; i++) {
+            const q = (rows[i].querySelector('textarea').value || '').trim();
+            if (!q) continue; tot++; if (isHeb(q)) heb++;
+          }
+          const table = qBody.closest('table');
+          if (table) table.dir = (tot > 0 && heb * 2 >= tot) ? 'rtl' : 'ltr';
+        }
         function makeRow(r) {
           r = r || ['', '', '', '', ''];
           const tr = document.createElement('tr');
           let cells = '<td class="qn"></td>';
-          for (let c = 0; c < 5; c++) cells += '<td><textarea class="qcell" rows="1"></textarea></td>';
+          for (let c = 0; c < 5; c++) cells += '<td><textarea class="qcell" dir="auto" rows="1"></textarea></td>';
           cells += '<td class="qx"><button class="qdel" type="button" title="' + esc(L('admin.remove', lang)) + '">\u00d7</button></td>';
           tr.innerHTML = cells;
           const tas = tr.querySelectorAll('textarea');
@@ -1625,6 +1637,7 @@
           qBody.innerHTML = '';
           (rows && rows.length ? rows : [['', '', '', '', '']]).forEach(makeRow);
           renumber();
+          applyDir();
         }
         function collect() {
           const out = [];
@@ -1646,7 +1659,7 @@
           renumber();
         });
         qBody.addEventListener('input', function (e) {
-          if (e.target.classList.contains('qcell')) grow(e.target);
+          if (e.target.classList.contains('qcell')) { grow(e.target); applyDir(); }
         });
         qBody.addEventListener('paste', function (e) {
           const ta = e.target.closest('.qcell'); if (!ta) return;
@@ -1666,6 +1679,7 @@
             });
           });
           renumber();
+          applyDir();
         });
 
         document.getElementById('qAdd').onclick = function () { makeRow(); renumber(); };
