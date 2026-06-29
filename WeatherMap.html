@@ -118,8 +118,10 @@
       padding:7px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:8px}
 
     /* collapsible panel header */
-    .panel-hd{display:flex;align-items:center;gap:6px}
-    .panel-hd h1{margin:0;flex:1}
+    .panel-hd{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .panel-hd h1{margin:0;flex:1 1 100%}
+    .city-label{color:#e6eef9;font-size:11px;font-weight:600;white-space:nowrap;pointer-events:none;
+      text-shadow:0 0 3px #000,0 0 3px #000,0 0 4px #000;transform:translate(-50%,-50%);width:max-content}
     .base-seg{display:flex;gap:3px;flex:0 0 auto}
     .base-seg button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);
       border-radius:7px;height:28px;padding:0 8px;font-size:11.5px;cursor:pointer;line-height:1}
@@ -184,6 +186,7 @@
       <div class="base-seg" id="baseSeg">
         <button data-base="dark" class="active">כהה</button>
         <button data-base="sat">לוויין</button>
+        <button data-base="roads">כבישים</button>
       </div>
       <button class="panel-tg" id="panelToggle" title="כיווץ / הרחבה">▾</button>
     </div>
@@ -340,14 +343,57 @@
     const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Esri, Maxar, Earthstar Geographics · נתונים: IMS', maxZoom: 19
     });
+    const roadsLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap · נתונים: IMS', maxZoom: 19
+    });
     darkLayer.addTo(map);
+    const cityLabelLayer = L.layerGroup().addTo(map);
     const layer = L.layerGroup().addTo(map);
     const clickLayer = L.layerGroup().addTo(map);
     const savedLayer = L.layerGroup().addTo(map);
 
+    // Hebrew city labels (drawn over the dark map). t = display tier (1 = major).
+    const CITIES = [
+      { n: 'ירושלים', lat: 31.7683, lon: 35.2137, t: 1 }, { n: 'תל אביב-יפו', lat: 32.0853, lon: 34.7818, t: 1 },
+      { n: 'חיפה', lat: 32.7940, lon: 34.9896, t: 1 }, { n: 'באר שבע', lat: 31.2520, lon: 34.7915, t: 1 },
+      { n: 'נתניה', lat: 32.3215, lon: 34.8532, t: 1 }, { n: 'אשדוד', lat: 31.8040, lon: 34.6550, t: 1 },
+      { n: 'אילת', lat: 29.5577, lon: 34.9519, t: 1 }, { n: 'טבריה', lat: 32.7959, lon: 35.5310, t: 1 },
+      { n: 'צפת', lat: 32.9646, lon: 35.4960, t: 1 }, { n: 'נצרת', lat: 32.6996, lon: 35.3035, t: 1 },
+      { n: 'קריית שמונה', lat: 33.2074, lon: 35.5701, t: 1 }, { n: 'מצפה רמון', lat: 30.6097, lon: 34.8011, t: 1 },
+      { n: 'דימונה', lat: 31.0700, lon: 35.0327, t: 1 }, { n: 'ערד', lat: 31.2589, lon: 35.2125, t: 1 },
+      { n: 'בית שאן', lat: 32.4969, lon: 35.4997, t: 1 }, { n: 'אריאל', lat: 32.1056, lon: 35.1872, t: 1 },
+      { n: 'ראשון לציון', lat: 31.9710, lon: 34.7894, t: 2 }, { n: 'פתח תקווה', lat: 32.0840, lon: 34.8878, t: 2 },
+      { n: 'אשקלון', lat: 31.6688, lon: 34.5742, t: 2 }, { n: 'חולון', lat: 32.0167, lon: 34.7792, t: 2 },
+      { n: 'רמת גן', lat: 32.0700, lon: 34.8235, t: 2 }, { n: 'רחובות', lat: 31.8928, lon: 34.8113, t: 2 },
+      { n: 'הרצליה', lat: 32.1624, lon: 34.8443, t: 2 }, { n: 'כפר סבא', lat: 32.1750, lon: 34.9070, t: 2 },
+      { n: 'חדרה', lat: 32.4340, lon: 34.9196, t: 2 }, { n: 'מודיעין', lat: 31.8980, lon: 35.0104, t: 2 },
+      { n: 'רעננה', lat: 32.1848, lon: 34.8713, t: 2 }, { n: 'רמלה', lat: 31.9290, lon: 34.8667, t: 2 },
+      { n: 'לוד', lat: 31.9510, lon: 34.8950, t: 2 }, { n: 'עכו', lat: 32.9281, lon: 35.0820, t: 2 },
+      { n: 'כרמיאל', lat: 32.9159, lon: 35.2952, t: 2 }, { n: 'עפולה', lat: 32.6078, lon: 35.2897, t: 2 },
+      { n: 'בית שמש', lat: 31.7497, lon: 34.9886, t: 2 }, { n: 'יבנה', lat: 31.8780, lon: 34.7390, t: 2 },
+      { n: 'נהריה', lat: 33.0085, lon: 35.0980, t: 2 }, { n: 'קריית גת', lat: 31.6100, lon: 34.7642, t: 2 },
+      { n: 'שדרות', lat: 31.5250, lon: 34.5963, t: 2 }, { n: 'רהט', lat: 31.3920, lon: 34.7540, t: 2 },
+      { n: 'אום אל-פחם', lat: 32.5160, lon: 35.1530, t: 2 }, { n: 'טירת כרמל', lat: 32.7600, lon: 34.9720, t: 2 },
+      { n: 'יקנעם', lat: 32.6597, lon: 35.1100, t: 2 }, { n: 'מעלות', lat: 33.0167, lon: 35.2900, t: 2 },
+      { n: 'ים המלח', lat: 31.5000, lon: 35.4000, t: 1 }, { n: 'כנרת', lat: 32.8167, lon: 35.5833, t: 1 }
+    ];
+    function renderCityLabels() {
+      cityLabelLayer.clearLayers();
+      if (currentBase !== 'dark') return;
+      const z = map.getZoom();
+      CITIES.forEach(function (c) {
+        if (z < (c.t === 1 ? 7 : 10)) return;
+        L.marker([c.lat, c.lon], {
+          interactive: false, keyboard: false,
+          icon: L.divIcon({ className: 'city-label', html: c.n, iconSize: null })
+        }).addTo(cityLabelLayer);
+      });
+    }
+
     /* ---------------- state ---------------- */
     let mode = 'forecast';
     let metric = 'heat';
+    let currentBase = 'dark';
     let showNames = false;
     let showPoints = false;
     let FC = null;          // forecast: { issue, locs }
@@ -1043,13 +1089,19 @@
     /* ---------------- wiring ---------------- */
     map.on('click', function (e) { openPt(e.latlng.lat, e.latlng.lng); });
     $('panelToggle').onclick = function () { $('panel').classList.toggle('collapsed'); };
+    const BASE_LAYERS = { dark: darkLayer, sat: satLayer, roads: roadsLayer };
+    function setBase(name) {
+      if (!BASE_LAYERS[name]) return;
+      Object.keys(BASE_LAYERS).forEach(function (k) { if (k !== name) map.removeLayer(BASE_LAYERS[k]); });
+      BASE_LAYERS[name].addTo(map); BASE_LAYERS[name].bringToBack();
+      currentBase = name;
+      renderCityLabels();
+      document.querySelectorAll('#baseSeg button').forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-base') === name); });
+    }
     document.querySelectorAll('#baseSeg button').forEach(function (b) {
-      b.onclick = function () {
-        const sat = b.getAttribute('data-base') === 'sat';
-        if (sat) { map.removeLayer(darkLayer); satLayer.addTo(map); } else { map.removeLayer(satLayer); darkLayer.addTo(map); }
-        document.querySelectorAll('#baseSeg button').forEach(function (x) { x.classList.toggle('active', x === b); });
-      };
+      b.onclick = function () { setBase(b.getAttribute('data-base')); };
     });
+    map.on('zoomend', renderCityLabels);
     $('askOk').onclick = function () { askClose($('askInput').value); };
     $('askCancel').onclick = function () { askClose(null); };
     $('askInput').onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); askClose(this.value); } else if (e.key === 'Escape') { e.preventDefault(); askClose(null); } };
@@ -1098,6 +1150,7 @@
 
     // boot
     renderSaved();
+    renderCityLabels();
     switchMode('forecast');
     loadCurrent();
   })();
