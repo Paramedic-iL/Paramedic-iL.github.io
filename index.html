@@ -204,6 +204,30 @@
       font-size:24px;cursor:pointer;line-height:1}
     .modal-x:hover{color:var(--text)}
     [dir="rtl"] .modal-x{right:auto;left:16px}
+    /* medics-test admin editor */
+    .modal.wide{max-width:780px}
+    .modal.wide .modal-body{max-height:80vh;overflow:auto}
+    .test-status{display:flex;align-items:center;gap:12px;justify-content:space-between;
+      background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+    .test-status .tpill{font-size:14px;font-weight:700}
+    .test-status .tpill.open{color:var(--olive)}
+    .test-status .tpill.closed{color:var(--red-bright)}
+    .test-qhead{display:flex;align-items:baseline;gap:10px;justify-content:space-between;flex-wrap:wrap}
+    .test-qhead strong{font-size:13px;text-transform:uppercase;letter-spacing:.5px}
+    .test-qhead .hint2{color:var(--muted);font-size:12px}
+    .qedit-wrap{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+    .qedit{width:100%;border-collapse:collapse;font-size:13px}
+    .qedit th{position:sticky;top:0;z-index:1;background:var(--panel2);color:var(--muted);font-weight:700;
+      font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:7px 8px;text-align:start;
+      border-bottom:1px solid var(--line);white-space:nowrap}
+    .qedit td{border-bottom:1px solid var(--line);padding:3px;vertical-align:top}
+    .qedit td.qn{color:var(--muted);text-align:center;width:30px;padding-top:9px}
+    .qedit td.qx{width:34px;text-align:center}
+    .qcell{width:100%;min-width:120px;background:var(--bg);color:var(--text);border:1px solid transparent;
+      border-radius:6px;font-family:inherit;font-size:13px;padding:6px 7px;resize:none;overflow:hidden;line-height:1.4}
+    .qcell:focus{border-color:var(--olive);outline:none;background:var(--panel)}
+    .qdel{background:none;border:none;color:var(--red-bright);font-size:18px;cursor:pointer;line-height:1;padding:4px 6px}
+    .qdel:hover{color:#fff}
     /* themed confirm dialog (replaces the browser's native confirm) */
     .confirm-layer{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
       background:rgba(5,8,13,.6);backdrop-filter:blur(2px);border-radius:16px;padding:18px}
@@ -586,6 +610,26 @@
         "admin.autoSignoutSub": "How long admins stay signed in.",
         "admin.endUserSession": "End user session",
         "admin.endUserSessionSub": "See who is signed in and sign them out.",
+        "admin.testMenu": "Medics test",
+        "admin.testTitle": "Medics test",
+        "admin.testSub": "Open or close the test and edit its questions.",
+        "admin.testQuestions": "Questions",
+        "admin.testPasteHint": "Tip: you can paste rows straight from a spreadsheet.",
+        "admin.testColQ": "Question",
+        "admin.testColCorrect": "Correct answer",
+        "admin.testColWrong": "Wrong answer",
+        "admin.testAddRow": "+ Add row",
+        "admin.testClear": "Clear all",
+        "admin.testSaveQ": "Save questions",
+        "admin.testIsOpen": "Test is OPEN",
+        "admin.testIsClosed": "Test is CLOSED",
+        "admin.testOpen": "Open test",
+        "admin.testClose": "Close test",
+        "admin.testConfirmOpen": "Open the test for everyone?",
+        "admin.testConfirmClose": "Close the test? Students won't be able to start it.",
+        "admin.testConfirmClear": "Clear all questions from the editor? Nothing is saved until you press Save.",
+        "admin.testConfirmSave": "Save %1 question(s)? This overwrites the test's question sheet.",
+        "admin.testSavedN": "Saved %1 question(s).",
         "admin.hours": "Hours (1–8760)",
         "admin.currentTtl": "Currently: %1 hours",
         "admin.remove": "Remove",
@@ -625,6 +669,8 @@
         "act.revokeSuperAdmin": "Revoked Super Admin",
         "act.setSettings": "Changed settings",
         "act.endSession": "Ended a session",
+        "act.testLock": "Changed test status",
+        "act.testQuestions": "Updated test questions",
         "admin.pwTitle": "Change Password",
         "admin.pwSub": "Choose a new password for your account.",
         "admin.newPw": "New Password",
@@ -682,7 +728,9 @@
         "err.server_error": "Server error. Try again.",
         "err.unknown_action": "Unknown request.",
         "err.item_not_found": "That item was not found.",
-        "err.folder_not_found": "That folder was not found."
+        "err.folder_not_found": "That folder was not found.",
+        "err.test_access": "Couldn't reach the test spreadsheet. Make sure the admin script can access it.",
+        "err.bad_rows": "No questions to save."
       },
       he: {
         "doc.title": "Paramedic-iL — רפואה טקטית",
@@ -790,6 +838,26 @@
         "admin.autoSignoutSub": "כמה זמן מנהלים נשארים מחוברים.",
         "admin.endUserSession": "ניתוק משתמש מחובר",
         "admin.endUserSessionSub": "צפו במי שמחובר ונתקו אותו.",
+        "admin.testMenu": "מבחן חובשים",
+        "admin.testTitle": "מבחן חובשים",
+        "admin.testSub": "פתיחה/סגירה של המבחן ועריכת השאלות.",
+        "admin.testQuestions": "שאלות",
+        "admin.testPasteHint": "טיפ: אפשר להדביק שורות ישירות מגיליון.",
+        "admin.testColQ": "שאלה",
+        "admin.testColCorrect": "תשובה נכונה",
+        "admin.testColWrong": "תשובה שגויה",
+        "admin.testAddRow": "+ הוספת שורה",
+        "admin.testClear": "ניקוי הכל",
+        "admin.testSaveQ": "שמירת שאלות",
+        "admin.testIsOpen": "המבחן פתוח",
+        "admin.testIsClosed": "המבחן סגור",
+        "admin.testOpen": "פתיחת המבחן",
+        "admin.testClose": "סגירת המבחן",
+        "admin.testConfirmOpen": "לפתוח את המבחן לכולם?",
+        "admin.testConfirmClose": "לסגור את המבחן? נבחנים לא יוכלו להתחיל אותו.",
+        "admin.testConfirmClear": "לנקות את כל השאלות מהעורך? שום דבר לא נשמר עד שתלחצו שמירה.",
+        "admin.testConfirmSave": "לשמור %1 שאלות? פעולה זו תדרוס את גיליון השאלות של המבחן.",
+        "admin.testSavedN": "נשמרו %1 שאלות.",
         "admin.hours": "שעות (1–8760)",
         "admin.currentTtl": "כעת: %1 שעות",
         "admin.remove": "הסרה",
@@ -829,6 +897,8 @@
         "act.revokeSuperAdmin": "ביטל מנהל-על",
         "act.setSettings": "שינה הגדרות",
         "act.endSession": "ניתק התחברות",
+        "act.testLock": "שינה סטטוס מבחן",
+        "act.testQuestions": "עדכן שאלות מבחן",
         "admin.pwTitle": "שינוי סיסמה",
         "admin.pwSub": "בחרו סיסמה חדשה לחשבון שלכם.",
         "admin.newPw": "סיסמה חדשה",
@@ -886,7 +956,9 @@
         "err.server_error": "שגיאת שרת. נסו שוב.",
         "err.unknown_action": "בקשה לא מוכרת.",
         "err.item_not_found": "הפריט לא נמצא.",
-        "err.folder_not_found": "התיקייה לא נמצאה."
+        "err.folder_not_found": "התיקייה לא נמצאה.",
+        "err.test_access": "לא ניתן לגשת לגיליון המבחן. ודאו שלסקריפט הניהול יש הרשאה אליו.",
+        "err.bad_rows": "אין שאלות לשמירה."
       }
     };
 
@@ -1314,7 +1386,7 @@
       /* ----- modal plumbing ----- */
       const back = document.getElementById('modalBack');
       const content = document.getElementById('modalContent');
-      function open(html) { content.innerHTML = html; back.classList.add('show'); back.setAttribute('aria-hidden', 'false'); }
+      function open(html) { content.parentElement.classList.remove('wide'); content.innerHTML = html; back.classList.add('show'); back.setAttribute('aria-hidden', 'false'); }
       function close() { back.classList.remove('show'); back.setAttribute('aria-hidden', 'true'); content.innerHTML = ''; }
       back.addEventListener('click', function (e) { if (e.target === back) close(); });
 
@@ -1461,6 +1533,7 @@
           body += mi('miSuper', 'shield_person', 'admin.assignSuper');
           body += mi('miTimeout', 'timer', 'admin.autoSignout');
           body += mi('miSessions', 'group', 'admin.endUserSession');
+          body += mi('miTest', 'quiz', 'admin.testMenu');
         }
         body += mi('miPw', 'key', 'admin.changePw');
         body += '<button class="mi danger" type="button" id="miOut">' + ic('logout') + '<span>' + esc(L('admin.endMySession', lang)) + '</span></button>';
@@ -1472,6 +1545,7 @@
         on('miSuper', showAssignSuper);
         on('miTimeout', showTimeout);
         on('miSessions', showSessions);
+        on('miTest', showTest);
         on('miPw', showChangePw);
         on('miOut', endMySession);
       }
@@ -1496,6 +1570,147 @@
             if (res && res.ok) { setMsg(L('admin.saved', lang), 'ok'); turnIntoBackToSite(); }
             else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
           }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+        };
+      }
+
+      /* ----- medics test: open/close + edit questions (super admin) ----- */
+      function showTest() {
+        const lang = getLang();
+        let testOpen = false;
+        open(backHead('admin.testTitle', 'admin.testSub', lang) +
+          '<div class="modal-body">' +
+          '<div class="test-status"><span id="tStat" class="modal-msg">' + esc(L('admin.working', lang)) + '</span>' +
+          '<button class="btn btn-ghost" type="button" id="tToggle" style="display:none"></button></div>' +
+          '<div class="test-qhead"><strong>' + esc(L('admin.testQuestions', lang)) + '</strong>' +
+          '<span class="hint2">' + esc(L('admin.testPasteHint', lang)) + '</span></div>' +
+          '<div class="qedit-wrap"><table class="qedit"><thead><tr>' +
+          '<th>#</th><th>' + esc(L('admin.testColQ', lang)) + '</th><th>' + esc(L('admin.testColCorrect', lang)) + '</th>' +
+          '<th>' + esc(L('admin.testColWrong', lang)) + '</th><th>' + esc(L('admin.testColWrong', lang)) + '</th><th>' + esc(L('admin.testColWrong', lang)) + '</th>' +
+          '<th></th></tr></thead><tbody id="qBody"></tbody></table></div>' +
+          '<div class="row" style="justify-content:space-between">' +
+          '<button class="btn btn-ghost" type="button" id="qAdd">' + esc(L('admin.testAddRow', lang)) + '</button>' +
+          '<button class="btn btn-ghost" type="button" id="qClear">' + esc(L('admin.testClear', lang)) + '</button></div>' +
+          msgBox() +
+          '<div class="row"><button class="btn btn-primary" type="button" id="aGo">' + esc(L('admin.testSaveQ', lang)) + '</button></div>' +
+          '</div>');
+        content.parentElement.classList.add('wide');
+        wireBack();
+
+        const qBody = document.getElementById('qBody');
+        const toggle = document.getElementById('tToggle');
+
+        function grow(ta) { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight) + 'px'; }
+        function renumber() {
+          const rows = qBody.rows;
+          for (let i = 0; i < rows.length; i++) rows[i].cells[0].textContent = (i + 1);
+        }
+        function makeRow(r) {
+          r = r || ['', '', '', '', ''];
+          const tr = document.createElement('tr');
+          let cells = '<td class="qn"></td>';
+          for (let c = 0; c < 5; c++) cells += '<td><textarea class="qcell" rows="1"></textarea></td>';
+          cells += '<td class="qx"><button class="qdel" type="button" title="' + esc(L('admin.remove', lang)) + '">\u00d7</button></td>';
+          tr.innerHTML = cells;
+          const tas = tr.querySelectorAll('textarea');
+          for (let c = 0; c < 5; c++) tas[c].value = r[c] || '';
+          qBody.appendChild(tr);
+          for (let c = 0; c < 5; c++) grow(tas[c]);
+          return tr;
+        }
+        function ensureRows(n) { while (qBody.rows.length < n) makeRow(); }
+        function renderRows(rows) {
+          qBody.innerHTML = '';
+          (rows && rows.length ? rows : [['', '', '', '', '']]).forEach(makeRow);
+          renumber();
+        }
+        function collect() {
+          const out = [];
+          const rows = qBody.rows;
+          for (let i = 0; i < rows.length; i++) {
+            const tas = rows[i].querySelectorAll('textarea');
+            const vals = [];
+            for (let c = 0; c < 5; c++) vals.push((tas[c].value || '').trim());
+            if (vals[0]) out.push(vals);
+          }
+          return out;
+        }
+
+        // delegated events: delete row, autogrow, paste a block from a spreadsheet
+        qBody.addEventListener('click', function (e) {
+          const del = e.target.closest('.qdel'); if (!del) return;
+          const tr = del.closest('tr'); tr.remove();
+          if (!qBody.rows.length) makeRow();
+          renumber();
+        });
+        qBody.addEventListener('input', function (e) {
+          if (e.target.classList.contains('qcell')) grow(e.target);
+        });
+        qBody.addEventListener('paste', function (e) {
+          const ta = e.target.closest('.qcell'); if (!ta) return;
+          const txt = (e.clipboardData || window.clipboardData).getData('text');
+          if (!/\t|\n/.test(txt)) return; // single value -> let the browser paste normally
+          e.preventDefault();
+          const tr = ta.closest('tr');
+          const startR = Array.prototype.indexOf.call(qBody.rows, tr);
+          const startC = Array.prototype.indexOf.call(tr.querySelectorAll('textarea'), ta);
+          const grid = txt.replace(/\r/g, '').replace(/\n+$/, '').split('\n').map(function (l) { return l.split('\t'); });
+          ensureRows(startR + grid.length);
+          grid.forEach(function (cols, ri) {
+            const rowTas = qBody.rows[startR + ri].querySelectorAll('textarea');
+            cols.forEach(function (v, ci) {
+              const c = startC + ci;
+              if (c < 5) { rowTas[c].value = v; grow(rowTas[c]); }
+            });
+          });
+          renumber();
+        });
+
+        document.getElementById('qAdd').onclick = function () { makeRow(); renumber(); };
+        document.getElementById('qClear').onclick = function () {
+          confirmDialog(L('admin.testConfirmClear', lang)).then(function (ok) {
+            if (ok) { renderRows([]); }
+          });
+        };
+
+        function renderStatus() {
+          const stat = document.getElementById('tStat');
+          stat.className = 'tpill ' + (testOpen ? 'open' : 'closed');
+          stat.textContent = L(testOpen ? 'admin.testIsOpen' : 'admin.testIsClosed', lang);
+          toggle.textContent = L(testOpen ? 'admin.testClose' : 'admin.testOpen', lang);
+          toggle.style.display = '';
+        }
+        toggle.onclick = function () {
+          const want = !testOpen;
+          confirmDialog(L(want ? 'admin.testConfirmOpen' : 'admin.testConfirmClose', lang)).then(function (ok) {
+            if (!ok) return;
+            setMsg(L('admin.working', lang), '');
+            api('setTestLock', { token: token(), open: want }).then(function (res) {
+              if (res && res.ok) { testOpen = res.open; renderStatus(); setMsg(L('admin.saved', lang), 'ok'); }
+              else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+            }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+          });
+        };
+
+        api('getTest', { token: token() }).then(function (res) {
+          if (!res || !res.ok) {
+            if (!handleAuthFail(res)) document.getElementById('tStat').textContent = errMsg(res);
+            return;
+          }
+          testOpen = !!res.open;
+          renderStatus();
+          renderRows(res.questions || []);
+        }).catch(function () { document.getElementById('tStat').textContent = L('admin.genericErr', lang); });
+
+        document.getElementById('aGo').onclick = function () {
+          const rows = collect();
+          confirmDialog(fmt(L('admin.testConfirmSave', lang), rows.length)).then(function (ok) {
+            if (!ok) return;
+            setMsg(L('admin.working', lang), '');
+            api('setTestQuestions', { token: token(), rows: rows }).then(function (res) {
+              if (res && res.ok) { setMsg(fmt(L('admin.testSavedN', lang), res.count), 'ok'); }
+              else if (!handleAuthFail(res)) setMsg(errMsg(res), 'err');
+            }).catch(function () { setMsg(L('admin.genericErr', lang), 'err'); });
+          });
         };
       }
 
