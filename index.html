@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Paramedic-iL — Tactical Medicine</title>
   <meta name="description" content="Tactical medicine training: interactive lessons, articles, and field protocols by Dan Drory, EMT-P." />
-  <link rel="icon" href="assets/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-  <link rel="mask-icon" href="assets/logo.svg" color="#d8333b" />
+  <link rel="icon" href="assets/favicon.ico?v=3" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg?v=3" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
+  <link rel="mask-icon" href="assets/logo.svg?v=3" color="#cf444b" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Heebo:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -324,8 +324,16 @@
     <div class="wrap nav-inner">
       <a class="brand" href="#top">
         <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
-          <polygon points="12,2 3.34,17 20.66,17" fill="#d8333b"/>
-          <polygon points="12,22 3.34,7 20.66,7" fill="#d8333b"/>
+          <defs>
+            <linearGradient id="navStar" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#cf444b"/>
+              <stop offset="1" stop-color="#8f2329"/>
+            </linearGradient>
+          </defs>
+          <g fill="none" stroke="url(#navStar)" stroke-width="1.7" stroke-linejoin="miter" stroke-miterlimit="10">
+            <polygon points="12,2 20.66,17 3.34,17"/>
+            <polygon points="12,22 3.34,7 20.66,7"/>
+          </g>
         </svg>
         <span>Paramedic-iL<small data-i18n="brand.sub">Tactical Medicine</small></span>
       </a>
