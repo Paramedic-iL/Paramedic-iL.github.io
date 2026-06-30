@@ -512,7 +512,10 @@
     {
       "href": "protocols/idf-single-trauma-patient-protocol-x-care-visual-aid.pdf",
       "en": "IDF Single trauma patient protocol X-CARE - Visual Aid",
-      "he": "סכמת ה X-CARE החדשה של צה\"ל - עזר ויזואלי"
+      "he": "סכמת ה X-CARE החדשה של צה\"ל - עזר ויזואלי",
+      "promoted": true,
+      "promoEn": "The new protocol of the IDF, in a way that bridges between it and the older protocol visually and conveniently, is ready for practice",
+      "promoHe": "הסכמה החדשה של צה\"ל, בצורה שמגשרת בינה לבין הסכמה הישנה יותר בתצורה חזותית נוחה לתרגול"
     }
   ],
   "presentations": [
