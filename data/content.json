@@ -128,7 +128,9 @@
       "href": "articles/idf-paramedic-drug-list-for-a-medic.pdf",
       "en": "IDF Paramedic drug list for a medic",
       "he": "רשימת תרופות המט\"ב הצה\"לי לחובש",
-      "promoted": true
+      "promoted": true,
+      "promoEn": "Summary for the medic. Short and to the point in a few lines of all the drugs that are available to the paramedics in the IDF. What does the drug do, in what dose is it given and when? Short and to the point",
+      "promoHe": "סיכום לחובש. קצר וענייני בכמה שורות של כל התרופות שעומדות לרשות המט\"ב בצה\"ל. מה התרופה עושה, באיזה מינון ניתן אותה ומתי. קצר וקולע"
     },
     {
       "href": "articles/the-use-of-cat-tourniquet.pdf",
