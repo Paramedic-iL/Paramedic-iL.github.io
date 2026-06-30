@@ -514,7 +514,10 @@
     {
       "href": "protocols/idf-single-injured-protocol-visual-aid.pdf",
       "en": "IDF Single injured protocol - visual aid",
-      "he": "סכמה לטיפול בפצוע בודד X-CARE - עזר חזותי"
+      "he": "סכמה לטיפול בפצוע בודד X-CARE - עזר חזותי",
+      "promoted": true,
+      "promoEn": "A visual aid of the IDF's new X-CARE protocol.\nWritten in a way that bridges the old protocol with the new and facilitates training and practice.",
+      "promoHe": "עזר חזותי של הסכמה החדשה של צה\"ל ה- X-CARE\nכתוב בצורה שמגשרת בין הסכמה הישנה לחדשה ומקלה על אימון ותרגול הסכמה."
     }
   ],
   "presentations": [
